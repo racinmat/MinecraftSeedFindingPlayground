@@ -61,13 +61,13 @@ public class Main {
 
     public static double scoreSeed(long seed, ChunkRand rand) {
         var villageDistance = getStructureDistance(seed, rand, VILLAGE);
-        var mansionDistance = getStructureDistance(seed, rand, MANSION);
-        var swampHutDistance = getStructureDistance(seed, rand, SWAMP_HUT);
-        var monumentDistance = getStructureDistance(seed, rand, MONUMENT);
-        var desertPyramidDistance = getStructureDistance(seed, rand, DESERT_PYRAMID);
-        var junglePyramidDistance = getStructureDistance(seed, rand, JUNGLE_PYRAMID);
+        var mansionDistance = villageDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, MANSION);
+        var swampHutDistance = mansionDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, SWAMP_HUT);
+        var monumentDistance = swampHutDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, MONUMENT);
+        var desertPyramidDistance = monumentDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, DESERT_PYRAMID);
+        var junglePyramidDistance = desertPyramidDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, JUNGLE_PYRAMID);
 
-        var jungleDistance = villageDistance >= BIG_M ? BIG_M : getJungleDistance(seed, rand);
+        var jungleDistance = junglePyramidDistance >= BIG_M ? BIG_M : getJungleDistance(seed, rand);
 //        var score = 10 * 100 / (villageDistance+1) + 100 / (jungleDistance+1);
         var score = 1 / 2. * (200. - villageDistance)
                 + 1 / 7. * (700. - mansionDistance)
