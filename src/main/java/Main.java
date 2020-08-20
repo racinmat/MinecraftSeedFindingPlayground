@@ -6,10 +6,17 @@ import kaptainwutax.featureutils.structure.*;
 import kaptainwutax.seedutils.mc.*;
 import kaptainwutax.seedutils.mc.pos.BPos;
 import kaptainwutax.seedutils.util.math.DistanceMetric;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
     public static final MCVersion VERSION = MCVersion.v1_16_1;
@@ -46,7 +53,7 @@ public class Main {
 
         var a_range = ContiguousSet.create(Range.closed(-5, 5), DiscreteDomain.integers());
         var structDistance = 1e6;
-        for(var coords: Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
+        for (var coords : Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
             var structInst = struct.getInRegion(seed, coords.get(0), coords.get(1), rand);
             //Checks for village less than 50 blocks from (0, 0).
             structDistance = structInst.toBlockPos().distanceTo(BPos.ZERO, DistanceMetric.EUCLIDEAN);
@@ -70,8 +77,8 @@ public class Main {
         var jungleDistance = junglePyramidDistance >= BIG_M ? BIG_M : getJungleDistance(seed, rand);
 //        var score = 10 * 100 / (villageDistance+1) + 100 / (jungleDistance+1);
         var score = 1 / 2. * (200. - villageDistance)
-                + 1 / 7. * (700. - mansionDistance)
-                + 1 / 5. * (500. - swampHutDistance)
+                + 1 / 15. * (1_500. - mansionDistance)
+                + 1 / 6. * (600. - swampHutDistance)
                 + 1 / 5. * (500. - monumentDistance)
                 + 1 / 5. * (500. - jungleDistance);
         if (score >= SEED_THR) {
@@ -79,11 +86,30 @@ public class Main {
                     + "village distance: %.4f, \t"
                     + "mansion distance: %.4f, \t"
                     + "swamp hut distance: %.4f, \t"
+                    + "monument distance: %.4f, \t"
                     + "jungle distance: %.4f, \t"
-                    + "score: %.4f\n", seed, villageDistance, mansionDistance, swampHutDistance, jungleDistance, score
+                    + "score: %.4f\n", seed, villageDistance, mansionDistance, swampHutDistance, monumentDistance, jungleDistance, score
             );
         }
         return score;
+    }
+
+    public static double[] seedInfo(long seed, ChunkRand rand) {
+        var villageDistance = getStructureDistance(seed, rand, VILLAGE);
+        var mansionDistance = villageDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, MANSION);
+        var swampHutDistance = mansionDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, SWAMP_HUT);
+        var monumentDistance = swampHutDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, MONUMENT);
+        var desertPyramidDistance = monumentDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, DESERT_PYRAMID);
+        var junglePyramidDistance = desertPyramidDistance >= BIG_M ? BIG_M : getStructureDistance(seed, rand, JUNGLE_PYRAMID);
+
+        var jungleDistance = junglePyramidDistance >= BIG_M ? BIG_M : getJungleDistance(seed, rand);
+//        var score = 10 * 100 / (villageDistance+1) + 100 / (jungleDistance+1);
+        var score = 1 / 2. * (200. - villageDistance)
+                + 1 / 15. * (1_500. - mansionDistance)
+                + 1 / 6. * (600. - swampHutDistance)
+                + 1 / 5. * (500. - monumentDistance)
+                + 1 / 5. * (500. - jungleDistance);
+        return new double[]{villageDistance, mansionDistance, swampHutDistance, monumentDistance, jungleDistance};
     }
 
     public static List<Long> findSeeds() {
@@ -103,11 +129,45 @@ public class Main {
         return new ArrayList<>(seeds.keySet());
     }
 
-    public static void main(String[] args) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        var seeds = findSeeds();
-        stopwatch.stop(); // optional
-        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        System.out.println("time: " + stopwatch);
+    public static List<Long> searchSeeds() throws IOException {
+        var rand = new ChunkRand();
+        var seeds = new HashMap<Long, double[]>();
+
+        for (long structureSeed = 0; structureSeed < 1L << 48; structureSeed++) {
+            //Now that we have a good village starting position, let's do the biome checks.
+            //We have 2^16 attempts to get the biomes right.
+            var info = seedInfo(structureSeed, rand);
+            seeds.put(structureSeed, info);
+            if (seeds.size() % 10_000 == 0) {
+                System.out.println("Found " + seeds.size() + " seeds so far.");
+                toCsv(seeds,"distances_" + seeds.size() + ".csv");
+            }
+        }
+
+        return new ArrayList<>(seeds.keySet());
+    }
+
+
+    public static String[] HEADERS = {"seed", "villageDistance", "mansionDistance", "swampHutDistance", "monumentDistance", "jungleDistance"};
+
+    public static void toCsv(Map<Long, double[]> seeds, String name) throws IOException {
+        FileWriter out = new FileWriter(name);
+        try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT
+                .withHeader(HEADERS))) {
+            for (Map.Entry<Long, double[]> entry : seeds.entrySet()) {
+                Long author = entry.getKey();
+                double[] distances = entry.getValue();
+                printer.printRecord(author, distances[0], distances[1], distances[2], distances[3], distances[4]);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+//        Stopwatch stopwatch = Stopwatch.createStarted();
+//        var seeds = findSeeds();
+//        stopwatch.stop(); // optional
+//        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+//        System.out.println("time: " + stopwatch);
+        searchSeeds();
     }
 }
