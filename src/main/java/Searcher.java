@@ -21,7 +21,9 @@ public class Searcher {
 //    funky_facevčera v 21:28
 //It's definitely not very optimized
 
-    public static void searchStructureSeed(int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList, Collection<Biome> bList, int biomeCheckSpacing) {
+    public static void searchStructureSeed(
+            int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList, Collection<Biome> bList,
+            int biomeCheckSpacing) {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
 
@@ -71,13 +73,15 @@ public class Searcher {
                 structureDistances.put(structure.structName, minDistance);
             }
 
+            Map<String, Double> biomeDistances = new HashMap<>();
             if (bList.size() != 0) {
                 ArrayList<Biome> bi = new ArrayList<>(bList);
-                ArrayList<Biome> allBiomesFound = BiomeSearcher.findBiome(blockSearchRadius, worldSeed, bi, biomeCheckSpacing);
-                if (allBiomesFound.size() != 0) continue;
+                var biomePos = BiomeSearcher.distToAnyBiome(blockSearchRadius, worldSeed, bi, biomeCheckSpacing, rand);
+                var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
+                biomeDistances.put("jungle", biomeDist);
             }
 
-            GlobalState.addSeed(new SeedResult(worldSeed, structureDistances));
+            GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
         }
         // here was code for stopping, but I just run it until it's killed
     }

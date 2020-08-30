@@ -1,6 +1,5 @@
 import kaptainwutax.featureutils.structure.RegionStructure;
 import kaptainwutax.seedutils.mc.Dimension;
-import kaptainwutax.seedutils.mc.MCVersion;
 
 public class StructureInfo<C extends RegionStructure.Config, D extends RegionStructure.Data<?>> {
 
@@ -19,7 +18,7 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
     }
 
     public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, boolean required){
-        this(structure, dimension, required, Main.STRUCTURE_SEARCH_RADIUS);
+        this(structure, dimension, required, Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS);
     }
 
     public RegionStructure<C, D> getStructure() {

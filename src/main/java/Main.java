@@ -13,7 +13,6 @@ import org.apache.commons.csv.CSVPrinter;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -22,7 +21,7 @@ public class Main {
     public enum WorldType {DEFAULT, LARGE_BIOMES};
     public static final MCVersion VERSION = MCVersion.v1_16_1;
     public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-    public static final int STRUCTURE_SEARCH_RADIUS = 2_000;
+    public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 2_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
     public static final long STRUCTURE_SEED_MAX = 1L << 48;
     public static long STRUCTURE_SEED_MIN = 0;
@@ -48,7 +47,7 @@ public class Main {
             new StructureInfo<>(new BuriedTreasure(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new BastionRemnant(VERSION), Dimension.NETHER, true),
     };
-    public static final List<Biome> BIOMES = Biome.REGISTRY.values().stream()
+    public static final List<Biome> ANY_OF_BIOMES = Biome.REGISTRY.values().stream()
             .filter(b -> b.getCategory() == Biome.Category.JUNGLE).collect(Collectors.toList());
 
     public static final double BIG_M = 1e6;
@@ -69,14 +68,14 @@ public class Main {
     }
 
     public static double getJungleDistance(long seed, ChunkRand rand) {
-        return getJungleDistance(seed, rand, 1_000);
+        return getJungleDistance(seed, rand, STRUCTURE_AND_BIOME_SEARCH_RADIUS);
     }
 
     public static double getJungleDistance(long seed, ChunkRand rand, int radius) {
         Map<String, StructureInfo<?, ?>> a_map = Arrays.stream(STRUCTURES).collect(Collectors.toMap(s->s.getStructure().getClass().getName(), s->s, (prev, next) -> next, HashMap::new));
-        OverworldBiomeSource layers = new OverworldBiomeSource(VERSION, seed);
+        OverworldBiomeSource source = new OverworldBiomeSource(VERSION, seed);
         //  checkByLayer = true means finding nearest biome
-        var nearestBiome = layers.locateBiome(0, 0, 0, radius, BIOME_SEARCH_SPACING, BIOMES, rand, true);
+        var nearestBiome = source.locateBiome(0, 0, 0, radius, BIOME_SEARCH_SPACING, ANY_OF_BIOMES, rand, true);
         if (nearestBiome == null) {
             return BIG_M;
         }
@@ -215,7 +214,7 @@ public class Main {
         var currentThreads = new ArrayList<Thread>();
 
         for (int i = 0; i < NUM_CORES; i++) {
-            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_SEARCH_RADIUS, STRUCTURES, BIOMES);
+            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
         }
