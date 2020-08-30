@@ -49,6 +49,7 @@ public class Searcher {
 
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
+            Main.LOGGER.info("will check upperBits: " + upperBits);
             long worldSeed = (upperBits << 48) | structureSeed;
             // here was code for stopping, but I just run it until it's killed
 

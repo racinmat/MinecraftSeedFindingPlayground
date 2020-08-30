@@ -21,10 +21,12 @@ import java.util.stream.LongStream;
 public class Main {
     public enum WorldType {DEFAULT, LARGE_BIOMES};
     public static final MCVersion VERSION = MCVersion.v1_16_1;
-    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+//    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+    public static final int NUM_CORES = 1;      // for debuggin
     public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 2_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
-    public static final long STRUCTURE_SEED_MAX = 1L << 48;
+//    public static final long STRUCTURE_SEED_MAX = 1L << 48;
+    public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
     public static int BIOME_SEARCH_SPACING = 16;
     public static final double BIG_M = 1e6;
