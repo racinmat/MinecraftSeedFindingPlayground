@@ -48,8 +48,11 @@ public class Searcher {
 
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
-            if(upperBits > 1000) break;
-            if(upperBits % 100 == 0) Main.LOGGER.info("will check upperBits: " + upperBits);
+//            if(upperBits > 1000) break;
+//            if(upperBits % 10_000 == 0) {
+//                var message = "will check upperBits: " + upperBits;
+//                GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
+//            }
             long worldSeed = (upperBits << 48) | structureSeed;
             //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
             Map<Dimension, BiomeSource> sources = new HashMap<>();
