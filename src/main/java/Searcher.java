@@ -49,15 +49,19 @@ public class Searcher {
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
             if(upperBits > 1000) break;
-            Main.LOGGER.info("will check upperBits: " + upperBits);
+            if(upperBits % 100 == 0) Main.LOGGER.info("will check upperBits: " + upperBits);
             long worldSeed = (upperBits << 48) | structureSeed;
+            //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
+            Map<Dimension, BiomeSource> sources = new HashMap<>();
             // here was code for stopping, but I just run it until it's killed
 
             Map<String, Double> structureDistances = new HashMap<>();
             for (var e : structures.entrySet()) {
                 var structure = e.getKey();
                 var positions = e.getValue();
-                var source = Searcher.getBiomeSource(structure.getDimension(), worldSeed);
+                var dim = structure.getDimension();
+                if(!sources.containsKey(dim)) sources.put(dim, Searcher.getBiomeSource(dim, worldSeed));
+                var source = sources.get(dim);
                 var searchStructure = structure.structure;
 
                 var minDistance = 10e9; // some big number, I don't want Double.MAX_VALUE
@@ -75,8 +79,10 @@ public class Searcher {
                 var biomesList = e.getValue();
 
                 if (biomesList.size() != 0) {
-                    var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
-//                    var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
+                    if(!sources.containsKey(Dimension.OVERWORLD)) sources.put(Dimension.OVERWORLD, Searcher.getBiomeSource(Dimension.OVERWORLD, worldSeed));
+                    var source = sources.get(Dimension.OVERWORLD);
+                    var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
+//                    var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
                     if (biomePos == null) continue;     // returns null when no biome is found
                     var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
                     biomeDistances.put(biomesName, biomeDist);
