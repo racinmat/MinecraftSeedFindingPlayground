@@ -54,47 +54,55 @@ public class Searcher {
 //                GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
 //            }
             long worldSeed = (upperBits << 48) | structureSeed;
-            //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
-            Map<Dimension, BiomeSource> sources = new HashMap<>();
-            // here was code for stopping, but I just run it until it's killed
-
-            Map<String, Double> structureDistances = new HashMap<>();
-            for (var e : structures.entrySet()) {
-                var structure = e.getKey();
-                var positions = e.getValue();
-                var dim = structure.getDimension();
-                if(!sources.containsKey(dim)) sources.put(dim, Searcher.getBiomeSource(dim, worldSeed));
-                var source = sources.get(dim);
-                var searchStructure = structure.structure;
-
-                var minDistance = 10e9; // some big number, I don't want Double.MAX_VALUE
-                for (var pos : positions) {
-                    if (!searchStructure.canSpawn(pos.getX(), pos.getZ(), source)) continue;
-                    var curDist = pos.toBlockPos().distanceTo(origin, DistanceMetric.EUCLIDEAN);
-                    if (curDist < minDistance) minDistance = curDist;
-                }
-                structureDistances.put(structure.structName, minDistance);
-            }
-
-            Map<String, Double> biomeDistances = new HashMap<>();
-            for (var e : bList.entrySet()) {
-                var biomesName = e.getKey();
-                var biomesList = e.getValue();
-
-                if (biomesList.size() != 0) {
-                    if(!sources.containsKey(Dimension.OVERWORLD)) sources.put(Dimension.OVERWORLD, Searcher.getBiomeSource(Dimension.OVERWORLD, worldSeed));
-                    var source = sources.get(Dimension.OVERWORLD);
-                    var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
-//                    var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
-                    if (biomePos == null) continue;     // returns null when no biome is found
-                    var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
-                    biomeDistances.put(biomesName, biomeDist);
-                }
-
-                GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
-            }
+            searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
         }
         // here was code for stopping, but I just run it until it's killed
+    }
+
+    public static void searchWorldSeed(
+            int blockSearchRadius, long worldSeed, Map<StructureInfo<?, ?>, List<CPos>> structures,
+            Map<String, List<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
+        //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
+        Map<Dimension, BiomeSource> sources = new HashMap<>();
+        // here was code for stopping, but I just run it until it's killed
+
+        Map<String, Double> structureDistances = new HashMap<>();
+        for (var e : structures.entrySet()) {
+            var structure = e.getKey();
+            var positions = e.getValue();
+            var dim = structure.getDimension();
+            if (!sources.containsKey(dim)) sources.put(dim, Searcher.getBiomeSource(dim, worldSeed));
+            var source = sources.get(dim);
+            var searchStructure = structure.structure;
+
+            var minDistance = 10e9; // some big number, I don't want Double.MAX_VALUE
+            for (var pos : positions) {
+                if (!searchStructure.canSpawn(pos.getX(), pos.getZ(), source)) continue;
+                var curDist = pos.toBlockPos().distanceTo(origin, DistanceMetric.EUCLIDEAN);
+                if (curDist < minDistance) minDistance = curDist;
+            }
+            structureDistances.put(structure.structName, minDistance);
+        }
+
+        Map<String, Double> biomeDistances = new HashMap<>();
+        for (var e : bList.entrySet()) {
+            var biomesName = e.getKey();
+            var biomesList = e.getValue();
+
+            if (biomesList.size() != 0) {
+                if (!sources.containsKey(Dimension.OVERWORLD))
+                    sources.put(Dimension.OVERWORLD, Searcher.getBiomeSource(Dimension.OVERWORLD, worldSeed));
+                var source = sources.get(Dimension.OVERWORLD);
+                var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
+//                var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
+                if (biomePos == null) return;     // returns null when no biome is found, skipping this seed
+                var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
+                biomeDistances.put(biomesName, biomeDist);
+            }
+
+        }
+
+        GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
     }
 
     public static BiomeSource getBiomeSource(Dimension dimension, long worldSeed) {

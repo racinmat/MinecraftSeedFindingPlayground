@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 //todo: prolly use sth. like this to have centralized iteration over seeds
 public class GlobalState {
-    private static AtomicLong currentSeed = new AtomicLong(Main.STRUCTURE_SEED_MIN);
-    private static List<SeedResult> foundSeeds = Collections.synchronizedList(new ArrayList<>());
+    private static final AtomicLong currentSeed = new AtomicLong(Main.STRUCTURE_SEED_MIN);
+    private static final List<SeedResult> foundSeeds = Collections.synchronizedList(new ArrayList<>());
     public static ExecutorService OUTPUT_THREAD = Executors.newSingleThreadExecutor();
 
     public static void reset(){
@@ -42,16 +42,19 @@ public class GlobalState {
         if (numResults % 10_000 == 0) {
             OUTPUT_THREAD.execute(()->Main.LOGGER.info("Found seeds: " + numResults));
         }
-        if (numResults % 100_000 == 0) {
+//        if (numResults % 100_000 == 0) {
+        if (numResults % 100 == 0) {
             resultsToCSV();
         }
     }
 
     public static void resultsToCSV() {
+        var curSeed = currentSeed.get();
+        var copiedSeeds = new ArrayList<>(foundSeeds);  // yeah, I copy the data in worker thread, but whatever
         OUTPUT_THREAD.execute(()->{
-            var copiedSeeds = new ArrayList<>(foundSeeds);
             try {
                 Main.toCsv(copiedSeeds, "distances_" + Main.STRUCTURE_SEED_MIN + "_" + copiedSeeds.size() + ".csv");
+                Main.writeFileSeed("last_seed.txt", curSeed);
             } catch (IOException e) {
                 Main.LOGGER.warning("Failed to save the CSV file.");
                 e.printStackTrace();

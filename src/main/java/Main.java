@@ -21,8 +21,8 @@ import java.util.stream.LongStream;
 public class Main {
     public enum WorldType {DEFAULT, LARGE_BIOMES};
     public static final MCVersion VERSION = MCVersion.v1_16_1;
-    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-//    public static final int NUM_CORES = 1;      // for debugging
+//    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+    public static final int NUM_CORES = 1;      // for debugging
     public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
     public static final long STRUCTURE_SEED_MAX = 1L << 48;
@@ -91,7 +91,7 @@ public class Main {
         return -1;
     }
 
-    public static void writeFileSeed(String filename, int seed) throws IOException {
+    public static void writeFileSeed(String filename, long seed) throws IOException {
         var w = new PrintWriter(new FileWriter(filename));
         w.printf("%d\n", seed);
         w.close();
@@ -258,8 +258,11 @@ public class Main {
         var out = new FileWriter(name);
         try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
             for (var entry : seeds) {
-                var doublesArr = Doubles.concat(Doubles.toArray(entry.structureDistances.values()), Doubles.toArray(entry.biomeDistances.values()));
-                printer.printRecord(entry.seed, doublesArr);
+                var row = new ArrayList<Object>();
+                row.add(entry.seed);
+                row.addAll(entry.structureDistances.values());
+                row.addAll(entry.biomeDistances.values());
+                printer.printRecord(row);
             }
         }
     }
