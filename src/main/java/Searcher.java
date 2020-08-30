@@ -8,7 +8,6 @@ import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Searcher {
 //KaptainWutax(Wat's "cool" meme?)vcera v 21:27
@@ -49,8 +48,7 @@ public class Searcher {
 
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
-            if(upperBits > 50) break;
-
+            if(upperBits > 1000) break;
             Main.LOGGER.info("will check upperBits: " + upperBits);
             long worldSeed = (upperBits << 48) | structureSeed;
             // here was code for stopping, but I just run it until it's killed
@@ -77,7 +75,8 @@ public class Searcher {
                 var biomesList = e.getValue();
 
                 if (biomesList.size() != 0) {
-                    var biomePos = BiomeSearcher.distToAnyBiome(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
+                    var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
+//                    var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
                     if (biomePos == null) continue;     // returns null when no biome is found
                     var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
                     biomeDistances.put(biomesName, biomeDist);

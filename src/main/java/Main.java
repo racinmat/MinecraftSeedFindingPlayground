@@ -29,7 +29,7 @@ public class Main {
     public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
     // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
-    public static int BIOME_SEARCH_SPACING = 32;
+    public static int BIOME_SEARCH_SPACING = 48;
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;
