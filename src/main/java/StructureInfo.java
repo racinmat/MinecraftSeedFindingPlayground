@@ -6,20 +6,20 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
 
     RegionStructure<C, D> structure;
     Dimension dimension;
-    int minOccurrences;
     int maxDistance;
     String structName;
+    boolean required;
 
-    public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, int minOccurrences, int maxDistance){
+    public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, boolean required, int maxDistance){
         this.structure = structure;
         this.dimension = dimension;
-        this.minOccurrences = minOccurrences;
+        this.required = required;
         this.maxDistance = maxDistance;
         this.structName = structure.getName();
     }
 
-    public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, int minOccurrences){
-        this(structure, dimension, minOccurrences, Main.STRUCTURE_SEARCH_RADIUS);
+    public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, boolean required){
+        this(structure, dimension, required, Main.STRUCTURE_SEARCH_RADIUS);
     }
 
     public RegionStructure<C, D> getStructure() {
@@ -30,13 +30,6 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
         return this.dimension;
     }
 
-    public int getMinOccurrences(){
-        return this.minOccurrences;
-    }
-
-    public void setMinOccurrences(int minOccurrences) {
-        this.minOccurrences = minOccurrences;
-    }
 
     public int getMaxDistance() {
         return maxDistance;

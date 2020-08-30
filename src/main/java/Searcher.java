@@ -24,52 +24,52 @@ public class Searcher {
     public static void searchStructureSeed(int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList, Collection<Biome> bList, int biomeCheckSpacing) {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
-        int totalStructures = sList.size();
 
         Map<StructureInfo<?, ?>, List<CPos>> structures = new HashMap<>();
         sList = sList.stream().distinct().collect(Collectors.toList());
-        for (var searchProvider : sList) {
+        for (var structureInfo : sList) {
             // here was code for stopping, but I just run it until it's killed
-            RegionStructure<?, ?> searchStructure = searchProvider.structure;
-            RegionStructure.Data<?> lowerBound = searchStructure.at(-blockSearchRadius >> 4, -blockSearchRadius >> 4);
-            RegionStructure.Data<?> upperBound = searchStructure.at(blockSearchRadius >> 4, blockSearchRadius >> 4);
+            RegionStructure<?, ?> structure = structureInfo.structure;
+            RegionStructure.Data<?> lowerBound = structure.at(-blockSearchRadius >> 4, -blockSearchRadius >> 4);
+            RegionStructure.Data<?> upperBound = structure.at(blockSearchRadius >> 4, blockSearchRadius >> 4);
 
-            List<CPos> foundStructures = new ArrayList<>();
+            List<CPos> structPositions = new ArrayList<>();
 
             for (int regionX = lowerBound.regionX; regionX <= upperBound.regionX; regionX++) {
                 for (int regionZ = lowerBound.regionZ; regionZ <= upperBound.regionZ; regionZ++) {
-                    var struct = searchStructure.getInRegion(structureSeed, regionX, regionZ, rand);
+                    var struct = structure.getInRegion(structureSeed, regionX, regionZ, rand);
                     if (struct == null) continue;
-                    if (struct.distanceTo(origin, DistanceMetric.CHEBYSHEV) > blockSearchRadius >> 4) continue;
-                    foundStructures.add(struct);
+                    if (struct.distanceTo(origin, DistanceMetric.EUCLIDEAN) > blockSearchRadius >> 4) continue;
+                    structPositions.add(struct);
                 }
             }
-            if (foundStructures.size() < searchProvider.getMinOccurrences()) break;
-            if (foundStructures.isEmpty()) break;
-            structures.put(searchProvider, foundStructures);
+            // not enough structures in the region, this seed is not interesting, quitting
+            if (structPositions.isEmpty() && structureInfo.required) return;
+            structures.put(structureInfo, structPositions);
         }
+
+        if (structures.size() != sList.size()) return;
 
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
             long worldSeed = (upperBits << 48) | structureSeed;
             // here was code for stopping, but I just run it until it's killed
 
-            int structureCount = 0;
-
+            Map<String, Double> structureDistances = new HashMap<>();
             for (var e : structures.entrySet()) {
                 var structure = e.getKey();
-                var starts = e.getValue();
-                var source = Searcher.getBiomeSource(e.getKey().getDimension(), worldSeed);
+                var positions = e.getValue();
+                var source = Searcher.getBiomeSource(structure.getDimension(), worldSeed);
                 var searchStructure = structure.structure;
-                for (var start : starts) {
-                    if (!searchStructure.canSpawn(start.getX(), start.getZ(), source)) continue;
-                    structureCount++;
-                    if (structureCount >= structure.getMinOccurrences()) {
-                        break;
-                    }
+
+                var minDistance = 10e9; // some big number, I don't want Double.MAX_VALUE
+                for (var pos : positions) {
+                    if (!searchStructure.canSpawn(pos.getX(), pos.getZ(), source)) continue;
+                    var curDist = pos.toBlockPos().distanceTo(origin, DistanceMetric.EUCLIDEAN);
+                    if (curDist < minDistance) minDistance = curDist;
                 }
+                structureDistances.put(structure.structName, minDistance);
             }
-            if (structureCount != totalStructures) continue;
 
             if (bList.size() != 0) {
                 ArrayList<Biome> bi = new ArrayList<>(bList);
@@ -77,7 +77,7 @@ public class Searcher {
                 if (allBiomesFound.size() != 0) continue;
             }
 
-            GlobalState.addSeed(new SeedResult(worldSeed, null));
+            GlobalState.addSeed(new SeedResult(worldSeed, structureDistances));
         }
         // here was code for stopping, but I just run it until it's killed
     }
