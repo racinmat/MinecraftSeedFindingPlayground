@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GlobalState {
     private static AtomicLong currentSeed = new AtomicLong(Main.STRUCTURE_SEED_MIN);
     private static List<SeedResult> foundSeeds = Collections.synchronizedList(new ArrayList<>());
-    public static final Executor OUTPUT_THREAD = Executors.newSingleThreadExecutor();
+    public static Executor OUTPUT_THREAD = Executors.newSingleThreadExecutor();
+
     public static void reset(){
         currentSeed.set(Main.STRUCTURE_SEED_MIN);
         Main.LOGGER.info("resetting global state, starting seed is : " + currentSeed.get());
-
     }
 
     public static long getNextSeed() {

@@ -29,10 +29,11 @@ public class SearchingThread extends Thread implements Runnable{
         try {
             searching();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            Main.LOGGER.warning("IO Exception");
         } catch (InterruptedException e) {
-            System.out.println("Interupeted");
+            Main.LOGGER.warning("Interupeted");
         }
+        Main.LOGGER.info("Ended");
     }
 
     private void searching() throws IOException, InterruptedException {
@@ -47,8 +48,7 @@ public class SearchingThread extends Thread implements Runnable{
             structureSeed = GlobalState.getNextSeed();
             //Make sure to create new copies everytime so it doesnt give false positives
             var si = Arrays.asList(this.structures);
-            var bi = biomes;
-            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, bi, Main.BIOME_SEARCH_SPACING);
+//            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, biomes, Main.BIOME_SEARCH_SPACING);
         }
     }
 }

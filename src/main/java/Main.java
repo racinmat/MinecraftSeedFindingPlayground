@@ -231,8 +231,18 @@ public class Main {
             Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ALL_OF_ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
+            LOGGER.info("started thread: " + i + " and id: " + t.getId());
         }
         LOGGER.info("num threads: " + currentThreads.size());
+        for (Thread currentThread : currentThreads) {
+            try {
+                LOGGER.info("going to wait for thread: " + currentThread.getId());
+                currentThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        LOGGER.info("ended search parallel");
     }
 
     public static void toCsv(Map<Long, double[]> seeds, String name) throws IOException {
@@ -272,5 +282,6 @@ public class Main {
 //        System.out.println("time: " + stopwatch);
 //        searchSeeds();
         searchSeedsParallel();
+        LOGGER.info("ending the main method");
     }
 }
