@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -24,9 +25,9 @@ public class Main {
     public static final int STRUCTURE_SEARCH_RADIUS = 2_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
     public static final long STRUCTURE_SEED_MAX = 1L << 48;
-    public static final boolean SEARCH_SHADOW = true;
     public static long STRUCTURE_SEED_MIN = 0;
     public static int BIOME_SEARCH_SPACING = 16;
+    public static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static final StructureInfo<?, ?>[] STRUCTURES = new StructureInfo<?, ?>[]{
             new StructureInfo<>(new Village(VERSION), Dimension.OVERWORLD, 1, 1_000),
@@ -102,12 +103,12 @@ public class Main {
     }
 
     public static double scoreSeed(long seed, ChunkRand rand) {
-        Map<String, Double> distances = Arrays.stream(STRUCTURES).collect(Collectors.toMap(
+        Map<String, Double> structDistances = Arrays.stream(STRUCTURES).collect(Collectors.toMap(
                 StructureInfo::getStructName, s->BIG_M, (prev, next) -> next, HashMap::new));
         var endedOk = true;
         for (var structure : STRUCTURES) {
             var curDistance = getStructureDistance(seed, rand, structure.structure);
-            distances.put(structure.structName, curDistance);
+            structDistances.put(structure.structName, curDistance);
             if(curDistance >= BIG_M) {
                 endedOk = false;
                 break;
@@ -116,10 +117,10 @@ public class Main {
 
         var jungleDistance = !endedOk ? BIG_M : getJungleDistance(seed, rand);
 //        var score = 10 * 100 / (villageDistance+1) + 100 / (jungleDistance+1);
-        var score = 1 / 2. * (200. - distances.get(Structure.getName(Village.class)))
-                + 1 / 15. * (1_500. - distances.get(Structure.getName(Mansion.class)))
-                + 1 / 6. * (600. - distances.get(Structure.getName(SwampHut.class)))
-                + 1 / 5. * (500. - distances.get(Structure.getName(Monument.class)))
+        var score = 1 / 2. * (200. - structDistances.get(Structure.getName(Village.class)))
+                + 1 / 15. * (1_500. - structDistances.get(Structure.getName(Mansion.class)))
+                + 1 / 6. * (600. - structDistances.get(Structure.getName(SwampHut.class)))
+                + 1 / 5. * (500. - structDistances.get(Structure.getName(Monument.class)))
                 + 1 / 5. * (500. - jungleDistance);
         if (score >= SEED_THR) {
             System.out.printf("seed: %d, \t"
@@ -128,10 +129,10 @@ public class Main {
                     + "swamp hut distance: %.4f, \t"
                     + "monument distance: %.4f, \t"
                     + "jungle distance: %.4f, \t"
-                    + "score: %.4f\n", seed, distances.get(Structure.getName(Village.class)),
-                    distances.get(Structure.getName(Mansion.class)),
-                    distances.get(Structure.getName(SwampHut.class)),
-                    distances.get(Structure.getName(Monument.class)), jungleDistance, score
+                    + "score: %.4f\n", seed, structDistances.get(Structure.getName(Village.class)),
+                    structDistances.get(Structure.getName(Mansion.class)),
+                    structDistances.get(Structure.getName(SwampHut.class)),
+                    structDistances.get(Structure.getName(Monument.class)), jungleDistance, score
             );
         }
         return score;
@@ -214,8 +215,7 @@ public class Main {
         var currentThreads = new ArrayList<Thread>();
 
         for (int i = 0; i < NUM_CORES; i++) {
-            long startingStructureSeed = (long) Math.floor(Math.pow(2, 48) / NUM_CORES * i);
-            Thread t = new SearchingThread(startingStructureSeed, STRUCTURE_SEARCH_RADIUS, STRUCTURES, BIOMES);
+            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_SEARCH_RADIUS, STRUCTURES, BIOMES);
             t.start();
             currentThreads.add(t);
         }

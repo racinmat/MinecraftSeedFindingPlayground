@@ -11,7 +11,7 @@ import java.util.*;
 
 public class StructureSearcher {
 
-    public static List<StructureInfo<?, ?>> findStructure(int searchSize, long worldSeed, List<StructureInfo<?, ?>> list) {
+    public static List<StructureInfo<?, ?>> findStructure(int blockSearchRadius, long worldSeed, List<StructureInfo<?, ?>> list) {
         ChunkRand rand = new ChunkRand();
         //BiomeSource source = Searcher.getBiomeSource("OVERWORLD", worldSeed);
         //BiomeSource source1 = Searcher.getBiomeSource("NETHER", worldSeed);
@@ -20,18 +20,16 @@ public class StructureSearcher {
         ArrayList<StructureInfo<?, ?>> listReturn = new ArrayList<>(list);
         for(var searchStructure: list) {
             RegionStructure<?,?> struct = searchStructure.structure;
-
-            RegionStructure.Data<?> lowerBound = struct.at(-searchSize >> 4, -searchSize >> 4);
-            RegionStructure.Data<?> upperBound = struct.at(searchSize >> 4, searchSize >> 4);
+            RegionStructure.Data<?> lowerBound = struct.at(-blockSearchRadius >> 4, -blockSearchRadius >> 4);
+            RegionStructure.Data<?> upperBound = struct.at(blockSearchRadius >> 4, blockSearchRadius >> 4);
 
             int howManyStructures = 0;
 
             for (int regionX = lowerBound.regionX; regionX <= upperBound.regionX; regionX++) {
                 for (int regionZ = lowerBound.regionZ; regionZ <= upperBound.regionZ; regionZ++) {
                     CPos structs = struct.getInRegion(worldSeed, regionX, regionZ, rand);
-
                     if (structs == null) continue;
-                    if (structs.distanceTo(Vec3i.ZERO, DistanceMetric.CHEBYSHEV) > searchSize >> 4) continue;
+                    if (structs.distanceTo(Vec3i.ZERO, DistanceMetric.CHEBYSHEV) > blockSearchRadius >> 4) continue;
                     if (!struct.canSpawn(structs.getX(), structs.getZ(), Searcher.getBiomeSource(searchStructure.getDimension(), worldSeed))) continue; // || !struct.canSpawn(structs.getX(), structs.getZ(), source1) || !struct.canSpawn(structs.getX(), structs.getZ(), source2)
 
                     howManyStructures++;

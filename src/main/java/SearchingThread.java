@@ -1,4 +1,5 @@
 import kaptainwutax.biomeutils.Biome;
+import kaptainwutax.seedutils.mc.Dimension;
 
 import java.io.IOException;
 import java.util.*;
@@ -35,40 +36,32 @@ public class SearchingThread extends Thread implements Runnable{
     }
 
     private void searching() throws IOException, InterruptedException {
-        boolean startNotRandom = false;
-        long randomSeed = 0;
+        long structureSeed = 0;
         //todo: need to use searcher, so I'll use the code for randomized search, in distributed manner iterate over structure seeds, but bruteforce biome part locally
         while ( Main.STRUCTURE_SEED_MAX > GlobalState.getCurrentSeed()) {
 
             // I want to do search in a range of seeds so I can iteratively scan different ranges
-            if(randomSeed >= Main.STRUCTURE_SEED_MAX){
+            if(structureSeed >= Main.STRUCTURE_SEED_MAX){
                 break;
             }
 
-            randomSeed = GlobalState.getNextSeed();
+            structureSeed = GlobalState.getNextSeed();
 
             //Make sure to create new copies everytime so it doesnt give false positives
             var si = Arrays.asList(this.structures);
             var bi = new ArrayList<>(this.biomes);
-
+            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, bi, Main.BIOME_SEARCH_SPACING);
             if (si.size() != 0) {
-                si = StructureSearcher.findStructure(blockSearchRadius, randomSeed, si);
+                si = StructureSearcher.findStructure(blockSearchRadius, structureSeed, si);
                 if (si.size() != 0) continue;
             }
             if (bi.size() != 0) {
-                bi = BiomeSearcher.findBiome(blockSearchRadius, randomSeed, bi, Main.BIOME_SEARCH_SPACING);
+                bi = BiomeSearcher.findBiome(blockSearchRadius, structureSeed, bi, Main.BIOME_SEARCH_SPACING);
                 if (bi.size() != 0) continue;
             }
 
             if (si.size() == 0 && bi.size() == 0) {
-                if(Main.SEARCH_SHADOW){
-                    //todo: do a proper logging in separate thread
-                    //util.console(String.valueOf(randomSeed) + " (Shadow: " + WorldSeed.getShadowSeed(randomSeed) + " )");
-                } else {
-                    //todo: do a proper logging in separate thread
-                    //util.console(String.valueOf(randomSeed));
-                }
-
+                //gather found seed
                 //print out the world seed (Plus possibly more information)
             } else {
                 System.out.println("Failed");
