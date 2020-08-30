@@ -25,8 +25,8 @@ public class GlobalState {
 
     public static long getNextSeed() {
         var nextSeed = currentSeed.incrementAndGet();
-        if (nextSeed % 10_000 == 0) {
-//        if (nextSeed % 1 == 0) {
+//        if (nextSeed % 10_000 == 0) {
+        if (nextSeed % 1 == 0) {
             OUTPUT_THREAD.execute(()->Main.LOGGER.info("Searching seed: " + nextSeed));
         }
         return nextSeed;
@@ -39,11 +39,11 @@ public class GlobalState {
     public static void addSeed(SeedResult r) {
         foundSeeds.add(r);
         var numResults = foundSeeds.size();
-        if (numResults % 10_000 == 0) {
+        if (numResults % 1 == 0) {
             OUTPUT_THREAD.execute(()->Main.LOGGER.info("Found seeds: " + numResults));
         }
 //        if (numResults % 100_000 == 0) {
-        if (numResults % 100 == 0) {
+        if (numResults % 1 == 0) {
             resultsToCSV();
         }
     }

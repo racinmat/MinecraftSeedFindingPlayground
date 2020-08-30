@@ -14,7 +14,7 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
         this.dimension = dimension;
         this.required = required;
         this.maxDistance = maxDistance;
-        this.structName = structure.getName();
+        this.structName = dimension == Dimension.OVERWORLD ? structure.getName() : structure.getName()+"_"+dimension.name;
     }
 
     public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, boolean required){

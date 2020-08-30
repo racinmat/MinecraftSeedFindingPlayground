@@ -50,9 +50,10 @@ public class Searcher {
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
 //            if(upperBits > 1000) break;
 //            if(upperBits % 10_000 == 0) {
-//                var message = "will check upperBits: " + upperBits;
-//                GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
-//            }
+            if(upperBits % 100 == 0) {
+                var message = "will check struct seed: " + structureSeed + ", upperBits: " + upperBits;
+                GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
+            }
             long worldSeed = (upperBits << 48) | structureSeed;
             searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
         }
