@@ -23,12 +23,13 @@ public class Main {
     public static final MCVersion VERSION = MCVersion.v1_16_1;
 //    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
     public static final int NUM_CORES = 1;      // for debuggin
-    public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 2_000;
+    public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
 //    public static final long STRUCTURE_SEED_MAX = 1L << 48;
     public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
-    public static int BIOME_SEARCH_SPACING = 16;
+    // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
+    public static int BIOME_SEARCH_SPACING = 32;
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;
@@ -231,18 +232,15 @@ public class Main {
             Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ALL_OF_ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
-            LOGGER.info("started thread: " + i + " and id: " + t.getId());
         }
         LOGGER.info("num threads: " + currentThreads.size());
         for (Thread currentThread : currentThreads) {
             try {
-                LOGGER.info("going to wait for thread: " + currentThread.getId());
                 currentThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        LOGGER.info("ended search parallel");
     }
 
     public static void toCsv(Map<Long, double[]> seeds, String name) throws IOException {
@@ -282,6 +280,6 @@ public class Main {
 //        System.out.println("time: " + stopwatch);
 //        searchSeeds();
         searchSeedsParallel();
-        LOGGER.info("ending the main method");
+        GlobalState.shutdown();
     }
 }

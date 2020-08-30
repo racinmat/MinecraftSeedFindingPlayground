@@ -33,7 +33,6 @@ public class SearchingThread extends Thread implements Runnable{
         } catch (InterruptedException e) {
             Main.LOGGER.warning("Interupeted");
         }
-        Main.LOGGER.info("Ended");
     }
 
     private void searching() throws IOException, InterruptedException {
@@ -48,7 +47,7 @@ public class SearchingThread extends Thread implements Runnable{
             structureSeed = GlobalState.getNextSeed();
             //Make sure to create new copies everytime so it doesnt give false positives
             var si = Arrays.asList(this.structures);
-//            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, biomes, Main.BIOME_SEARCH_SPACING);
+            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, biomes, Main.BIOME_SEARCH_SPACING);
         }
     }
 }
