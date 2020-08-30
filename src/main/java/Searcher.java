@@ -49,8 +49,8 @@ public class Searcher {
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
 //            if(upperBits > 1000) break;
-//            if(upperBits % 10_000 == 0) {
-            if(upperBits % 100 == 0) {
+            if(upperBits % 10_000 == 0) {
+//            if(upperBits % 100 == 0) {
                 var message = "will check struct seed: " + structureSeed + ", upperBits: " + upperBits;
                 GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
             }

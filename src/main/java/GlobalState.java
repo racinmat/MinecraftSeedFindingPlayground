@@ -39,11 +39,12 @@ public class GlobalState {
     public static void addSeed(SeedResult r) {
         foundSeeds.add(r);
         var numResults = foundSeeds.size();
-        if (numResults % 1 == 0) {
+        if (numResults % 100 == 0) {
+//        if (numResults % 1 == 0) {
             OUTPUT_THREAD.execute(()->Main.LOGGER.info("Found seeds: " + numResults));
         }
-//        if (numResults % 100_000 == 0) {
-        if (numResults % 1 == 0) {
+        if (numResults % 1_000 == 0) {
+//        if (numResults % 1 == 0) {
             resultsToCSV();
         }
     }
