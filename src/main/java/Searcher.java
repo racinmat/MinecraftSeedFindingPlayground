@@ -1,13 +1,9 @@
 import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.source.BiomeSource;
-import kaptainwutax.biomeutils.source.EndBiomeSource;
-import kaptainwutax.biomeutils.source.NetherBiomeSource;
-import kaptainwutax.biomeutils.source.OverworldBiomeSource;
+import kaptainwutax.biomeutils.source.*;
 import kaptainwutax.featureutils.structure.RegionStructure;
 import kaptainwutax.seedutils.mc.ChunkRand;
 import kaptainwutax.seedutils.mc.Dimension;
 import kaptainwutax.seedutils.mc.pos.CPos;
-import kaptainwutax.seedutils.mc.seed.WorldSeed;
 import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
@@ -15,20 +11,19 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Searcher {
-//KaptainWutax(Wat's "cool" meme?)včera v 21:27
+//KaptainWutax(Wat's "cool" meme?)vcera v 21:27
 //7 minutes sounds like quite a lot
 //for 9 million seeds
-//    funky_facevčera v 21:28
+//    funky_face vcera v 21:28
 //It's definitely not very optimized
 
     public static void searchStructureSeed(
-            int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList, Collection<Biome> bList,
-            int biomeCheckSpacing) {
+            int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList,
+            Map<String, List<Biome>> bList, int biomeCheckSpacing) {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
 
         Map<StructureInfo<?, ?>, List<CPos>> structures = new HashMap<>();
-        sList = sList.stream().distinct().collect(Collectors.toList());
         for (var structureInfo : sList) {
             // here was code for stopping, but I just run it until it's killed
             RegionStructure<?, ?> structure = structureInfo.structure;
@@ -74,14 +69,18 @@ public class Searcher {
             }
 
             Map<String, Double> biomeDistances = new HashMap<>();
-            if (bList.size() != 0) {
-                ArrayList<Biome> bi = new ArrayList<>(bList);
-                var biomePos = BiomeSearcher.distToAnyBiome(blockSearchRadius, worldSeed, bi, biomeCheckSpacing, rand);
-                var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
-                biomeDistances.put("jungle", biomeDist);
-            }
+            for (var e : bList.entrySet()) {
+                var biomesName = e.getKey();
+                var biomesList = e.getValue();
 
-            GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
+                if (biomesList.size() != 0) {
+                    var biomePos = BiomeSearcher.distToAnyBiome(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
+                    var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
+                    biomeDistances.put(biomesName, biomeDist);
+                }
+
+                GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
+            }
         }
         // here was code for stopping, but I just run it until it's killed
     }

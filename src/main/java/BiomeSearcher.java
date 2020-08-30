@@ -3,11 +3,7 @@ import kaptainwutax.biomeutils.source.BiomeSource;
 import kaptainwutax.seedutils.lcg.rand.JRand;
 import kaptainwutax.seedutils.mc.Dimension;
 import kaptainwutax.seedutils.mc.pos.BPos;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class BiomeSearcher {
 

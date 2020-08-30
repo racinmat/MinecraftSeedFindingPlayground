@@ -8,10 +8,10 @@ public class SearchingThread extends Thread implements Runnable{
 
     private long startSeedStructure;
     private StructureInfo<?, ?>[] structures;
-    private List<Biome> biomes;
+    private Map<String, List<Biome>> biomes;
     private int blockSearchRadius;
 
-    public SearchingThread(long startSeedStructure, int blockSearchRadius, StructureInfo<?, ?>[] structures, List<Biome> biomes) {
+    public SearchingThread(long startSeedStructure, int blockSearchRadius, StructureInfo<?, ?>[] structures, Map<String, List<Biome>> biomes) {
         this.startSeedStructure = startSeedStructure;
         this.structures = structures;
         this.biomes = biomes;
@@ -47,7 +47,7 @@ public class SearchingThread extends Thread implements Runnable{
             structureSeed = GlobalState.getNextSeed();
             //Make sure to create new copies everytime so it doesnt give false positives
             var si = Arrays.asList(this.structures);
-            var bi = new ArrayList<>(this.biomes);
+            var bi = biomes;
             Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, bi, Main.BIOME_SEARCH_SPACING);
         }
     }

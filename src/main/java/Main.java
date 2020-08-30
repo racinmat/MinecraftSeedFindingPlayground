@@ -1,4 +1,5 @@
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.primitives.Doubles;
 import kaptainwutax.biomeutils.Biome;
@@ -26,6 +27,9 @@ public class Main {
     public static final long STRUCTURE_SEED_MAX = 1L << 48;
     public static long STRUCTURE_SEED_MIN = 0;
     public static int BIOME_SEARCH_SPACING = 16;
+    public static final double BIG_M = 1e6;
+    //    public static final double SEED_THR = 1e-2;
+    public static final double SEED_THR = -80000;
     public static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static final StructureInfo<?, ?>[] STRUCTURES = new StructureInfo<?, ?>[]{
@@ -47,12 +51,35 @@ public class Main {
             new StructureInfo<>(new BuriedTreasure(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new BastionRemnant(VERSION), Dimension.NETHER, true),
     };
-    public static final List<Biome> ANY_OF_BIOMES = Biome.REGISTRY.values().stream()
+    // will search all of (any of biomes), so will search if any biome from each category will be found
+    public static Map<String, List<Biome>> ALL_OF_ANY_OF_BIOMES = new HashMap<>();
+
+    public static List<Biome> jungles = Biome.REGISTRY.values().stream()
             .filter(b -> b.getCategory() == Biome.Category.JUNGLE).collect(Collectors.toList());
 
-    public static final double BIG_M = 1e6;
-    //    public static final double SEED_THR = 1e-2;
-    public static final double SEED_THR = -80000;
+    public static String[] HEADERS = null;
+
+    public static void initBiomeGroups() {
+        var mushrooms = Biome.REGISTRY.values().stream()
+                .filter(b -> b.getCategory() == Biome.Category.MUSHROOM).collect(Collectors.toList());
+        var mesa = Biome.REGISTRY.values().stream()
+                .filter(b -> b.getCategory() == Biome.Category.MESA).collect(Collectors.toList());
+        var ocean = Biome.REGISTRY.values().stream()
+                .filter(b -> b.getCategory() == Biome.Category.OCEAN).collect(Collectors.toList());
+        var icy = Biome.REGISTRY.values().stream()
+                .filter(b -> b.getCategory() == Biome.Category.ICY).collect(Collectors.toList());
+
+        ALL_OF_ANY_OF_BIOMES.put("jungles", jungles);
+        ALL_OF_ANY_OF_BIOMES.put("mushrooms", mushrooms);
+        ALL_OF_ANY_OF_BIOMES.put("mesas", mesa);
+        ALL_OF_ANY_OF_BIOMES.put("oceans", ocean);
+        ALL_OF_ANY_OF_BIOMES.put("icy", icy);
+
+        var structNames = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
+        var biomeNames = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
+        HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", structNames), biomeNames, String.class);
+
+    }
 
     public static long readFileSeed(String filename) throws FileNotFoundException {
         var file = new File(filename);
@@ -75,7 +102,7 @@ public class Main {
         Map<String, StructureInfo<?, ?>> a_map = Arrays.stream(STRUCTURES).collect(Collectors.toMap(s->s.getStructure().getClass().getName(), s->s, (prev, next) -> next, HashMap::new));
         OverworldBiomeSource source = new OverworldBiomeSource(VERSION, seed);
         //  checkByLayer = true means finding nearest biome
-        var nearestBiome = source.locateBiome(0, 0, 0, radius, BIOME_SEARCH_SPACING, ANY_OF_BIOMES, rand, true);
+        var nearestBiome = source.locateBiome(0, 0, 0, radius, BIOME_SEARCH_SPACING, jungles, rand, true);
         if (nearestBiome == null) {
             return BIG_M;
         }
@@ -177,7 +204,7 @@ public class Main {
         return new ArrayList<>(seeds.keySet());
     }
 
-    public static List<Long> searchSeeds() throws IOException {
+    public static void searchSeeds() throws IOException {
         var rand = new ChunkRand();
         var seeds = new HashMap<Long, double[]>();
 
@@ -191,59 +218,50 @@ public class Main {
                 toCsv(seeds, "distances_" + STRUCTURE_SEED_MIN + "_" + structureSeed + ".csv");
             }
         }
-
-        return new ArrayList<>(seeds.keySet());
     }
 
-    public static List<Long> searchSeedsParallel() throws IOException {
-        var rand = new ChunkRand();
-        var seeds = new HashMap<Long, double[]>();
-
+    public static void searchSeedsParallel() throws IOException {
         STRUCTURE_SEED_MIN = readFileSeed("last_seed.txt") + 1;
         GlobalState.reset();
-//        List<Type> input = Arrays.asList(...);
-        var chunkSize = 10_000;
-
-        for (long chunk = STRUCTURE_SEED_MIN / chunkSize; chunk < STRUCTURE_SEED_MAX / chunkSize; chunk++) {
-            seeds.putAll(LongStream.rangeClosed(chunk * chunkSize + 1, (chunk + 1) * chunkSize)
-                    .parallel()
-                    .mapToObj(s->Map.entry(s, seedInfo(s, rand)))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        }
-
         var currentThreads = new ArrayList<Thread>();
 
         for (int i = 0; i < NUM_CORES; i++) {
-            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ANY_OF_BIOMES);
+            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ALL_OF_ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
         }
         System.out.println(currentThreads.size());
-
-        //todo: nějak to dodělat
-        return new ArrayList<>(seeds.keySet());
     }
-
-
-    public static String[] HEADERS = {"seed", "villageDistance", "mansionDistance", "swampHutDistance", "monumentDistance", "jungleDistance"};
 
     public static void toCsv(Map<Long, double[]> seeds, String name) throws IOException {
         var out = new FileWriter(name);
         try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
             for (var entry : seeds.entrySet()) {
-                var author = entry.getKey();
+                var seed = entry.getKey();
                 var distances = entry.getValue();
-                printer.printRecord(author, distances[0], distances[1], distances[2], distances[3], distances[4]);
+                printer.printRecord(seed, distances[0], distances[1], distances[2], distances[3], distances[4]);
             }
         }
     }
 
+    public static void toCsv(List<SeedResult> seeds, String name) throws IOException {
+        var out = new FileWriter(name);
+        try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
+            for (var entry : seeds) {
+                var doublesArr = Doubles.concat(Doubles.toArray(entry.structureDistances.values()), Doubles.toArray(entry.biomeDistances.values()));
+                printer.printRecord(entry.seed, doublesArr);
+            }
+        }
+    }
     public static void main(String[] args) throws IOException {
+        // due to lack of reasonable constructors, I'm creating it here
+        initBiomeGroups();
 //        Stopwatch stopwatch = Stopwatch.createStarted();
 //        var seeds = findSeeds();
 //        stopwatch.stop(); // optional
 //        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 //        System.out.println("time: " + stopwatch);
-        searchSeeds();
+//        searchSeeds();
+        searchSeedsParallel();
     }
 }
