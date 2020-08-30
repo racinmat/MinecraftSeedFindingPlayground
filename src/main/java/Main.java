@@ -30,7 +30,7 @@ public class Main {
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;
-    public static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    public static Logger LOGGER = null;
 
     public static final StructureInfo<?, ?>[] STRUCTURES = new StructureInfo<?, ?>[]{
             new StructureInfo<>(new Village(VERSION), Dimension.OVERWORLD, true, 1_000),
@@ -230,7 +230,7 @@ public class Main {
             t.start();
             currentThreads.add(t);
         }
-        System.out.println(currentThreads.size());
+        LOGGER.info("num threads: " + currentThreads.size());
     }
 
     public static void toCsv(Map<Long, double[]> seeds, String name) throws IOException {
@@ -253,6 +253,13 @@ public class Main {
             }
         }
     }
+
+    static {
+        System.setProperty("java.util.logging.SimpleFormatter.format",
+                "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+        LOGGER = Logger.getLogger(Main.class.getName());
+    }
+
     public static void main(String[] args) throws IOException {
         // due to lack of reasonable constructors, I'm creating it here
         initBiomeGroups();

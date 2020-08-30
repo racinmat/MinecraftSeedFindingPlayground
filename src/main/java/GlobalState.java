@@ -14,6 +14,8 @@ public class GlobalState {
     public static final Executor OUTPUT_THREAD = Executors.newSingleThreadExecutor();
     public static void reset(){
         currentSeed.set(Main.STRUCTURE_SEED_MIN);
+        Main.LOGGER.info("resetting global state, starting seed is : " + currentSeed.get());
+
     }
 
     public static long getNextSeed() {

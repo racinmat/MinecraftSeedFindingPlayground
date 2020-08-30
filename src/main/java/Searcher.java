@@ -75,6 +75,7 @@ public class Searcher {
 
                 if (biomesList.size() != 0) {
                     var biomePos = BiomeSearcher.distToAnyBiome(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, rand);
+                    if (biomePos == null) continue;     // returns null when no biome is found
                     var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
                     biomeDistances.put(biomesName, biomeDist);
                 }
@@ -101,9 +102,6 @@ public class Searcher {
                 break;
             case END:
                 source = new EndBiomeSource(Main.VERSION, worldSeed);
-                break;
-            default:
-                System.out.println("USE OVERWORLD, NETHER, OR END");
                 break;
         }
 
