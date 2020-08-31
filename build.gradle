@@ -19,3 +19,9 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
 }
+
+jar {
+    manifest {
+        attributes('Implementation-Title': 'seedFinder')
+    }
+}

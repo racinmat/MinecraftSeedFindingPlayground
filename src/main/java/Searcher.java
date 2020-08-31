@@ -48,7 +48,7 @@ public class Searcher {
             }
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired()) {
-                GlobalState.incr(structureInfo.getStructName());
+//                GlobalState.incr(structureInfo.getStructName());
                 return;
             }
             structures.put(structureInfo, structPositions);
@@ -93,7 +93,7 @@ public class Searcher {
             }
             // I require this structure and it's not there, end the search before testing biomes
             if (minDistance >= bigConst && structure.isRequired()) {
-                GlobalState.incr(structure.getStructName());
+//                GlobalState.incr(structure.getStructName());
                 return;
             }
             structureDistances.put(structure.getStructName(), minDistance);
@@ -111,7 +111,7 @@ public class Searcher {
                 var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand);
 //                var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
                 if (biomePos == null) {
-                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
+//                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
                     return;     // returns null when no biome is found, skipping this seed
                 }
                 var biomeDist = biomePos.distanceTo(origin, Main.DISTANCE);
