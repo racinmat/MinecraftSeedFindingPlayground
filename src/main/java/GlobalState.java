@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-//todo: prolly use sth. like this to have centralized iteration over seeds
 public class GlobalState {
     private static final AtomicLong currentSeed = new AtomicLong(Main.STRUCTURE_SEED_MIN);
     private static final List<SeedResult> foundSeeds = Collections.synchronizedList(new ArrayList<>());

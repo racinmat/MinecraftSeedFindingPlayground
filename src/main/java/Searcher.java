@@ -30,10 +30,10 @@ public class Searcher {
 
         ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures = new ConcurrentHashMap<>();
         for (var structureInfo : sList) {
-            // here was code for stopping, but I just run it until it's killed
             RegionStructure<?, ?> structure = structureInfo.getStructure();
-            RegionStructure.Data<?> lowerBound = structure.at(-blockSearchRadius >> 4, -blockSearchRadius >> 4);
-            RegionStructure.Data<?> upperBound = structure.at(blockSearchRadius >> 4, blockSearchRadius >> 4);
+            var structSearchRange = structureInfo.getMaxDistance();
+            RegionStructure.Data<?> lowerBound = structure.at(-structSearchRange >> 4, -structSearchRange >> 4);
+            RegionStructure.Data<?> upperBound = structure.at(structSearchRange >> 4, structSearchRange >> 4);
 
             List<CPos> structPositions = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class Searcher {
                 for (int regionZ = lowerBound.regionZ; regionZ <= upperBound.regionZ; regionZ++) {
                     var structPos = structure.getInRegion(structureSeed, regionX, regionZ, rand);
                     if (structPos == null) continue;
-                    if (structPos.distanceTo(origin, DistanceMetric.EUCLIDEAN) > structureInfo.getMaxDistance() >> 4) continue;
+                    if (structPos.distanceTo(origin, DistanceMetric.EUCLIDEAN) > structSearchRange >> 4) continue;
                     structPositions.add(structPos);
                 }
             }
@@ -90,7 +90,7 @@ public class Searcher {
                 if (curDist < minDistance) minDistance = curDist;
             }
             // I require this structure and it's not there, end the search before testing biomes
-            if (minDistance == bigConst && structure.isRequired()) return;
+            if (minDistance >= bigConst && structure.isRequired()) return;
             structureDistances.put(structure.getStructName(), minDistance);
         }
 
@@ -112,13 +112,6 @@ public class Searcher {
 
         }
 
-        var a_mansion = structures.keySet().stream().filter(s -> s.getStructure() instanceof Mansion).findFirst();
-        if(a_mansion.isPresent() && !structures.get(a_mansion.get()).isEmpty()) {
-            var mansion = a_mansion.get();
-            var structs_str = structures.get(mansion).stream().map(Vec3i::toString).collect(Collectors.joining());
-            OverworldBiomeSource biomeSource = (OverworldBiomeSource) sources.get(Dimension.OVERWORLD);
-            Main.LOGGER.info("Found mansion! " + structs_str + " in world seed: " + worldSeed + " with spawn point: " + biomeSource.getSpawnPoint());
-        }
         GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
     }
 

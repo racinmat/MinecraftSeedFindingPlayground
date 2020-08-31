@@ -30,7 +30,7 @@ public class Main {
 //    public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
     // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
-    public static final int BIOME_SEARCH_SPACING = 80;
+    public static final int BIOME_SEARCH_SPACING = 96; // 6 chunks
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;
@@ -46,7 +46,7 @@ public class Main {
             new StructureInfo<>(new OceanRuin(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new NetherFossil(VERSION), Dimension.NETHER, false),
             new StructureInfo<>(new Monument(VERSION), Dimension.OVERWORLD, true),
-            new StructureInfo<>(new Mansion(VERSION), Dimension.OVERWORLD, true),
+            new StructureInfo<>(new Mansion(VERSION), Dimension.OVERWORLD, true, 2_000),
             new StructureInfo<>(new JunglePyramid(VERSION), Dimension.OVERWORLD, true),
             new StructureInfo<>(new Igloo(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new Fortress(VERSION), Dimension.NETHER, true),
@@ -230,7 +230,7 @@ public class Main {
         var currentThreads = new ArrayList<Thread>();
 
         for (int i = 0; i < NUM_CORES; i++) {
-            Thread t = new SearchingThread(STRUCTURE_AND_BIOME_SEARCH_RADIUS,  ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES);
+            Thread t = new SearchingThread(ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
         }

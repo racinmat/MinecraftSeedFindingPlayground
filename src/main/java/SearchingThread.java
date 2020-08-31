@@ -8,12 +8,10 @@ public class SearchingThread extends Thread implements Runnable {
 
     private final ImmutableList<StructureInfo<?, ?>> structures;
     private final ImmutableMap<String, ImmutableList<Biome>> biomes;
-    private final int blockSearchRadius;
 
-    public SearchingThread(int blockSearchRadius, ImmutableList<StructureInfo<?, ?>> structures, ImmutableMap<String, ImmutableList<Biome>> biomes) {
+    public SearchingThread(ImmutableList<StructureInfo<?, ?>> structures, ImmutableMap<String, ImmutableList<Biome>> biomes) {
         this.structures = structures;
         this.biomes = biomes;
-        this.blockSearchRadius = blockSearchRadius;
     }
 
     @Override
@@ -31,7 +29,7 @@ public class SearchingThread extends Thread implements Runnable {
             }
 
             structureSeed = GlobalState.getNextSeed();
-            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING);
+            Searcher.searchStructureSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING);
         }
     }
 }
