@@ -1,7 +1,7 @@
+import com.google.common.util.concurrent.AtomicLongMap;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -69,6 +69,16 @@ public class GlobalState {
             Main.LOGGER.warning("Some general error happened");
             Main.LOGGER.warning(e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    // simple way to obain statistics
+    private static final AtomicLongMap<String> messStats = AtomicLongMap.create();
+    public static void incr(String mess) {
+        var c = messStats.incrementAndGet(mess);
+        if(c % Math.pow(10, Math.round(Math.log10(c))) == 0) {
+//        if(c % 10_000 == 0) {
+            OUTPUT_THREAD.execute(()->Main.LOGGER.info("Times of message: " + mess + ": " + c));
         }
     }
 }

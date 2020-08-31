@@ -33,6 +33,7 @@ public class Main {
     public static final int BIOME_SEARCH_SPACING = 96; // 6 chunks
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
+    public static final DistanceMetric DISTANCE = DistanceMetric.CHEBYSHEV;
     public static final double SEED_THR = -80000;
     public static Logger LOGGER = null;
 
@@ -40,20 +41,20 @@ public class Main {
             new StructureInfo<>(new Village(VERSION), Dimension.OVERWORLD, true, 1_000),
             new StructureInfo<>(new SwampHut(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new Shipwreck(VERSION), Dimension.OVERWORLD, false),
-            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.OVERWORLD, false),
-            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.NETHER, false),
+//            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.OVERWORLD, false),
+//            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.NETHER, false),
             new StructureInfo<>(new PillagerOutpost(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new OceanRuin(VERSION), Dimension.OVERWORLD, false),
-            new StructureInfo<>(new NetherFossil(VERSION), Dimension.NETHER, false),
+//            new StructureInfo<>(new NetherFossil(VERSION), Dimension.NETHER, false),
             new StructureInfo<>(new Monument(VERSION), Dimension.OVERWORLD, true),
             new StructureInfo<>(new Mansion(VERSION), Dimension.OVERWORLD, true, 2_000),
             new StructureInfo<>(new JunglePyramid(VERSION), Dimension.OVERWORLD, true),
             new StructureInfo<>(new Igloo(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new Fortress(VERSION), Dimension.NETHER, true),
-            new StructureInfo<>(new EndCity(VERSION), Dimension.END, false),
+//            new StructureInfo<>(new EndCity(VERSION), Dimension.END, false),
             new StructureInfo<>(new DesertPyramid(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new BuriedTreasure(VERSION), Dimension.OVERWORLD, false),
-            new StructureInfo<>(new BastionRemnant(VERSION), Dimension.NETHER, true),
+//            new StructureInfo<>(new BastionRemnant(VERSION), Dimension.NETHER, true),
     };
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
@@ -110,7 +111,7 @@ public class Main {
         if (nearestBiome == null) {
             return BIG_M;
         }
-        return nearestBiome.distanceTo(BPos.ZERO, DistanceMetric.EUCLIDEAN);
+        return nearestBiome.distanceTo(BPos.ZERO, DISTANCE);
     }
 
     public static <C extends RegionStructure.Config, D extends RegionStructure.Data<?>> double getStructureDistance(long seed, ChunkRand rand, RegionStructure<C, D> struct) {
@@ -122,7 +123,7 @@ public class Main {
         for (var coords : Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
             var structInst = struct.getInRegion(seed, coords.get(0), coords.get(1), rand);
             //Checks for village less than 50 blocks from (0, 0).
-            structDistance = structInst.toBlockPos().distanceTo(BPos.ZERO, DistanceMetric.EUCLIDEAN);
+            structDistance = structInst.toBlockPos().distanceTo(BPos.ZERO, DISTANCE);
             // big number for non-spawnable villages
             structDistance = !struct.canSpawn(structInst.getX(), structInst.getZ(), source) ? BIG_M : structDistance;
             if (structDistance < BIG_M) {
