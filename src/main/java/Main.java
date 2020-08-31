@@ -68,12 +68,12 @@ public class Main {
     public static final List<Biome> icy = Biome.REGISTRY.values().stream()
             .filter(b -> b.getCategory() == Biome.Category.ICY).collect(Collectors.toList());
 
-    public static final ImmutableMap<String, List<Biome>> ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
-            "jungles", jungles,
-            "mushrooms", mushrooms,
-            "mesas", mesa,
-            "oceans", ocean,
-            "icy", icy
+    public static final ImmutableMap<String, ImmutableList<Biome>> ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
+            "jungles", ImmutableList.copyOf(jungles),
+            "mushrooms", ImmutableList.copyOf(mushrooms),
+            "mesas", ImmutableList.copyOf(mesa),
+            "oceans", ImmutableList.copyOf(ocean),
+            "icy", ImmutableList.copyOf(icy)
     );
 
 

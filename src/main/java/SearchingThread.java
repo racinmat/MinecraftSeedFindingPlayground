@@ -7,10 +7,10 @@ import java.util.List;
 public class SearchingThread extends Thread implements Runnable {
 
     private final ImmutableList<StructureInfo<?, ?>> structures;
-    private final ImmutableMap<String, List<Biome>> biomes;
+    private final ImmutableMap<String, ImmutableList<Biome>> biomes;
     private final int blockSearchRadius;
 
-    public SearchingThread(int blockSearchRadius, ImmutableList<StructureInfo<?, ?>> structures, ImmutableMap<String, List<Biome>> biomes) {
+    public SearchingThread(int blockSearchRadius, ImmutableList<StructureInfo<?, ?>> structures, ImmutableMap<String, ImmutableList<Biome>> biomes) {
         this.structures = structures;
         this.biomes = biomes;
         this.blockSearchRadius = blockSearchRadius;

@@ -1,3 +1,4 @@
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.*;
@@ -22,8 +23,8 @@ public class Searcher {
 //It's definitely not very optimized
 
     public static void searchStructureSeed(
-            int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList,
-            ImmutableMap<String, List<Biome>> bList, int biomeCheckSpacing) {
+            int blockSearchRadius, long structureSeed, ImmutableList<StructureInfo<?, ?>> sList,
+            ImmutableMap<String, ImmutableList<Biome>> bList, int biomeCheckSpacing) {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
 
@@ -67,7 +68,7 @@ public class Searcher {
 
     public static void searchWorldSeed(
             int blockSearchRadius, long worldSeed, ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures,
-            ImmutableMap<String, List<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
+            ImmutableMap<String, ImmutableList<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
         ConcurrentMap<Dimension, BiomeSource> sources = new ConcurrentHashMap<>();
         // here was code for stopping, but I just run it until it's killed
