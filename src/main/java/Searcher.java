@@ -110,7 +110,10 @@ public class Searcher {
 
         var a_mansion = structures.keySet().stream().filter(s -> s.structure instanceof Mansion).findFirst();
         if(a_mansion.isPresent() && !structures.get(a_mansion.get()).isEmpty()) {
-            Main.LOGGER.info("found mansion!" + structures.get(a_mansion.get()).stream().map(Vec3i::toString).collect(Collectors.joining()) + " in world seed " + worldSeed);
+            var mansion = a_mansion.get();
+            var structs_str = structures.get(a_mansion.get()).stream().map(Vec3i::toString).collect(Collectors.joining());
+            OverworldBiomeSource biomeSource = (OverworldBiomeSource) sources.get(Dimension.OVERWORLD);
+            Main.LOGGER.info("Found mansion! " + structs_str + " in world seed: " + worldSeed + " with spawn point: " + biomeSource.getSpawnPoint());
         }
         GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
     }
