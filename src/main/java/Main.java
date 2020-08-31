@@ -21,7 +21,8 @@ import java.util.stream.LongStream;
 public class Main {
     public enum WorldType {DEFAULT, LARGE_BIOMES};
     public static final MCVersion VERSION = MCVersion.v1_16_1;
-    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+//    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors() - 1;  // keep single thread free for output etc.
 //    public static final int NUM_CORES = 1;      // for debugging
     public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1_000;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;

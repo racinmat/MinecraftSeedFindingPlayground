@@ -29,7 +29,6 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
         return this.dimension;
     }
 
-
     public int getMaxDistance() {
         return maxDistance;
     }

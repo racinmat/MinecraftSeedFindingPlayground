@@ -33,10 +33,10 @@ public class Searcher {
 
             for (int regionX = lowerBound.regionX; regionX <= upperBound.regionX; regionX++) {
                 for (int regionZ = lowerBound.regionZ; regionZ <= upperBound.regionZ; regionZ++) {
-                    var struct = structure.getInRegion(structureSeed, regionX, regionZ, rand);
-                    if (struct == null) continue;
-                    if (struct.distanceTo(origin, DistanceMetric.EUCLIDEAN) > blockSearchRadius >> 4) continue;
-                    structPositions.add(struct);
+                    var structPos = structure.getInRegion(structureSeed, regionX, regionZ, rand);
+                    if (structPos == null) continue;
+                    if (structPos.distanceTo(origin, DistanceMetric.EUCLIDEAN) > blockSearchRadius >> 4) continue;
+                    structPositions.add(structPos);
                 }
             }
             // not enough structures in the region, this seed is not interesting, quitting
@@ -76,12 +76,15 @@ public class Searcher {
             var source = sources.get(dim);
             var searchStructure = structure.structure;
 
-            var minDistance = 10e9; // some big number, I don't want Double.MAX_VALUE
+            final var bigConst = 10e9;
+            var minDistance = bigConst; // some big number, I don't want Double.MAX_VALUE
             for (var pos : positions) {
                 if (!searchStructure.canSpawn(pos.getX(), pos.getZ(), source)) continue;
                 var curDist = pos.toBlockPos().distanceTo(origin, DistanceMetric.EUCLIDEAN);
                 if (curDist < minDistance) minDistance = curDist;
             }
+            // I require this structure and it's not there, end the search before testing biomes
+            if (minDistance == bigConst && structure.required) return;
             structureDistances.put(structure.structName, minDistance);
         }
 
