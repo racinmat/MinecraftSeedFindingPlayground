@@ -1,18 +1,16 @@
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.seedutils.mc.Dimension;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
-public class SearchingThread extends Thread implements Runnable{
+public class SearchingThread extends Thread implements Runnable {
 
-    private long startSeedStructure;
-    private StructureInfo<?, ?>[] structures;
-    private Map<String, List<Biome>> biomes;
-    private int blockSearchRadius;
+    private final ImmutableList<StructureInfo<?, ?>> structures;
+    private final ImmutableMap<String, List<Biome>> biomes;
+    private final int blockSearchRadius;
 
-    public SearchingThread(long startSeedStructure, int blockSearchRadius, StructureInfo<?, ?>[] structures, Map<String, List<Biome>> biomes) {
-        this.startSeedStructure = startSeedStructure;
+    public SearchingThread(int blockSearchRadius, ImmutableList<StructureInfo<?, ?>> structures, ImmutableMap<String, List<Biome>> biomes) {
         this.structures = structures;
         this.biomes = biomes;
         this.blockSearchRadius = blockSearchRadius;
@@ -20,34 +18,20 @@ public class SearchingThread extends Thread implements Runnable{
 
     @Override
     public void run() {
-        /*
-         * - Create the appropriate searching lists
-         * - Determine which searching functions to use based on lists
-         * - check that all values are being passed up correctly to variables
-         * - Profit (Run this as many times to speed up searching within computer limits ofc)
-         */
-        try {
-            searching();
-        } catch (IOException e) {
-            Main.LOGGER.warning("IO Exception");
-        } catch (InterruptedException e) {
-            Main.LOGGER.warning("Interupeted");
-        }
+        searching();
     }
 
-    private void searching() throws IOException, InterruptedException {
+    private void searching() {
         long structureSeed = 0;
-        while ( Main.STRUCTURE_SEED_MAX > GlobalState.getCurrentSeed()) {
+        while (Main.STRUCTURE_SEED_MAX > GlobalState.getCurrentSeed()) {
 
             // I want to do search in a range of seeds so I can iteratively scan different ranges
-            if(structureSeed >= Main.STRUCTURE_SEED_MAX){
+            if (structureSeed >= Main.STRUCTURE_SEED_MAX) {
                 break;
             }
 
             structureSeed = GlobalState.getNextSeed();
-            //Make sure to create new copies everytime so it doesnt give false positives
-            var si = Arrays.asList(this.structures);
-            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, si, biomes, Main.BIOME_SEARCH_SPACING);
+            Searcher.searchStructureSeed(blockSearchRadius, structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING);
         }
     }
 }

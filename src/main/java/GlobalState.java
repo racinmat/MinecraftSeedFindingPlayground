@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,12 +38,13 @@ public class GlobalState {
         foundSeeds.add(r);
         var numResults = foundSeeds.size();
 //        if (numResults % 100 == 0) {
-        if (numResults % 10 == 0) {
-//        if (numResults % 1 == 0) {
+//        if (numResults % 10 == 0) {
+        if (numResults % 1 == 0) {
             OUTPUT_THREAD.execute(()->Main.LOGGER.info("Found seeds: " + numResults));
         }
 //        if (numResults % 1_000 == 0) {
-        if (numResults % 100 == 0) {
+//        if (numResults % 100 == 0) {
+        if (numResults % 10 == 0) {
 //        if (numResults % 1 == 0) {
             resultsToCSV();
         }

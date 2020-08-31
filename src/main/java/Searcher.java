@@ -1,3 +1,4 @@
+import com.google.common.collect.ImmutableMap;
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.*;
 import kaptainwutax.featureutils.structure.Mansion;
@@ -9,6 +10,8 @@ import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class Searcher {
@@ -20,14 +23,14 @@ public class Searcher {
 
     public static void searchStructureSeed(
             int blockSearchRadius, long structureSeed, Collection<StructureInfo<?, ?>> sList,
-            Map<String, List<Biome>> bList, int biomeCheckSpacing) {
+            ImmutableMap<String, List<Biome>> bList, int biomeCheckSpacing) {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
 
-        Map<StructureInfo<?, ?>, List<CPos>> structures = new HashMap<>();
+        ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures = new ConcurrentHashMap<>();
         for (var structureInfo : sList) {
             // here was code for stopping, but I just run it until it's killed
-            RegionStructure<?, ?> structure = structureInfo.structure;
+            RegionStructure<?, ?> structure = structureInfo.getStructure();
             RegionStructure.Data<?> lowerBound = structure.at(-blockSearchRadius >> 4, -blockSearchRadius >> 4);
             RegionStructure.Data<?> upperBound = structure.at(blockSearchRadius >> 4, blockSearchRadius >> 4);
 
@@ -37,12 +40,12 @@ public class Searcher {
                 for (int regionZ = lowerBound.regionZ; regionZ <= upperBound.regionZ; regionZ++) {
                     var structPos = structure.getInRegion(structureSeed, regionX, regionZ, rand);
                     if (structPos == null) continue;
-                    if (structPos.distanceTo(origin, DistanceMetric.EUCLIDEAN) > blockSearchRadius >> 4) continue;
+                    if (structPos.distanceTo(origin, DistanceMetric.EUCLIDEAN) > structureInfo.getMaxDistance() >> 4) continue;
                     structPositions.add(structPos);
                 }
             }
             // not enough structures in the region, this seed is not interesting, quitting
-            if (structPositions.isEmpty() && structureInfo.required) return;
+            if (structPositions.isEmpty() && structureInfo.isRequired()) return;
             structures.put(structureInfo, structPositions);
         }
 
@@ -63,20 +66,20 @@ public class Searcher {
     }
 
     public static void searchWorldSeed(
-            int blockSearchRadius, long worldSeed, Map<StructureInfo<?, ?>, List<CPos>> structures,
-            Map<String, List<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
+            int blockSearchRadius, long worldSeed, ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures,
+            ImmutableMap<String, List<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
-        Map<Dimension, BiomeSource> sources = new HashMap<>();
+        ConcurrentMap<Dimension, BiomeSource> sources = new ConcurrentHashMap<>();
         // here was code for stopping, but I just run it until it's killed
 
-        Map<String, Double> structureDistances = new HashMap<>();
+        ConcurrentMap<String, Double> structureDistances = new ConcurrentHashMap<>();
         for (var e : structures.entrySet()) {
             var structure = e.getKey();
             var positions = e.getValue();
             var dim = structure.getDimension();
             if (!sources.containsKey(dim)) sources.put(dim, Searcher.getBiomeSource(dim, worldSeed));
             var source = sources.get(dim);
-            var searchStructure = structure.structure;
+            var searchStructure = structure.getStructure();
 
             final var bigConst = 10e9;
             var minDistance = bigConst; // some big number, I don't want Double.MAX_VALUE
@@ -86,11 +89,11 @@ public class Searcher {
                 if (curDist < minDistance) minDistance = curDist;
             }
             // I require this structure and it's not there, end the search before testing biomes
-            if (minDistance == bigConst && structure.required) return;
-            structureDistances.put(structure.structName, minDistance);
+            if (minDistance == bigConst && structure.isRequired()) return;
+            structureDistances.put(structure.getStructName(), minDistance);
         }
 
-        Map<String, Double> biomeDistances = new HashMap<>();
+        ConcurrentMap<String, Double> biomeDistances = new ConcurrentHashMap<>();
         for (var e : bList.entrySet()) {
             var biomesName = e.getKey();
             var biomesList = e.getValue();
@@ -99,7 +102,7 @@ public class Searcher {
                 if (!sources.containsKey(Dimension.OVERWORLD))
                     sources.put(Dimension.OVERWORLD, Searcher.getBiomeSource(Dimension.OVERWORLD, worldSeed));
                 var source = sources.get(Dimension.OVERWORLD);
-                var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
+                var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand);
 //                var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
                 if (biomePos == null) return;     // returns null when no biome is found, skipping this seed
                 var biomeDist = biomePos.distanceTo(origin, DistanceMetric.EUCLIDEAN);
@@ -108,10 +111,10 @@ public class Searcher {
 
         }
 
-        var a_mansion = structures.keySet().stream().filter(s -> s.structure instanceof Mansion).findFirst();
+        var a_mansion = structures.keySet().stream().filter(s -> s.getStructure() instanceof Mansion).findFirst();
         if(a_mansion.isPresent() && !structures.get(a_mansion.get()).isEmpty()) {
             var mansion = a_mansion.get();
-            var structs_str = structures.get(a_mansion.get()).stream().map(Vec3i::toString).collect(Collectors.joining());
+            var structs_str = structures.get(mansion).stream().map(Vec3i::toString).collect(Collectors.joining());
             OverworldBiomeSource biomeSource = (OverworldBiomeSource) sources.get(Dimension.OVERWORLD);
             Main.LOGGER.info("Found mansion! " + structs_str + " in world seed: " + worldSeed + " with spawn point: " + biomeSource.getSpawnPoint());
         }

@@ -1,20 +1,19 @@
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.BiomeSource;
 import kaptainwutax.seedutils.lcg.rand.JRand;
-import kaptainwutax.seedutils.mc.Dimension;
 import kaptainwutax.seedutils.mc.pos.BPos;
 
-import java.util.*;
+import java.util.Collection;
 
 public class BiomeSearcher {
 
     //26.7 s, 53.5% of time
-    public static BPos distToAnyBiomeKaptainWutax(int searchSize, long worldSeed, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
+    public static BPos distToAnyBiomeKaptainWutax(int searchSize, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
         return source.locateBiome(0, 0, 0, searchSize, biomeCheckSpacing, biomeToFind, rand, true);
     }
 
     // kaptain adviced me to implement my own https://discordapp.com/channels/505310901461581824/532998733135085578/749728029520953374
-    public static BPos distToAnyBiomeMine(int searchSize, long worldSeed, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
+    public static BPos distToAnyBiomeMine(int searchSize, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
         var i = 0;
         // I know I don't care about nether and end biomes.
         // basically I copied this from locateBiome so I'd start from beginning and went to outer blocks, I hardcoded variant of checkByLayer=true

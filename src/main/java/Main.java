@@ -1,11 +1,12 @@
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.primitives.Doubles;
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.OverworldBiomeSource;
 import kaptainwutax.featureutils.structure.*;
-import kaptainwutax.seedutils.mc.*;
+import kaptainwutax.seedutils.mc.ChunkRand;
+import kaptainwutax.seedutils.mc.Dimension;
+import kaptainwutax.seedutils.mc.MCVersion;
 import kaptainwutax.seedutils.mc.pos.BPos;
 import kaptainwutax.seedutils.util.math.DistanceMetric;
 import org.apache.commons.csv.CSVFormat;
@@ -16,10 +17,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 public class Main {
-    public enum WorldType {DEFAULT, LARGE_BIOMES};
+    public enum WorldType {DEFAULT, LARGE_BIOMES}
     public static final MCVersion VERSION = MCVersion.v1_16_1;
 //    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
     public static final int NUM_CORES = Runtime.getRuntime().availableProcessors() - 1;  // keep single thread free for output etc.
@@ -30,7 +30,7 @@ public class Main {
 //    public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
     // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
-    public static int BIOME_SEARCH_SPACING = 80;
+    public static final int BIOME_SEARCH_SPACING = 80;
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;
@@ -55,30 +55,31 @@ public class Main {
             new StructureInfo<>(new BuriedTreasure(VERSION), Dimension.OVERWORLD, false),
             new StructureInfo<>(new BastionRemnant(VERSION), Dimension.NETHER, true),
     };
-    // will search all of (any of biomes), so will search if any biome from each category will be found
-    public static Map<String, List<Biome>> ALL_OF_ANY_OF_BIOMES = new HashMap<>();
 
-    public static List<Biome> jungles = Biome.REGISTRY.values().stream()
+    // will search all of (any of biomes), so will search if any biome from each category will be found
+    public static final List<Biome> jungles = Biome.REGISTRY.values().stream()
             .filter(b -> b.getCategory() == Biome.Category.JUNGLE).collect(Collectors.toList());
+    public static final List<Biome> mushrooms = Biome.REGISTRY.values().stream()
+            .filter(b -> b.getCategory() == Biome.Category.MUSHROOM).collect(Collectors.toList());
+    public static final List<Biome> mesa = Biome.REGISTRY.values().stream()
+            .filter(b -> b.getCategory() == Biome.Category.MESA).collect(Collectors.toList());
+    public static final List<Biome> ocean = Biome.REGISTRY.values().stream()
+            .filter(b -> b.getCategory() == Biome.Category.OCEAN).collect(Collectors.toList());
+    public static final List<Biome> icy = Biome.REGISTRY.values().stream()
+            .filter(b -> b.getCategory() == Biome.Category.ICY).collect(Collectors.toList());
+
+    public static final ImmutableMap<String, List<Biome>> ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
+            "jungles", jungles,
+            "mushrooms", mushrooms,
+            "mesas", mesa,
+            "oceans", ocean,
+            "icy", icy
+    );
+
 
     public static String[] HEADERS = null;
 
     public static void initBiomeGroups() {
-        var mushrooms = Biome.REGISTRY.values().stream()
-                .filter(b -> b.getCategory() == Biome.Category.MUSHROOM).collect(Collectors.toList());
-        var mesa = Biome.REGISTRY.values().stream()
-                .filter(b -> b.getCategory() == Biome.Category.MESA).collect(Collectors.toList());
-        var ocean = Biome.REGISTRY.values().stream()
-                .filter(b -> b.getCategory() == Biome.Category.OCEAN).collect(Collectors.toList());
-        var icy = Biome.REGISTRY.values().stream()
-                .filter(b -> b.getCategory() == Biome.Category.ICY).collect(Collectors.toList());
-
-        ALL_OF_ANY_OF_BIOMES.put("jungles", jungles);
-        ALL_OF_ANY_OF_BIOMES.put("mushrooms", mushrooms);
-        ALL_OF_ANY_OF_BIOMES.put("mesas", mesa);
-        ALL_OF_ANY_OF_BIOMES.put("oceans", ocean);
-        ALL_OF_ANY_OF_BIOMES.put("icy", icy);
-
         var structNames = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
         var biomeNames = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
         HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", structNames), biomeNames, String.class);
@@ -103,7 +104,6 @@ public class Main {
     }
 
     public static double getJungleDistance(long seed, ChunkRand rand, int radius) {
-        Map<String, StructureInfo<?, ?>> a_map = Arrays.stream(STRUCTURES).collect(Collectors.toMap(s->s.getStructure().getClass().getName(), s->s, (prev, next) -> next, HashMap::new));
         OverworldBiomeSource source = new OverworldBiomeSource(VERSION, seed);
         //  checkByLayer = true means finding nearest biome
         var nearestBiome = source.locateBiome(0, 0, 0, radius, BIOME_SEARCH_SPACING, jungles, rand, true);
@@ -137,8 +137,8 @@ public class Main {
                 StructureInfo::getStructName, s->BIG_M, (prev, next) -> next, HashMap::new));
         var endedOk = true;
         for (var structure : STRUCTURES) {
-            var curDistance = getStructureDistance(seed, rand, structure.structure);
-            structDistances.put(structure.structName, curDistance);
+            var curDistance = getStructureDistance(seed, rand, structure.getStructure());
+            structDistances.put(structure.getStructName(), curDistance);
             if(curDistance >= BIG_M) {
                 endedOk = false;
                 break;
@@ -173,8 +173,8 @@ public class Main {
                 StructureInfo::getStructName, s->BIG_M, (prev, next) -> next, HashMap::new));
         var endedOk = true;
         for (var structure : STRUCTURES) {
-            var curDistance = getStructureDistance(seed, rand, structure.structure);
-            distances.put(structure.structName, curDistance);
+            var curDistance = getStructureDistance(seed, rand, structure.getStructure());
+            distances.put(structure.getStructName(), curDistance);
             if(curDistance >= BIG_M) {
                 endedOk = false;
                 break;
@@ -230,7 +230,7 @@ public class Main {
         var currentThreads = new ArrayList<Thread>();
 
         for (int i = 0; i < NUM_CORES; i++) {
-            Thread t = new SearchingThread(STRUCTURE_SEED_MIN, STRUCTURE_AND_BIOME_SEARCH_RADIUS, STRUCTURES, ALL_OF_ANY_OF_BIOMES);
+            Thread t = new SearchingThread(STRUCTURE_AND_BIOME_SEARCH_RADIUS,  ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES);
             t.start();
             currentThreads.add(t);
         }
@@ -259,7 +259,7 @@ public class Main {
         var out = new FileWriter(name);
         try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
             for (var entry : seeds) {
-                var row = new ArrayList<Object>();
+                var row = new ArrayList<>();
                 row.add(entry.seed);
                 row.addAll(entry.structureDistances.values());
                 row.addAll(entry.biomeDistances.values());

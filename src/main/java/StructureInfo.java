@@ -5,11 +5,11 @@ import java.util.Objects;
 
 public class StructureInfo<C extends RegionStructure.Config, D extends RegionStructure.Data<?>> {
 
-    RegionStructure<C, D> structure;
-    Dimension dimension;
-    int maxDistance;
-    String structName;
-    boolean required;
+    private final RegionStructure<C, D> structure;
+    private final Dimension dimension;
+    private final int maxDistance;
+    private final String structName;
+    private final boolean required;
 
     public StructureInfo(RegionStructure<C, D> structure, Dimension dimension, boolean required, int maxDistance){
         this.structure = structure;
@@ -37,6 +37,10 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
 
     public String getStructName() {
         return structName;
+    }
+
+    public boolean isRequired() {
+        return required;
     }
 
     @Override
