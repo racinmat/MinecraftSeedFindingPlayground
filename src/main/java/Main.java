@@ -24,13 +24,13 @@ public class Main {
 //    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
     public static final int NUM_CORES = Runtime.getRuntime().availableProcessors() - 1;  // keep single thread free for output etc.
 //    public static final int NUM_CORES = 1;      // for debugging
-    public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1_000;
+    public static final int STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1_500;
     public static final WorldType WORLD_TYPE = WorldType.DEFAULT;
     public static final long STRUCTURE_SEED_MAX = 1L << 48;
 //    public static final long STRUCTURE_SEED_MAX = 2;
     public static long STRUCTURE_SEED_MIN = 0;
     // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
-    public static int BIOME_SEARCH_SPACING = 48;
+    public static int BIOME_SEARCH_SPACING = 80;
     public static final double BIG_M = 1e6;
     //    public static final double SEED_THR = 1e-2;
     public static final double SEED_THR = -80000;

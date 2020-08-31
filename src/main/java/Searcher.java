@@ -1,5 +1,6 @@
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.*;
+import kaptainwutax.featureutils.structure.Mansion;
 import kaptainwutax.featureutils.structure.RegionStructure;
 import kaptainwutax.seedutils.mc.ChunkRand;
 import kaptainwutax.seedutils.mc.Dimension;
@@ -8,6 +9,7 @@ import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Searcher {
 //KaptainWutax(Wat's "cool" meme?)vcera v 21:27
@@ -49,10 +51,10 @@ public class Searcher {
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
 //            if(upperBits > 1000) break;
-            if(upperBits % 10_000 == 0) {
+            if (upperBits % 10_000 == 0) {
 //            if(upperBits % 100 == 0) {
                 var message = "will check struct seed: " + structureSeed + ", upperBits: " + upperBits;
-                GlobalState.OUTPUT_THREAD.execute(()->Main.LOGGER.info(message));
+                GlobalState.OUTPUT_THREAD.execute(() -> Main.LOGGER.info(message));
             }
             long worldSeed = (upperBits << 48) | structureSeed;
             searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
@@ -106,6 +108,10 @@ public class Searcher {
 
         }
 
+        var a_mansion = structures.keySet().stream().filter(s -> s.structure instanceof Mansion).findFirst();
+        if(a_mansion.isPresent() && !structures.get(a_mansion.get()).isEmpty()) {
+            Main.LOGGER.info("found mansion!" + structures.get(a_mansion.get()).stream().map(Vec3i::toString).collect(Collectors.joining()) + " in world seed " + worldSeed);
+        }
         GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
     }
 
