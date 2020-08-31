@@ -1,6 +1,8 @@
 import kaptainwutax.featureutils.structure.RegionStructure;
 import kaptainwutax.seedutils.mc.Dimension;
 
+import java.util.Objects;
+
 public class StructureInfo<C extends RegionStructure.Config, D extends RegionStructure.Data<?>> {
 
     RegionStructure<C, D> structure;
@@ -35,5 +37,22 @@ public class StructureInfo<C extends RegionStructure.Config, D extends RegionStr
 
     public String getStructName() {
         return structName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StructureInfo<?, ?> that = (StructureInfo<?, ?>) o;
+        return maxDistance == that.maxDistance &&
+                required == that.required &&
+                Objects.equals(structure, that.structure) &&
+                dimension == that.dimension &&
+                Objects.equals(structName, that.structName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(structure, dimension, maxDistance, structName, required);
     }
 }
