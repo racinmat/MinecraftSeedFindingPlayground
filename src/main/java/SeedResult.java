@@ -26,4 +26,13 @@ public class SeedResult {
     public int hashCode() {
         return Objects.hash(seed, structureDistances, biomeDistances);
     }
+
+    @Override
+    public String toString() {
+        return "SeedResult{" +
+                "seed=" + seed +
+                ", structureDistances=" + structureDistances +
+                ", biomeDistances=" + biomeDistances +
+                '}';
+    }
 }

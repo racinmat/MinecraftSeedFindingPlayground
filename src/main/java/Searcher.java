@@ -24,12 +24,7 @@ public class Searcher {
 //    funky_face vcera v 21:28
 //It's definitely not very optimized
 
-    public static void searchStructureSeed(
-            int blockSearchRadius, long structureSeed, ImmutableList<StructureInfo<?, ?>> sList,
-            ImmutableMap<String, ImmutableList<Biome>> bList, int biomeCheckSpacing) {
-        Vec3i origin = new Vec3i(0, 0, 0);
-        ChunkRand rand = new ChunkRand();
-
+    public static ConcurrentMap<StructureInfo<?, ?>, List<CPos>> getStructuresPosList(long structureSeed, ImmutableList<StructureInfo<?, ?>> sList, Vec3i origin, ChunkRand rand) {
         ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures = new ConcurrentHashMap<>();
         for (var structureInfo : sList) {
             RegionStructure<?, ?> structure = structureInfo.getStructure();
@@ -50,10 +45,21 @@ public class Searcher {
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired()) {
 //                GlobalState.incr(structureInfo.getStructName());
-                return;
+                return null;
             }
             structures.put(structureInfo, structPositions);
         }
+        return structures;
+    }
+
+    public static void searchStructureSeed(
+            int blockSearchRadius, long structureSeed, ImmutableList<StructureInfo<?, ?>> sList,
+            ImmutableMap<String, ImmutableList<Biome>> bList, int biomeCheckSpacing) {
+        Vec3i origin = new Vec3i(0, 0, 0);
+        ChunkRand rand = new ChunkRand();
+
+        ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures = getStructuresPosList(structureSeed, sList, origin, rand);
+        if (structures == null) return;
 
         // 16 upper bits for biomes
         for (long upperBits = 0; upperBits < 1L << 16; upperBits++) {
@@ -64,12 +70,14 @@ public class Searcher {
                 GlobalState.OUTPUT_THREAD.execute(() -> Main.LOGGER.info(message));
             }
             long worldSeed = (upperBits << 48) | structureSeed;
-            searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
+            var seedResult = searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
+            if(seedResult == null) return;
+            GlobalState.addSeed(seedResult);
         }
         // here was code for stopping, but I just run it until it's killed
     }
 
-    public static void searchWorldSeed(
+    public static SeedResult searchWorldSeed(
             int blockSearchRadius, long worldSeed, ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures,
             ImmutableMap<String, ImmutableList<Biome>> bList, int biomeCheckSpacing, Vec3i origin, ChunkRand rand) {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
@@ -99,7 +107,7 @@ public class Searcher {
             // I require this structure and it's not there, end the search before testing biomes
             if (minDistance >= bigConst && structure.isRequired()) {
 //                GlobalState.incr(structure.getStructName());
-                return;
+                return null;
             }
             structureDistances.put(structure.getStructName(), minDistance);
         }
@@ -117,7 +125,7 @@ public class Searcher {
 //                var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
                 if (biomePos == null) {
 //                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
-                    return;     // returns null when no biome is found, skipping this seed
+                    return null;     // returns null when no biome is found, skipping this seed
                 }
                 var biomeDist = biomePos.distanceTo(origin, Main.DISTANCE);
                 biomeDistances.put(biomesName, biomeDist);
@@ -125,7 +133,7 @@ public class Searcher {
 
         }
 
-        GlobalState.addSeed(new SeedResult(worldSeed, structureDistances, biomeDistances));
+        return new SeedResult(worldSeed, structureDistances, biomeDistances);
     }
 
     public static BiomeSource getBiomeSource(Dimension dimension, long worldSeed) {

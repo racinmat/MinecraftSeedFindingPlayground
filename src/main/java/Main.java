@@ -77,13 +77,11 @@ public class Main {
             "icy", ImmutableList.copyOf(icy)
     );
 
-
-    public static String[] HEADERS = null;
+    public static final String[] structNames = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
+    public static final String[] biomeNames = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
+    public static String[] HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", structNames), biomeNames, String.class);
 
     public static void initBiomeGroups() {
-        var structNames = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
-        var biomeNames = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
-        HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", structNames), biomeNames, String.class);
 
     }
 
@@ -148,11 +146,11 @@ public class Main {
         System.setProperty("java.util.logging.SimpleFormatter.format",
                 "[%1$tF %1$tT] [%4$-7s] %5$s %n");
         LOGGER = Logger.getLogger(Main.class.getName());
+        initBiomeGroups();
     }
 
     public static void main(String[] args) throws IOException {
         // due to lack of reasonable constructors, I'm creating it here
-        initBiomeGroups();
 //        Stopwatch stopwatch = Stopwatch.createStarted();
 //        stopwatch.stop(); // optional
 //        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
