@@ -1,11 +1,12 @@
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.*;
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.*;
 import kaptainwutax.featureutils.structure.Mansion;
 import kaptainwutax.featureutils.structure.RegionStructure;
+import kaptainwutax.seedutils.lcg.rand.JRand;
 import kaptainwutax.seedutils.mc.ChunkRand;
 import kaptainwutax.seedutils.mc.Dimension;
+import kaptainwutax.seedutils.mc.pos.BPos;
 import kaptainwutax.seedutils.mc.pos.CPos;
 import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
@@ -84,6 +85,10 @@ public class Searcher {
             var source = sources.get(dim);
             var searchStructure = structure.getStructure();
 
+            //todo: do some sorting of positions by distance from origin, so I could cut it once I find nearest one
+//            var a_range = ContiguousSet.create(Range.closed(-5, 5), DiscreteDomain.integers());
+//            var structDistance = 1e6;
+//            for (var coords : Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
             final var bigConst = 10e9;
             var minDistance = bigConst; // some big number, I don't want Double.MAX_VALUE
             for (var pos : positions) {
@@ -108,7 +113,7 @@ public class Searcher {
                 if (!sources.containsKey(Dimension.OVERWORLD))
                     sources.put(Dimension.OVERWORLD, Searcher.getBiomeSource(Dimension.OVERWORLD, worldSeed));
                 var source = sources.get(Dimension.OVERWORLD);
-                var biomePos = BiomeSearcher.distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand);
+                var biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand);
 //                var biomePos = BiomeSearcher.distToAnyBiomeMine(blockSearchRadius, worldSeed, biomesList, biomeCheckSpacing, source, rand);
                 if (biomePos == null) {
 //                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
@@ -144,4 +149,33 @@ public class Searcher {
 
         return source;
     }
+
+    public static BPos distToAnyBiomeKaptainWutax(int searchSize, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
+        return source.locateBiome(0, 0, 0, searchSize, biomeCheckSpacing, biomeToFind, rand, true);
+    }
+
+    // kaptain adviced me to implement my own https://discordapp.com/channels/505310901461581824/532998733135085578/749728029520953374
+    // but it's slower, so I'm reverting to his
+    public static BPos distToAnyBiomeMine(int searchSize, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {
+        var i = 0;
+        // I know I don't care about nether and end biomes.
+        // basically I copied this from locateBiome so I'd start from beginning and went to outer blocks, I hardcoded variant of checkByLayer=true
+        for (int depth = 0; depth <= searchSize; depth += biomeCheckSpacing) {
+            for (int z = -depth; z <= depth; z += biomeCheckSpacing) {
+                boolean isZEdge = Math.abs(z) == depth;
+                for (int x = -depth; x <= depth; x += biomeCheckSpacing) {
+                    boolean isXEdge = Math.abs(x) == depth;
+                    if (!isXEdge && !isZEdge) continue;
+                    i++;
+                    if (biomeToFind.contains(source.getBiome(x, 0, z))) {
+                        System.out.println(i);
+                        return new BPos(x, 0, z);
+                    }
+                }
+            }
+        }
+        System.out.println(i);
+        return null;
+    }
+
 }
