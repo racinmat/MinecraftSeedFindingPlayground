@@ -8,7 +8,6 @@ import kaptainwutax.seedutils.mc.ChunkRand;
 import kaptainwutax.seedutils.mc.Dimension;
 import kaptainwutax.seedutils.mc.pos.BPos;
 import kaptainwutax.seedutils.mc.pos.CPos;
-import kaptainwutax.seedutils.util.math.DistanceMetric;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
 import java.util.*;
@@ -71,7 +70,7 @@ public class Searcher {
             }
             long worldSeed = (upperBits << 48) | structureSeed;
             var seedResult = searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand);
-            if(seedResult == null) return;
+            if(seedResult == null) continue;
             GlobalState.addSeed(seedResult);
         }
         // here was code for stopping, but I just run it until it's killed

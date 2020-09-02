@@ -1,20 +1,14 @@
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.*;
-import com.google.common.primitives.Doubles;
 import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.source.OverworldBiomeSource;
 import kaptainwutax.featureutils.structure.*;
-import kaptainwutax.seedutils.mc.ChunkRand;
 import kaptainwutax.seedutils.mc.Dimension;
 import kaptainwutax.seedutils.mc.MCVersion;
-import kaptainwutax.seedutils.mc.pos.BPos;
 import kaptainwutax.seedutils.util.math.DistanceMetric;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -77,9 +71,9 @@ public class Main {
             "icy", ImmutableList.copyOf(icy)
     );
 
-    public static final String[] structNames = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
-    public static final String[] biomeNames = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
-    public static String[] HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", structNames), biomeNames, String.class);
+    public static final String[] STRUCT_NAMES = Arrays.stream(STRUCTURES).map(StructureInfo::getStructName).toArray(String[]::new);
+    public static final String[] BIOME_NAMES = ALL_OF_ANY_OF_BIOMES.keySet().toArray(String[]::new);
+    public static String[] HEADERS = ObjectArrays.concat(ObjectArrays.concat("seed", STRUCT_NAMES), BIOME_NAMES, String.class);
 
     public static void initBiomeGroups() {
 
@@ -96,6 +90,23 @@ public class Main {
         var w = new PrintWriter(new FileWriter(filename));
         w.printf("%d\n", seed);
         w.close();
+    }
+
+    public static void searchSeeds() throws IOException {
+        STRUCTURE_SEED_MIN = readFileSeed("last_seed.txt") + 1;
+        GlobalState.reset();
+
+        long structureSeed = 0;
+        while (Main.STRUCTURE_SEED_MAX > GlobalState.getCurrentSeed()) {
+
+            // I want to do search in a range of seeds so I can iteratively scan different ranges
+            if (structureSeed >= Main.STRUCTURE_SEED_MAX) {
+                break;
+            }
+
+            structureSeed = GlobalState.getNextSeed();
+            Searcher.searchStructureSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, structureSeed, ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING);
+        }
     }
 
     public static void searchSeedsParallel() throws IOException {
@@ -128,15 +139,17 @@ public class Main {
             }
         }
     }
-
+//    seed,                 village, swamp_hut, shipwreck, pillager_outpost, ocean_ruin, monument, mansion, jungle_pyramid, igloo, fortress_nether, desert_pyramid, buried_treasure, jungles, mushrooms, mesas, oceans, icy
+//    5920544660131938314,   1088.0,     928.0,    1344.0,            256.0,      240.0,    480.0,   688.0, 864.0, 944.0, 208.0, 672.0, 2000.0, 1152.0, 768.0, 384.0, 768.0, 768.0
     public static void toCsv(List<SeedResult> seeds, String name) throws IOException {
         var out = new FileWriter(name);
+        //dopíci, špatně se řadí ty věci kurva, opravit toto!!!
         try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
             for (var entry : seeds) {
                 var row = new ArrayList<>();
                 row.add(entry.seed);
-                row.addAll(entry.structureDistances.values());
-                row.addAll(entry.biomeDistances.values());
+                row.addAll(Arrays.stream(STRUCT_NAMES).map(s->entry.structureDistances.get(s)).collect(Collectors.toList()));
+                row.addAll(Arrays.stream(BIOME_NAMES).map(s->entry.biomeDistances.get(s)).collect(Collectors.toList()));
                 printer.printRecord(row);
             }
         }

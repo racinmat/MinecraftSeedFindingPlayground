@@ -1,12 +1,13 @@
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentMap;
 
 public class SeedResult {
     long seed;
-    Map<String, Double> structureDistances;
-    Map<String, Double> biomeDistances;
+    ConcurrentMap<String, Double> structureDistances;
+    ConcurrentMap<String, Double> biomeDistances;
 
-    public SeedResult(long seed, Map<String, Double> structureDistances, Map<String, Double> biomeDistances) {
+    public SeedResult(long seed, ConcurrentMap<String, Double> structureDistances, ConcurrentMap<String, Double> biomeDistances) {
         this.seed = seed;
         this.structureDistances = structureDistances;
         this.biomeDistances = biomeDistances;

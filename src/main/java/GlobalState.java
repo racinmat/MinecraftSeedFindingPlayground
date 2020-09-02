@@ -58,12 +58,12 @@ public class GlobalState {
                 try {
                     Main.toCsv(copiedSeeds, fileName);
                     Main.writeFileSeed("last_seed.txt", curSeed);
+                    Main.LOGGER.info("Saved the CSV file named: " + fileName);
                 } catch (IOException e) {
-                    Main.LOGGER.warning("Failed to save the CSV file.");
+                    Main.LOGGER.warning("Failed to save the CSV file: " + fileName);
                     Main.LOGGER.warning(e.getMessage());
                     e.printStackTrace();
                 }
-                Main.LOGGER.info("Failed to save the CSV file named: " + fileName);
             });
         } catch (Exception e) {
             Main.LOGGER.warning("Some general error happened");
