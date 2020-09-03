@@ -2,8 +2,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import kaptainwutax.biomeutils.Biome;
 
-import java.util.List;
-
 public class SearchingThread extends Thread implements Runnable {
 
     private final ImmutableList<StructureInfo<?, ?>> structures;

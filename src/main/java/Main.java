@@ -139,11 +139,9 @@ public class Main {
             }
         }
     }
-//    seed,                 village, swamp_hut, shipwreck, pillager_outpost, ocean_ruin, monument, mansion, jungle_pyramid, igloo, fortress_nether, desert_pyramid, buried_treasure, jungles, mushrooms, mesas, oceans, icy
-//    5920544660131938314,   1088.0,     928.0,    1344.0,            256.0,      240.0,    480.0,   688.0, 864.0, 944.0, 208.0, 672.0, 2000.0, 1152.0, 768.0, 384.0, 768.0, 768.0
+
     public static void toCsv(List<SeedResult> seeds, String name) throws IOException {
         var out = new FileWriter(name);
-        //dopíci, špatně se řadí ty věci kurva, opravit toto!!!
         try (var printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS))) {
             for (var entry : seeds) {
                 var row = new ArrayList<>();

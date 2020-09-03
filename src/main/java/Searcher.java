@@ -1,20 +1,18 @@
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import kaptainwutax.biomeutils.Biome;
 import kaptainwutax.biomeutils.source.*;
-import kaptainwutax.featureutils.structure.Mansion;
 import kaptainwutax.featureutils.structure.RegionStructure;
 import kaptainwutax.seedutils.lcg.rand.JRand;
-import kaptainwutax.seedutils.mc.ChunkRand;
-import kaptainwutax.seedutils.mc.Dimension;
-import kaptainwutax.seedutils.mc.pos.BPos;
-import kaptainwutax.seedutils.mc.pos.CPos;
+import kaptainwutax.seedutils.mc.*;
+import kaptainwutax.seedutils.mc.pos.*;
 import kaptainwutax.seedutils.util.math.Vec3i;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class Searcher {
     //KaptainWutax(Wat's "cool" meme?)vcera v 21:27
@@ -136,25 +134,18 @@ public class Searcher {
     }
 
     public static BiomeSource getBiomeSource(Dimension dimension, long worldSeed) {
-        BiomeSource source = null;
-
-        switch (dimension) {
+        return switch (dimension) {
             case OVERWORLD:
                 if (Main.WORLD_TYPE == Main.WorldType.LARGE_BIOMES) {
-                    source = new OverworldBiomeSource(Main.VERSION, worldSeed, 6, 4);
+                    yield new OverworldBiomeSource(Main.VERSION, worldSeed, 6, 4);
                 } else {
-                    source = new OverworldBiomeSource(Main.VERSION, worldSeed);
+                    yield new OverworldBiomeSource(Main.VERSION, worldSeed);
                 }
-                break;
             case NETHER:
-                source = new NetherBiomeSource(Main.VERSION, worldSeed);
-                break;
+                yield new NetherBiomeSource(Main.VERSION, worldSeed);
             case END:
-                source = new EndBiomeSource(Main.VERSION, worldSeed);
-                break;
-        }
-
-        return source;
+                yield new EndBiomeSource(Main.VERSION, worldSeed);
+        };
     }
 
     public static BPos distToAnyBiomeKaptainWutax(int searchSize, Collection<Biome> biomeToFind, int biomeCheckSpacing, BiomeSource source, JRand rand) {

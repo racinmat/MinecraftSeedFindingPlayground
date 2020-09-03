@@ -34,7 +34,7 @@ public class VerifyResults {
         for (CSVRecord record : records) {
             results.add(new SeedResult(Long.parseLong(record.get("seed")),
                     Arrays.stream(Main.STRUCT_NAMES).collect(Collectors.<String, String, Double>toConcurrentMap(s ->s, s -> Double.valueOf(record.get(s)))),
-                    Arrays.stream(Main.BIOME_NAMES).collect(Collectors.<String, String, Double>toConcurrentMap(s->(String) s, s-> Double.valueOf(record.get(s))))
+                    Arrays.stream(Main.BIOME_NAMES).collect(Collectors.<String, String, Double>toConcurrentMap(s->s, s-> Double.valueOf(record.get(s))))
             ));
         }
         return results;
@@ -45,6 +45,7 @@ public class VerifyResults {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
         var structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand);
+        assert structures != null;
         return Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand);
     }
 
@@ -54,6 +55,7 @@ public class VerifyResults {
         Vec3i origin = new Vec3i(0, 0, 0);
         ChunkRand rand = new ChunkRand();
         var structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand);
+        assert structures != null;
         var result = Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand);
         System.out.println("checking seed: " + worldSeed);
         System.out.println("expected: " + seedResult);

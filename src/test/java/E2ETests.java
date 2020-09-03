@@ -49,6 +49,7 @@ public class E2ETests {
         assertNotNull(structures);
         var seedResult = Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, seed, structures,
                 Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand);
+
         assertNotNull(seedResult);
         assertEquals(seedResult.seed, seed);
         assertEquals(seedResult.structureDistances.get("village"), village);
