@@ -2,21 +2,21 @@ import GlobalState.addSeed
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
-import kaptainwutax.biomeutils.source.BiomeSource
-import kaptainwutax.biomeutils.source.EndBiomeSource
-import kaptainwutax.biomeutils.source.NetherBiomeSource
-import kaptainwutax.biomeutils.source.OverworldBiomeSource
+import kaptainwutax.biomeutils.source.*
 import kaptainwutax.seedutils.lcg.rand.JRand
 import kaptainwutax.seedutils.mc.ChunkRand
 import kaptainwutax.seedutils.mc.Dimension
 import kaptainwutax.seedutils.mc.pos.BPos
 import kaptainwutax.seedutils.mc.pos.CPos
 import kaptainwutax.seedutils.util.math.Vec3i
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.*
 
 object Searcher {
+
+    fun <T, U> cartesianProduct(c1: Iterable<T>, c2: Iterable<U>): List<Pair<T, U>> {
+        return c1.flatMap { lhsElem -> c2.map { rhsElem -> lhsElem to rhsElem } }
+    }
+
     fun getStructuresPosList(structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>, origin: Vec3i?, rand: ChunkRand?): ConcurrentMap<StructureInfo<*, *>, List<CPos>>? {
         val structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>> = ConcurrentHashMap()
         for (structureInfo: StructureInfo<*, *> in sList) {
@@ -24,14 +24,13 @@ object Searcher {
             val structSearchRange = structureInfo.maxDistance
             val lowerBound = structure.at(-structSearchRange shr 4, -structSearchRange shr 4)
             val upperBound = structure.at(structSearchRange shr 4, structSearchRange shr 4)
-            val structPositions: MutableList<CPos> = ArrayList()
-            for (regionX in lowerBound.regionX..upperBound.regionX) {
-                for (regionZ in lowerBound.regionZ..upperBound.regionZ) {
-                    val structPos = structure.getInRegion(structureSeed, regionX, regionZ, rand) ?: continue
-                    if (structPos.distanceTo(origin, Main.DISTANCE) > (structSearchRange shr 4)) continue
-                    structPositions.add(structPos)
-                }
-            }
+            val structPositions = cartesianProduct(
+                    lowerBound.regionX..upperBound.regionX,
+                    lowerBound.regionZ..upperBound.regionZ).map f@{ (regionX, regionZ) ->
+                val structPos = structure.getInRegion(structureSeed, regionX, regionZ, rand) ?: return@f null
+                if (structPos.distanceTo(origin, Main.DISTANCE) > (structSearchRange shr 4)) return@f null
+                structPos
+            }.filterNotNull()
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired) {
 //                GlobalState.incr(structureInfo.getStructName());
@@ -51,7 +50,6 @@ object Searcher {
 
         // 16 upper bits for biomes
         for (upperBits in 0 until (1L shl 16)) {
-//            if(upperBits > 1000) break;
             if (upperBits % 10000 == 0L) {
 //            if(upperBits % 100 == 0) {
                 GlobalState.OUTPUT_THREAD.execute({ Main.LOGGER.info("will check struct seed: $structureSeed, upperBits: $upperBits") })
@@ -66,17 +64,15 @@ object Searcher {
 
     fun searchWorldSeed(
             blockSearchRadius: Int, worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
-            bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand?): SeedResult? {
+            bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
         val sources: ConcurrentMap<Dimension, BiomeSource?> = ConcurrentHashMap()
         // here was code for stopping, but I just run it until it's killed
         val structureDistances: ConcurrentMap<String, Double> = ConcurrentHashMap()
-        for (e: Map.Entry<StructureInfo<*, *>, List<CPos>> in structures.entries) {
-            val structure = e.key
-            val positions = e.value
+        for ((structure, positions) in structures.entries) {
             val dim = structure.dimension
             if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
-            val source = sources.get(dim)
+            val source = sources[dim]
             val searchStructure = structure.structure
 
             //todo: do some sorting of positions by distance from origin, so I could cut it once I find nearest one
@@ -97,31 +93,19 @@ object Searcher {
             }
             structureDistances[structure.structName] = minDistance
         }
-        val biomeDistances: ConcurrentMap<String, Double> = ConcurrentHashMap()
-        for ((biomesName, biomesList) in bList.entries) {
-            if (biomesList.size == 0) continue
+        val biomeDistances: ConcurrentMap<String, Double> = bList.entries.map f@{(biomesName, biomesList)->
+            if (biomesList.size == 0) return@f null
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
-            val source = sources.get(Dimension.OVERWORLD)!!
+            val source = sources[Dimension.OVERWORLD]!!
             val biomePos: BPos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: //                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
-                    return null // returns null when no biome is found, skipping this seed
-            val biomeDist = biomePos.distanceTo(origin, Main.DISTANCE)
-            biomeDistances[biomesName] = biomeDist
-        }
+                    return@f null // returns null when no biome is found, skipping this seed
+            return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)
+        }.filterNotNull().toMap() as ConcurrentMap<String, Double>
         return SeedResult(worldSeed, structureDistances, biomeDistances)
     }
 
     fun getBiomeSource(dimension: Dimension?, worldSeed: Long): BiomeSource {
-//        return switch (dimension) {
-//            case OVERWORLD:
-//                if (Main.WORLD_TYPE == Main.WorldType.LARGE_BIOMES) {
-//                    yield new OverworldBiomeSource(Main.VERSION, worldSeed, 6, 4);
-//                } else {
-//                    yield new OverworldBiomeSource(Main.VERSION, worldSeed);
-//                }
-//            case NETHER: yield new NetherBiomeSource(Main.VERSION, worldSeed);
-//            case END: yield new EndBiomeSource(Main.VERSION, worldSeed);
-//        };
         return when (dimension) {
             Dimension.OVERWORLD -> {
                 if (Main.WORLD_TYPE === Main.WorldType.LARGE_BIOMES) {
@@ -138,7 +122,7 @@ object Searcher {
         }
     }
 
-    fun distToAnyBiomeKaptainWutax(searchSize: Int, biomeToFind: Collection<Biome?>?, biomeCheckSpacing: Int, source: BiomeSource, rand: JRand?): BPos? {
+    fun distToAnyBiomeKaptainWutax(searchSize: Int, biomeToFind: Collection<Biome?>?, biomeCheckSpacing: Int, source: BiomeSource, rand: JRand): BPos? {
         return source.locateBiome(0, 0, 0, searchSize, biomeCheckSpacing, biomeToFind, rand, true)
     }
 
