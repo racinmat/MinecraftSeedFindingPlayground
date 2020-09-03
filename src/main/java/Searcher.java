@@ -141,10 +141,8 @@ public class Searcher {
                 } else {
                     yield new OverworldBiomeSource(Main.VERSION, worldSeed);
                 }
-            case NETHER:
-                yield new NetherBiomeSource(Main.VERSION, worldSeed);
-            case END:
-                yield new EndBiomeSource(Main.VERSION, worldSeed);
+            case NETHER: yield new NetherBiomeSource(Main.VERSION, worldSeed);
+            case END: yield new EndBiomeSource(Main.VERSION, worldSeed);
         };
     }
 
