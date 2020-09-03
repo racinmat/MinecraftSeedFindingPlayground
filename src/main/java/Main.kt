@@ -65,16 +65,11 @@ object Main {
             StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false))
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
-    val jungles = Biome.REGISTRY.values.stream()
-            .filter { b: Biome -> b.category == Biome.Category.JUNGLE }.collect(Collectors.toList())
-    val mushrooms = Biome.REGISTRY.values.stream()
-            .filter { b: Biome -> b.category == Biome.Category.MUSHROOM }.collect(Collectors.toList())
-    val mesa = Biome.REGISTRY.values.stream()
-            .filter { b: Biome -> b.category == Biome.Category.MESA }.collect(Collectors.toList())
-    val ocean = Biome.REGISTRY.values.stream()
-            .filter { b: Biome -> b.category == Biome.Category.OCEAN }.collect(Collectors.toList())
-    val icy = Biome.REGISTRY.values.stream()
-            .filter { b: Biome -> b.category == Biome.Category.ICY }.collect(Collectors.toList())
+    val jungles = Biome.REGISTRY.values.filter {it.category == Biome.Category.JUNGLE }
+    val mushrooms = Biome.REGISTRY.values.filter {it.category == Biome.Category.MUSHROOM }
+    val mesa = Biome.REGISTRY.values.filter {it.category == Biome.Category.MESA }
+    val ocean = Biome.REGISTRY.values.filter {it.category == Biome.Category.OCEAN }
+    val icy = Biome.REGISTRY.values.filter {it.category == Biome.Category.ICY }
 
     //only overworld biomes can be here because of hardcoded things
     @JvmField
