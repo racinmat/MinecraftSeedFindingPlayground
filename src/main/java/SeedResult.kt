@@ -17,9 +17,9 @@ class SeedResult(var seed: Long, var structureDistances: ConcurrentMap<String, D
 
     override fun toString(): String {
         return "SeedResult{" +
-                "seed=" + seed +
-                ", structureDistances=" + structureDistances +
-                ", biomeDistances=" + biomeDistances +
-                '}'
+                "seed=$seed" +
+                ", structureDistances=$structureDistances" +
+                ", biomeDistances=$biomeDistances" +
+                "}"
     }
 }

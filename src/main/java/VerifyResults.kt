@@ -25,13 +25,13 @@ object VerifyResults {
         val records: Iterable<CSVRecord> = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
         return records.map {
             SeedResult(it["seed"].toLong(),
-                    Main.STRUCT_NAMES.map { s -> s!! to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>,
-                    Main.BIOME_NAMES.map { s -> s!! to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>
+                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>,
+                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>
             )
         }
     }
 
-    fun evalSeed(worldSeed: Long): SeedResult {
+    fun evalSeed(worldSeed: Long): SeedResult? {
         val structureSeed = WorldSeed.toStructureSeed(worldSeed)
         val origin = Vec3i(0, 0, 0)
         val rand = ChunkRand()
@@ -58,7 +58,7 @@ object VerifyResults {
             name.matches(Regex("distances_\\d+_\\d+.csv"))
         }!!.forEach {
             Main.toCsv(fromCsv(
-                    "good_seeds/${it.name}").map { evalSeed(it.seed) },
+                    "good_seeds/${it.name}").map { evalSeed(it.seed)!! },
                     "good_seeds/${it.nameWithoutExtension}_fixed.csv")
         }
     }
