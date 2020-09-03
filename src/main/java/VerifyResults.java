@@ -78,15 +78,18 @@ public class VerifyResults {
 //            System.out.println(WorldSeed.toStructureSeed(seed));
 //        }
 
-        fixResults();
+//        fixResults();
 //        var results = fromCsv("old_multithread_seeds_2/distances_0_70.csv");
 ////        var results = fromCsv("broken_small/distances_0_10.csv");
 //        var results = fromCsv("good_seeds/distances_0_10.csv");
-//        var results = fromCsv("good_seeds/distances_0_10_fixed.csv");
-//        for (var result : results) {
-//            var areSame = checkSeedResult(result);
-//            System.out.println("are same: " + areSame);
-//        }
+        var results = fromCsv("distances_0_70.csv");
+//        var results = fromCsv("distances_4168_50.csv");
+//        var results = fromCsv("distances_8449_50.csv");
+//        var results = fromCsv("good_seeds/distances_4168_50_fixed.csv");
+        for (var result : results) {
+            var areSame = checkSeedResult(result);
+            System.out.println("are same: " + areSame);
+        }
 //
 //        GlobalState.shutdown();
     }
