@@ -15,11 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class Searcher {
-    //KaptainWutax(Wat's "cool" meme?)vcera v 21:27
-//7 minutes sounds like quite a lot
-//for 9 million seeds
-//    funky_face vcera v 21:28
-//It's definitely not very optimized
 
     public static ConcurrentMap<StructureInfo<?, ?>, List<CPos>> getStructuresPosList(long structureSeed, ImmutableList<StructureInfo<?, ?>> sList, Vec3i origin, ChunkRand rand) {
         ConcurrentMap<StructureInfo<?, ?>, List<CPos>> structures = new ConcurrentHashMap<>();
