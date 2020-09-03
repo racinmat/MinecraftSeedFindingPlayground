@@ -19,7 +19,7 @@ object Searcher {
 
     fun getStructuresPosList(structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>, origin: Vec3i?, rand: ChunkRand?): ConcurrentMap<StructureInfo<*, *>, List<CPos>>? {
         val structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>> = ConcurrentHashMap()
-        for (structureInfo: StructureInfo<*, *> in sList) {
+        for (structureInfo in sList) {
             val structure = structureInfo.structure
             val structSearchRange = structureInfo.maxDistance
             val lowerBound = structure.at(-structSearchRange shr 4, -structSearchRange shr 4)
@@ -93,15 +93,17 @@ object Searcher {
             }
             structureDistances[structure.structName] = minDistance
         }
-        val biomeDistances: ConcurrentMap<String, Double> = bList.entries.map f@{(biomesName, biomesList)->
+        val biomeDistances = bList.entries.map f@{(biomesName, biomesList)->
+//        val biomeDistances: ConcurrentMap<String, Double> = bList.entries.map f@{(biomesName, biomesList)->
             if (biomesList.size == 0) return@f null
+            //this is hardcoded for overworld, I should make sure biomelist is from same dimension and make it work in general
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
             val source = sources[Dimension.OVERWORLD]!!
             val biomePos: BPos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: //                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
                     return@f null // returns null when no biome is found, skipping this seed
             return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)
-        }.filterNotNull().toMap() as ConcurrentMap<String, Double>
+        }.filterNotNull().toMap()
         return SeedResult(worldSeed, structureDistances, biomeDistances)
     }
 

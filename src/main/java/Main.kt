@@ -18,6 +18,7 @@ import java.util.logging.LogManager
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
+//BIG TODO: test if getting rid of this concurrent hashmap does not ruing something
 object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
@@ -75,6 +76,7 @@ object Main {
     val icy = Biome.REGISTRY.values.stream()
             .filter { b: Biome -> b.category == Biome.Category.ICY }.collect(Collectors.toList())
 
+    //only overworld biomes can be here because of hardcoded things
     @JvmField
     val ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
             "jungles", ImmutableList.copyOf(jungles),
