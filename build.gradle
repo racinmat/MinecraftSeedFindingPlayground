@@ -14,12 +14,13 @@ repositories {
 }
 
 dependencies {
-    implementation('com.github.KaptainWutax:MathUtils:6c2d50eacad0241ff76119e6e703b70bac4b4bce') {transitive = false}
-    implementation('com.github.racinmat:SeedUtils:faac899d051b70457b18aff15780dd6b5911bd97') {transitive = false}
-    implementation('com.github.racinmat:FeatureUtils:a119be9cc127907cd413f7422b7a79fa18633063') {transitive = false}
-    implementation('com.github.racinmat:BiomeUtils:67a457652f4f85a814059fc1b3649d15fb6cf590') {transitive = false}
-    implementation('com.github.racinmat:ChunkRandomReversal:4831531e656b3d3477ef97edae09b8065a017fc2') {transitive = false}
-    implementation('com.github.racinmat:LattiCG:16ecaba79b792dddee96be1c12e8b9bfc0d37928') {transitive = false}
+    implementation 'com.github.KaptainWutax:SEED:6f0a91d7911f2bd9806192ce52e49f23b082b5c0'
+//    implementation('com.github.KaptainWutax:MathUtils:6c2d50eacad0241ff76119e6e703b70bac4b4bce') {transitive = false}
+//    implementation('com.github.racinmat:SeedUtils:faac899d051b70457b18aff15780dd6b5911bd97') {transitive = false}
+//    implementation('com.github.racinmat:FeatureUtils:a119be9cc127907cd413f7422b7a79fa18633063') {transitive = false}
+//    implementation('com.github.racinmat:BiomeUtils:67a457652f4f85a814059fc1b3649d15fb6cf590') {transitive = false}
+//    implementation('com.github.racinmat:ChunkRandomReversal:4831531e656b3d3477ef97edae09b8065a017fc2') {transitive = false}
+//    implementation('com.github.racinmat:LattiCG:16ecaba79b792dddee96be1c12e8b9bfc0d37928') {transitive = false}
     implementation 'com.google.guava:guava:29.0-jre'
     implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
