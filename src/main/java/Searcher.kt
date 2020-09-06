@@ -82,7 +82,7 @@ object Searcher {
 //            for (var coords : Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
             val bigConst = 10e9
             var minDistance = bigConst // some big number, I don't want Double.MAX_VALUE
-            for (pos: CPos in positions) {
+            for (pos in positions) {
                 if (!searchStructure.canSpawn(pos.x, pos.z, source)) continue
                 val curDist = pos.toBlockPos().distanceTo(origin, Main.DISTANCE)
                 if (curDist < minDistance) minDistance = curDist
@@ -100,7 +100,7 @@ object Searcher {
             //this is hardcoded for overworld, I should make sure biomelist is from same dimension and make it work in general
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
             val source = sources[Dimension.OVERWORLD]!!
-            val biomePos: BPos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
+            val biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: run {
 //                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
                         return@f null // returns null when no biome is found, skipping this seed
