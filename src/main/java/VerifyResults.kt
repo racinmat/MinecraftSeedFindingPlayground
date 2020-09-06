@@ -35,7 +35,7 @@ object VerifyResults {
         val structureSeed = WorldSeed.toStructureSeed(worldSeed)
         val origin = Vec3i(0, 0, 0)
         val rand = ChunkRand()
-        val structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand)!!
+        val structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand) ?: return null
         return Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
     }
 
@@ -82,9 +82,8 @@ object VerifyResults {
         //        var results = fromCsv("distances_4168_50.csv");
 //        var results = fromCsv("distances_8449_50.csv");
 //        var results = fromCsv("good_seeds/distances_4168_50_fixed.csv");
-        for (result in results) {
-            val areSame = checkSeedResult(result)
-            println("are same: $areSame")
+        results.forEach {
+            println("are same: ${checkSeedResult(it)}")
         }
         //
 //        GlobalState.shutdown();

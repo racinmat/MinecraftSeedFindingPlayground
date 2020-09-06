@@ -34,7 +34,7 @@ object Searcher {
             }.filterNotNull()
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired) {
-//                GlobalState.incr(structureInfo.getStructName());
+//                GlobalState.incr(structureInfo.structName);
                 return null
             }
             structures[structureInfo] = structPositions
@@ -89,7 +89,7 @@ object Searcher {
             }
             // I require this structure and it's not there, end the search before testing biomes
             if (minDistance >= bigConst && structure.isRequired) {
-//                GlobalState.incr(structure.getStructName());
+//                GlobalState.incr(structure.structName);
                 return null
             }
             structureDistances[structure.structName] = minDistance
@@ -101,8 +101,11 @@ object Searcher {
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
             val source = sources[Dimension.OVERWORLD]!!
             val biomePos: BPos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
-                    ?: //                    GlobalState.incr(biomesList.stream().map(Biome::getName).collect(Collectors.joining(", ")));
-                    return@f null // returns null when no biome is found, skipping this seed
+                    ?: run {
+//                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
+                        return@f null // returns null when no biome is found, skipping this seed
+                    }
+
             return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)
         }.filterNotNull().toMap()
         return SeedResult(worldSeed, structureDistances, biomeDistances)
