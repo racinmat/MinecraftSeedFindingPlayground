@@ -10,6 +10,7 @@ import kaptainwutax.seedutils.mc.pos.BPos
 import kaptainwutax.seedutils.mc.pos.CPos
 import kaptainwutax.seedutils.util.math.Vec3i
 import java.util.concurrent.*
+import kotlin.math.absoluteValue
 
 object Searcher {
 
@@ -138,10 +139,10 @@ object Searcher {
         while (depth <= searchSize) {
             var z = -depth
             while (z <= depth) {
-                val isZEdge = Math.abs(z) == depth
+                val isZEdge = z.absoluteValue == depth
                 var x = -depth
                 while (x <= depth) {
-                    val isXEdge = Math.abs(x) == depth
+                    val isXEdge = x.absoluteValue == depth
                     if (!isXEdge && !isZEdge) {
                         x += biomeCheckSpacing
                         continue

@@ -56,10 +56,12 @@ object VerifyResults {
     fun fixResults() {
         File("good_seeds").listFiles { f, name ->
             name.matches(Regex("distances_\\d+_\\d+.csv"))
-        }!!.forEach {
-            Main.toCsv(fromCsv(
-                    "good_seeds/${it.name}").map { evalSeed(it.seed)!! },
-                    "good_seeds/${it.nameWithoutExtension}_fixed.csv")
+        }?.let {
+            it.forEach {
+                Main.toCsv(fromCsv(
+                        "good_seeds/${it.name}").map { evalSeed(it.seed)!! },
+                        "good_seeds/${it.nameWithoutExtension}_fixed.csv")
+            }
         }
     }
 

@@ -18,9 +18,6 @@ import java.util.logging.LogManager
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-//workaround based on https://stackoverflow.com/questions/63736339/overload-resolution-ambiguity-in-third-party-java-library-called-from-kotlin/63736639#63736639
-fun Dimension.getName() = DimensionHelper.getName(this);
-
 //BIG TODO: test if getting rid of this concurrent hashmap does not ruing something
 object Main {
     @JvmField

@@ -3,6 +3,7 @@ import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.math.*
 
 object GlobalState {
     private val currentSeed = AtomicLong(Main.STRUCTURE_SEED_MIN)
@@ -81,7 +82,7 @@ object GlobalState {
     private val messStats = AtomicLongMap.create<String>()
     fun incr(mess: String) {
         val c = messStats.incrementAndGet(mess)
-        if (c % Math.pow(10.0, Math.round(Math.log10(c.toDouble())).toDouble()) == 0.0) {
+        if (c % 10.0.pow(log10(c.toDouble()).roundToInt()) == 0.0) {
 //        if(c % 10_000 == 0) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
         }
