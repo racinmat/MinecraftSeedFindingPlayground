@@ -18,7 +18,6 @@ import java.util.logging.LogManager
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-//BIG TODO: test if getting rid of this concurrent hashmap does not ruing something
 object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
@@ -50,18 +49,18 @@ object Main {
 
     @JvmField
     val STRUCTURES = listOf(
-            StructureInfo(Village(VERSION), Dimension.OVERWORLD, true, 1000),
+            StructureInfo(Village(VERSION), Dimension.OVERWORLD, true, 500),
             StructureInfo(SwampHut(VERSION), Dimension.OVERWORLD, false),
             StructureInfo(Shipwreck(VERSION), Dimension.OVERWORLD, false),  //            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.OVERWORLD, false),
             //            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.NETHER, false),
             StructureInfo(PillagerOutpost(VERSION), Dimension.OVERWORLD, false),
             StructureInfo(OceanRuin(VERSION), Dimension.OVERWORLD, false),  //            new StructureInfo<>(new NetherFossil(VERSION), Dimension.NETHER, false),
-            StructureInfo(Monument(VERSION), Dimension.OVERWORLD, true),
+            StructureInfo(Monument(VERSION), Dimension.OVERWORLD, false),
             StructureInfo(Mansion(VERSION), Dimension.OVERWORLD, true, 2000),
             StructureInfo(JunglePyramid(VERSION), Dimension.OVERWORLD, true),
             StructureInfo(Igloo(VERSION), Dimension.OVERWORLD, false),
             StructureInfo(Fortress(VERSION), Dimension.NETHER, true),  //            new StructureInfo<>(new EndCity(VERSION), Dimension.END, false),
-            StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, false),
+            StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, true, 1000),
             StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false))
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
@@ -75,7 +74,7 @@ object Main {
     @JvmField
     val ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
             "jungles", ImmutableList.copyOf(jungles),
-            "mushrooms", ImmutableList.copyOf(mushrooms),
+//            "mushrooms", ImmutableList.copyOf(mushrooms),
             "mesas", ImmutableList.copyOf(mesa),
             "oceans", ImmutableList.copyOf(ocean),
             "icy", ImmutableList.copyOf(icy)
