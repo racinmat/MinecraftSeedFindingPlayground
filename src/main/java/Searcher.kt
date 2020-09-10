@@ -84,7 +84,7 @@ object Searcher {
             }.filterNotNull()
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired) {
-//                GlobalState.incr(structureInfo.structName);
+                GlobalState.incr(structureInfo.structName);
                 return null
             }
             structures[structureInfo] = structPositions
@@ -146,7 +146,7 @@ object Searcher {
             }
             // I require this structure and it's not there, end the search before testing biomes
             if (minDistance >= bigConst && structure.isRequired) {
-//                GlobalState.incr(structure.structName);
+                GlobalState.incr(structure.structName);
                 return null
             }
             structureDistances[structure.structName] = minDistance
@@ -160,7 +160,7 @@ object Searcher {
             //todo: add here computation of how many times I hit dark forest and number of seeds I prune using shortcuting
             val biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: run {
-//                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
+                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
                         return@f null // returns null when no biome is found, skipping this seed
                     }
 

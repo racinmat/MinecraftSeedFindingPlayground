@@ -1,11 +1,13 @@
 import com.google.common.util.concurrent.AtomicLongMap
 import kaptainwutax.biomeutils.Biome
 import kaptainwutax.biomeutils.Stats
+import kaptainwutax.biomeutils.StatsCallback
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.log10
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -83,33 +85,34 @@ object GlobalState {
     }
 
     fun printBiomeLayersStats() {
-        Main.LOGGER.info("total branch 1: desert, savannah, plains ${Stats.getCount("count1") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total branch 2: forest, daark forest, plains, mountains, birch forest, swamp ${Stats.getCount("count2") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total branch 3: forest, mountains, taiga, plains ${Stats.getCount("count3") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total branch 4: snowy tundra, snowy taiga ${Stats.getCount("count4") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total mushroom branch ${Stats.getCount("shroom") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total giant taiga ${Stats.getCount("taiga") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total mesaa ${Stats.getCount("mesa") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total jungle ${Stats.getCount("jungle") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("total ocean or mushroom ${Stats.getCount("shroomOrOcean") / Stats.getCount("total").toFloat() * 100}%")
-        Main.LOGGER.info("\n")
+        Main.LOGGER.info("total branch 1: desert, savannah, plains ${Stats.getCount("branch1").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total branch 2: forest, daark forest, plains, mountains, birch forest, swamp ${Stats.getCount("branch2").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total branch 3: forest, mountains, taiga, plains ${Stats.getCount("branch3").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total branch 4: snowy tundra, snowy taiga ${Stats.getCount("branch4").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total mushroom branch ${Stats.getCount("shroom").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total giant taiga ${Stats.getCount("taiga").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total mesaa ${Stats.getCount("mesa").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total jungle ${Stats.getCount("jungle").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("total ocean or mushroom ${Stats.getCount("shroomOrOcean").toFloat() / Stats.getCount("total").toFloat() * 100}%")
+        Main.LOGGER.info("")
         Main.LOGGER.info("###################CLIMATE#######################")
-        Main.LOGGER.info("\n")
-        Main.LOGGER.info("total Cold Forest ${Stats.getCount("coldForest") / Stats.getCount("totalCold").toFloat() * 100}%")
-        Main.LOGGER.info("total Cold Mountains ${Stats.getCount("coldMountains") / Stats.getCount("totalCold").toFloat() * 100}%")
-        Main.LOGGER.info("total Cold Plains ${Stats.getCount("coldPlains") / Stats.getCount("totalCold").toFloat() * 100}%")
-        Main.LOGGER.info("\n")
-        Main.LOGGER.info("total Temp Normal ${Stats.getCount("tempNormal") / Stats.getCount("totalTemp").toFloat() * 100}%")
-        Main.LOGGER.info("total Temp Desert ${Stats.getCount("tempDesert") / Stats.getCount("totalTemp").toFloat() * 100}%")
-        Main.LOGGER.info("\n")
-        Main.LOGGER.info("total Cool Normal ${Stats.getCount("coolNormal") / Stats.getCount("totalCool").toFloat() * 100}%")
-        Main.LOGGER.info("total Cool Mountains ${Stats.getCount("coolMountains") / Stats.getCount("totalCool").toFloat() * 100}%")
-        Main.LOGGER.info("\n")
-        Main.LOGGER.info("total Special Normal ${Stats.getCount("specialNormal") / Stats.getCount("totalSpe").toFloat() * 100}%")
-        Main.LOGGER.info("total Special Spec ${Stats.getCount("specialSpe") / Stats.getCount("totalSpe").toFloat() * 100}%")
-        Main.LOGGER.info("\n")
+        Main.LOGGER.info("")
+        Main.LOGGER.info("total Cold Forest ${Stats.getCount("coldForest").toFloat() / Stats.getCount("totalCold").toFloat() * 100}%")
+        Main.LOGGER.info("total Cold Mountains ${Stats.getCount("coldMountains").toFloat() / Stats.getCount("totalCold").toFloat() * 100}%")
+        Main.LOGGER.info("total Cold Plains ${Stats.getCount("coldPlains").toFloat() / Stats.getCount("totalCold").toFloat() * 100}%")
+        Main.LOGGER.info("")
+        Main.LOGGER.info("total Temp Normal ${Stats.getCount("tempNormal").toFloat() / Stats.getCount("totalTemp").toFloat() * 100}%")
+        Main.LOGGER.info("total Temp Desert ${Stats.getCount("tempDesert").toFloat() / Stats.getCount("totalTemp").toFloat() * 100}%")
+        Main.LOGGER.info("")
+        Main.LOGGER.info("total Cool Normal ${Stats.getCount("coolNormal").toFloat() / Stats.getCount("totalCool").toFloat() * 100}%")
+        Main.LOGGER.info("total Cool Mountains ${Stats.getCount("coolMountains").toFloat() / Stats.getCount("totalCool").toFloat() * 100}%")
+        Main.LOGGER.info("")
+        Main.LOGGER.info("total Special Normal ${Stats.getCount("specialNormal").toFloat() / Stats.getCount("totalSpe").toFloat() * 100}%")
+        Main.LOGGER.info("total Special Spec ${Stats.getCount("specialSpe").toFloat() / Stats.getCount("totalSpe").toFloat() * 100}%")
+        Main.LOGGER.info("")
         Main.LOGGER.info("###################MY WANTED SEEDS#######################")
         Main.LOGGER.info("Targeted ${Biome.DARK_FOREST.name} over total: ${foundSeeds.size / numExaminedSeeds().toFloat() * 100}% compared to standard deviated probability:${foundSeeds.size / numTriedSeeds().toFloat() * 100}%")
+        Main.LOGGER.info("Found in total ${foundSeeds.size} viable seeds from ${numExaminedSeeds()} examined and ${numTriedSeeds()} tried.")
     }
 
     fun resultsToCSV() {
@@ -141,8 +144,19 @@ object GlobalState {
     private val messStats = AtomicLongMap.create<String>()
     fun incr(mess: String) {
         val c = messStats.incrementAndGet(mess)
-        if (c % 10.0.pow(log10(c.toDouble()).roundToInt()) == 0.0) {
+        if (shouldLog(c)) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
         }
     }
+
+    init {
+        Stats.statsCallback = StatsCallback {messStats, mess, c ->
+            if (shouldLog(c)) {
+                OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
+            }
+
+        }
+    }
+
+    private fun shouldLog(c: Long) = c % 10.0.pow(max(log10(c.toDouble()).roundToInt(), 2)) == 0.0
 }

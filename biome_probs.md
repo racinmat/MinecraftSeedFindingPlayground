@@ -73,15 +73,17 @@ center is shallow   all diag are shallow    all diag not shallow    res
       return center
   - 1/6 chance return forest
   - 1/6 chance return mountains
-  - else return plains
+  - 2/3 chance return plains
      
 - ClimateLayer.Temperate
   - if center not plains
       return center
   - all of (n, e, s, w) are not in (mountains, forest)
-        ^ equivalent to all of (n, e, s, w) are either (plains or ocean)
+      ^ equivalent to all of (n, e, s, w) are either (plains or ocean)
       return center
-  - else return desert
+  - else
+      ^ equivalent of center is plains or (any of (n, e, s, w) are in (mountains, forest))
+      return desert
 
 - ClimateLayer.Cool
   - if center not forest

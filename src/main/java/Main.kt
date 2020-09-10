@@ -108,7 +108,6 @@ object Main {
         reset()
         var structureSeed: Long = 0
         while (STRUCTURE_SEED_MAX > getCurrentSeed()) {
-
             // I want to do search in a range of seeds so I can iteratively scan different ranges
             if (structureSeed >= STRUCTURE_SEED_MAX) {
                 break
@@ -182,13 +181,6 @@ object Main {
         //todo: figure out how to do flushing of logger so it corresponds to prints
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
-        Stats.statsCallback = StatsCallback {messStats, mess, c ->
-            if (c % 10.0.pow(log10(c.toDouble()).roundToInt()) == 0.0) {
-                OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
-            }
-
-        }
-
         initBiomeGroups()
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
