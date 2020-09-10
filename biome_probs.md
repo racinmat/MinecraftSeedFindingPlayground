@@ -2,7 +2,7 @@ layers
 - ContinentLayer
   - PLAINS 10% prob
   - OCEAN 90% prob
-- ScaleLayer
+- ScaleLayer - fuzzy (rest of scaling layers are normal)
   - wiggles upper layers
 - LandLayer
 - ScaleLayer
@@ -23,12 +23,91 @@ layers
 - BaseBiomesLayer
 - BambooJungleLayer
 
+axis orientation:
+ negative x left
+ positive x right
+ negative z up
+ positive z down
+ 
 layer notes
 - ContinentLayer
   - PLAINS 10%
   - OCEAN 90%
+
 - ScaleLayer
-  - wiggles upper layers
+  - wiggles upper layers. This is some intermediate rewrite of source code
+    i = center at (rounddown(x/2), rounddown(z/2))  <- because of scaling
+    xb = int(x is odd)
+    zb = int(z is odd)
+    if x is even and z is even return center
+    
+    s = center at (rounddown(x/2), rounddown((z+1)/2))  <- renamed semantically, south
+    m = 50% i, 50% s
+    if x is even return m
+    
+    e = center at (rounddown((x+1)/2), rounddown(z/2))  <- renamed semantically, east
+    o = 50% i, 50% e
+    if z is even return o
+
+    se = center at (rounddown((x+1)/2), rounddown((z+1)/2))  <- renamed semantically, south-east
+    if is fuzzy
+      1/4 chance return center
+      1/4 chance return e
+      1/4 chance return s
+      1/4 chance return se
+
+    if (e == s && e == se) return e
+    if (center == e && (center == se || s != se)) return center
+    if (center == s && (center == se || e != se)) return center
+    if (center == se && e != s) return center
+    if (e == s && center != se) return e
+    if (e == se && center != s) return e
+    if (s == se && center != e) return s    
+    1/4 chance return parent
+    1/4 chance return e
+    1/4 chance return s
+    1/4 chance return se
+
+- ScaleLayer
+  - 2nd iteration
+    - if (x is even and z is even) 
+      - return center
+    
+    - if x is even
+      - 50% return center
+      - 50% return south/down
+
+    - if z is even
+      - 50% return center
+      - 50% return east/right
+      
+    - if is fuzzy
+      - 1/4 chance return center
+      - 1/4 chance return east/right
+      - 1/4 chance return south/down
+      - 1/4 chance return south-east/down-right
+
+    - if e, s, se are same
+      - return e
+    - if (center == e && (center == se || s != se))
+      - return center
+    - if (center == s && (center == se || e != se)) 
+      - return center
+    - if (center == se && e != s)
+      - return center
+    - if (e == s && center != se)
+      - return e
+    - if (e == se && center != s)
+      - return e
+    - if (s == se && center != e)
+      - return s
+    - else
+      - 1/4 chance return parent
+      - 1/4 chance return e
+      - 1/4 chance return s
+      - 1/4 chance return se      
+ 
+      
 - LandLayer <- XCrossLayer
   - if (center is shallow ocean) and (all diags are shallow)
       return center
@@ -66,8 +145,7 @@ center is shallow   all diag are shallow    all diag not shallow    res
 - IslandLayer <- CrossLayer
   - if center, n, e, s, w are all shallow ocean
     - 50% return plains else return center (keep ocean)
-    
-    
+        
 - ClimateLayer.Cold
   - if is shallow ocean
       return center

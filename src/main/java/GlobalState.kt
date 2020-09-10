@@ -54,13 +54,13 @@ object GlobalState {
         foundSeeds.add(r)
         val numResults = foundSeeds.size
         //        if (numResults % 100 == 0) {
-//        if (numResults % 10 == 0) {
-        if (numResults % 1 == 0) {
+        if (numResults % 10 == 0) {
+//        if (numResults % 1 == 0) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Found seeds: $numResults") }
         }
         //        if (numResults % 1_000 == 0) {
-//        if (numResults % 100 == 0) {
-        if (numResults % 10 == 0) {
+        if (numResults % 100 == 0) {
+//        if (numResults % 10 == 0) {
 //        if (numResults % 1 == 0) {
             resultsToCSV()
         }
@@ -127,8 +127,8 @@ object GlobalState {
                     Main.toCsv(copiedSeeds, fileName)
 //                    Main.writeFileSeed("last_seed.txt", curSeed)
                     Main.LOGGER.info("Saved the CSV file named: $fileName")
-                    Main.LOGGER.info("Found ${copiedSeeds} seeds.")
-                    printBiomeLayersStats()
+                    Main.LOGGER.info("Found ${copiedSeeds.size} seeds.")
+                    if (LOGGING) printBiomeLayersStats()
                 } catch (e: IOException) {
                     Main.LOGGER.warning("Failed to save the CSV file: $fileName")
                     Main.LOGGER.warning(e.message)
@@ -136,7 +136,7 @@ object GlobalState {
                 }
             }
         } catch (e: Exception) {
-            Main.LOGGER.warning("Some general error happened")
+            Main.LOGGER.warning("Some  general error happened")
             Main.LOGGER.warning(e.message)
             e.printStackTrace()
         }

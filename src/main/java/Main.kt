@@ -28,8 +28,8 @@ object Main {
     val VERSION = MCVersion.v1_16_1
 
 //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-//    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
-    val NUM_CORES = 1 // for debugging
+    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+//    val NUM_CORES = 1 // for debugging
 
     const val STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1500
 
