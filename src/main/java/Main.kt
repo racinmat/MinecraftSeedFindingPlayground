@@ -4,7 +4,6 @@ import GlobalState.reset
 import GlobalState.shutdown
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ObjectArrays
 import kaptainwutax.biomeutils.Biome
 import kaptainwutax.featureutils.structure.*
 import kaptainwutax.seedutils.mc.Dimension
@@ -12,20 +11,20 @@ import kaptainwutax.seedutils.mc.MCVersion
 import kaptainwutax.seedutils.util.math.DistanceMetric
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
+import org.junit.platform.commons.logging.LoggerFactory
 import java.io.*
 import java.util.*
 import java.util.logging.LogManager
 import java.util.logging.Logger
-import java.util.stream.Collectors
 
 object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
 
-    //    public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+//        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+//    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+    val NUM_CORES = 1 // for debugging
 
-    //    public static final int NUM_CORES = 1;      // for debugging
     const val STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1500
 
     @JvmField
@@ -37,7 +36,6 @@ object Main {
 
     // discussion https://discordapp.com/channels/505310901461581824/532998733135085578/749723113033564283 that 16 is too small
     const val BIOME_SEARCH_SPACING = 96 // 6 chunks
-    const val BIG_M = 1e6
 
     //    public static final double SEED_THR = 1e-2;
     @JvmField
@@ -117,6 +115,7 @@ object Main {
     @Throws(IOException::class)
     fun searchSeedsParallel() {
         STRUCTURE_SEED_MIN = readFileSeed("last_seed.txt") + 1
+        println("Loaded ${STRUCTURE_SEED_MIN - 1} from file, going to perform seed search starting with structure seed $STRUCTURE_SEED_MIN.")
         reset()
         val currentThreads = ArrayList<Thread>()
         for (i in 0 until NUM_CORES) {
@@ -165,7 +164,7 @@ object Main {
 //        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 //        System.out.println("time: " + stopwatch);
 //        searchSeeds();
-        searchSeedsParallel()
+//        searchSeedsParallel()
         shutdown()
     }
 
@@ -176,6 +175,17 @@ object Main {
     init {
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
+
+        println("-- main method starts --")
+        LOGGER.info("an info msg")
+        println("-- main method starts --")
+        LOGGER.warning("a warning msg")
+        println("-- main method starts --")
+        LOGGER.severe("a severe msg")
+        println("-- main method starts --")
         initBiomeGroups()
     }
+//todo: try dry run without outputting things, benchmark how many seeds per second
+// check statistics from Neils fork
+// slowly start adding shortcuts and benchmark it
 }

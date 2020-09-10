@@ -18,7 +18,7 @@ dependencies {
     implementation('com.github.KaptainWutax:MathUtils:6c2d50eacad0241ff76119e6e703b70bac4b4bce') {transitive = false}
     implementation('com.github.racinmat:SeedUtils:6de994e8b51e79005568903abe8fa52dfbf49a48') {transitive = false}
     implementation('com.github.KaptainWutax:FeatureUtils:20252b3e97443175e1de33d44cc602b151fb70f4') {transitive = false}
-    implementation('com.github.KaptainWutax:BiomeUtils:e7a9489cd6dec10ff06b7cf70a297f40c223d94a') {transitive = false}
+    implementation('com.github.racinmat:BiomeUtils:83942e9b8fdc05f81fe7681e4c2da4a3faa829aa') {transitive = false}
     implementation('com.github.KaptainWutax:ChunkRandomReversal:209eefb8ed2bd097e3c55d3934ba508b664443da') {transitive = false}
     implementation('com.github.KaptainWutax:LattiCG:38f0b3d33e15ad2e6ce9ddb1f588e2b9a8c96174') {transitive = false}
     implementation 'com.google.guava:guava:29.0-jre'

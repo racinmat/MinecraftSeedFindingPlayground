@@ -1,16 +1,66 @@
 import GlobalState.addSeed
+import GlobalState.examineSeed
+import GlobalState.getCurrentSeed
+import GlobalState.nextSeed
+import GlobalState.trySeed
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
-import kaptainwutax.biomeutils.source.*
+import kaptainwutax.biomeutils.source.BiomeSource
+import kaptainwutax.biomeutils.source.EndBiomeSource
+import kaptainwutax.biomeutils.source.NetherBiomeSource
+import kaptainwutax.biomeutils.source.OverworldBiomeSource
+import kaptainwutax.featureutils.structure.RegionStructure
 import kaptainwutax.seedutils.lcg.rand.JRand
 import kaptainwutax.seedutils.mc.ChunkRand
 import kaptainwutax.seedutils.mc.Dimension
 import kaptainwutax.seedutils.mc.pos.BPos
 import kaptainwutax.seedutils.mc.pos.CPos
 import kaptainwutax.seedutils.util.math.Vec3i
-import java.util.concurrent.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import kotlin.math.absoluteValue
+
+data class SeedResult(
+        var seed: Long,
+        var structureDistances: ConcurrentMap<String, Double>,
+        var biomeDistances: Map<String, Double>) {
+
+    override fun toString(): String {
+        return "SeedResult{" +
+                "seed=$seed" +
+                ", structureDistances=$structureDistances" +
+                ", biomeDistances=$biomeDistances" +
+                "}"
+    }
+}
+
+
+data class StructureInfo<C : RegionStructure.Config, D : RegionStructure.Data<*>>
+@JvmOverloads constructor(val structure: RegionStructure<C, D>, val dimension: Dimension, val isRequired: Boolean, val maxDistance: Int = Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS) {
+    val structName: String = if (dimension == Dimension.OVERWORLD) structure.name else "${structure.name}_${dimension.getName()}"
+
+}
+
+
+class SearchingThread(private val structures: ImmutableList<StructureInfo<*, *>>, private val biomes: ImmutableMap<String, ImmutableList<Biome>>) : Thread(), Runnable {
+    override fun run() {
+        searching()
+    }
+
+    private fun searching() {
+        var structureSeed: Long = 0
+        while (Main.STRUCTURE_SEED_MAX > getCurrentSeed()) {
+
+            // I want to do search in a range of seeds so I can iteratively scan different ranges
+            if (structureSeed >= Main.STRUCTURE_SEED_MAX) {
+                break
+            }
+            structureSeed = nextSeed
+            Searcher.searchStructureSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING)
+        }
+    }
+}
 
 object Searcher {
 
@@ -66,6 +116,13 @@ object Searcher {
     fun searchWorldSeed(
             blockSearchRadius: Int, worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
             bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
+        trySeed()
+
+        // here will be shortcutting
+
+        //after the shortcut
+        examineSeed()
+
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
         val sources: ConcurrentMap<Dimension, BiomeSource?> = ConcurrentHashMap()
         // here was code for stopping, but I just run it until it's killed
@@ -94,12 +151,13 @@ object Searcher {
             }
             structureDistances[structure.structName] = minDistance
         }
-        val biomeDistances = bList.entries.map f@{(biomesName, biomesList)->
+        val biomeDistances = bList.entries.map f@{ (biomesName, biomesList) ->
 //        val biomeDistances: ConcurrentMap<String, Double> = bList.entries.map f@{(biomesName, biomesList)->
             if (biomesList.size == 0) return@f null
             //this is hardcoded for overworld, I should make sure biomelist is from same dimension and make it work in general
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
             val source = sources[Dimension.OVERWORLD]!!
+            //todo: add here computation of how many times I hit dark forest and number of seeds I prune using shortcuting
             val biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: run {
 //                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
