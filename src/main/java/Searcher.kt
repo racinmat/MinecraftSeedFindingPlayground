@@ -23,7 +23,7 @@ import kotlin.math.absoluteValue
 
 data class SeedResult(
         var seed: Long,
-        var structureDistances: ConcurrentMap<String, Double>,
+        var structureDistances: Map<String, Double>,
         var biomeDistances: Map<String, Double>) {
 
     override fun toString(): String {

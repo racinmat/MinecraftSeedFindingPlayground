@@ -16,9 +16,9 @@ repositories {
 dependencies {
 //    implementation 'com.github.KaptainWutax:SEED:6f0a91d7911f2bd9806192ce52e49f23b082b5c0'
     implementation('com.github.KaptainWutax:MathUtils:6c2d50eacad0241ff76119e6e703b70bac4b4bce') {transitive = false}
-    implementation('com.github.racinmat:SeedUtils:6de994e8b51e79005568903abe8fa52dfbf49a48') {transitive = false}
+    implementation('com.github.KaptainWutax:SeedUtils:8e310c079346fa55077fd1786b50dae0d2025336') {transitive = false}
     implementation('com.github.KaptainWutax:FeatureUtils:20252b3e97443175e1de33d44cc602b151fb70f4') {transitive = false}
-    implementation('com.github.racinmat:BiomeUtils:2ba62df64f002c8ee3981a425914c20fe8cbbc29') {transitive = false}
+    implementation('com.github.racinmat:BiomeUtils:ecc1ff7afc29de45051b951a6222f404800252f9') {transitive = false}
     implementation('com.github.KaptainWutax:ChunkRandomReversal:209eefb8ed2bd097e3c55d3934ba508b664443da') {transitive = false}
     implementation('com.github.KaptainWutax:LattiCG:38f0b3d33e15ad2e6ce9ddb1f588e2b9a8c96174') {transitive = false}
     implementation 'com.google.guava:guava:29.0-jre'
@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-params:5.6.2'
     implementation 'org.junit.vintage:junit-vintage-engine:5.6.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "de.mpicbg.scicomp:krangl:0.13"
 }
 
 test {

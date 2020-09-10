@@ -17,6 +17,8 @@ object GlobalState {
     private val triedSeeds = AtomicLong(0)
     private val examinedSeeds = AtomicLong(0)
 
+    var LOGGING = false
+
     @JvmField
     var OUTPUT_THREAD = Executors.newSingleThreadExecutor()
 
@@ -122,7 +124,7 @@ object GlobalState {
             val fileName = "distances_${Main.STRUCTURE_SEED_MIN}_${copiedSeeds.size}.csv"
             OUTPUT_THREAD.execute {
                 try {
-//                    Main.toCsv(copiedSeeds, fileName)
+                    Main.toCsv(copiedSeeds, fileName)
 //                    Main.writeFileSeed("last_seed.txt", curSeed)
                     Main.LOGGER.info("Saved the CSV file named: $fileName")
                     Main.LOGGER.info("Found ${copiedSeeds} seeds.")
@@ -143,6 +145,7 @@ object GlobalState {
     // simple way to obain statistics
     private val messStats = AtomicLongMap.create<String>()
     fun incr(mess: String) {
+        if (!LOGGING) return
         val c = messStats.incrementAndGet(mess)
         if (shouldLog(c)) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
@@ -150,7 +153,7 @@ object GlobalState {
     }
 
     init {
-        Stats.statsCallback = StatsCallback {messStats, mess, c ->
+        Stats.statsCallback = StatsCallback { messStats, mess, c ->
             if (shouldLog(c)) {
                 OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
             }

@@ -25,8 +25,8 @@ object VerifyResults {
         val records: Iterable<CSVRecord> = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
         return records.map {
             SeedResult(it["seed"].toLong(),
-                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>,
-                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap() as ConcurrentMap<String, Double>
+                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap(),
+                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap()
             )
         }
     }
@@ -65,7 +65,6 @@ object VerifyResults {
         }
     }
 
-    @Throws(IOException::class)
     @JvmStatic
     fun main(args: Array<String>) {
 //        for (var seed : new long[]{2590977160621592647L,
