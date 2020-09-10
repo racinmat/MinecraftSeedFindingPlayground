@@ -142,7 +142,6 @@ object GlobalState {
     fun incr(mess: String) {
         val c = messStats.incrementAndGet(mess)
         if (c % 10.0.pow(log10(c.toDouble()).roundToInt()) == 0.0) {
-//        if(c % 10_000 == 0) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
         }
     }

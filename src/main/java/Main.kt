@@ -1,3 +1,4 @@
+import GlobalState.OUTPUT_THREAD
 import GlobalState.getCurrentSeed
 import GlobalState.nextSeed
 import GlobalState.reset
@@ -5,6 +6,8 @@ import GlobalState.shutdown
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
+import kaptainwutax.biomeutils.Stats
+import kaptainwutax.biomeutils.StatsCallback
 import kaptainwutax.featureutils.structure.*
 import kaptainwutax.seedutils.mc.Dimension
 import kaptainwutax.seedutils.mc.MCVersion
@@ -16,6 +19,9 @@ import java.io.*
 import java.util.*
 import java.util.logging.LogManager
 import java.util.logging.Logger
+import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 object Main {
     @JvmField
@@ -164,7 +170,7 @@ object Main {
 //        long millis = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 //        System.out.println("time: " + stopwatch);
 //        searchSeeds();
-//        searchSeedsParallel()
+        searchSeedsParallel()
         shutdown()
     }
 
@@ -173,16 +179,16 @@ object Main {
     }
 
     init {
+        //todo: figure out how to do flushing of logger so it corresponds to prints
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
+        Stats.statsCallback = StatsCallback {messStats, mess, c ->
+            if (c % 10.0.pow(log10(c.toDouble()).roundToInt()) == 0.0) {
+                OUTPUT_THREAD.execute { Main.LOGGER.info("Times of message: $mess: $c") }
+            }
 
-        println("-- main method starts --")
-        LOGGER.info("an info msg")
-        println("-- main method starts --")
-        LOGGER.warning("a warning msg")
-        println("-- main method starts --")
-        LOGGER.severe("a severe msg")
-        println("-- main method starts --")
+        }
+
         initBiomeGroups()
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
