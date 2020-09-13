@@ -27,7 +27,7 @@ object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
 
-//        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
+    //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
     val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
 //    val NUM_CORES = 1 // for debugging
 
@@ -55,24 +55,28 @@ object Main {
     val STRUCTURES = listOf(
             StructureInfo(Village(VERSION), Dimension.OVERWORLD, true, 500),
             StructureInfo(SwampHut(VERSION), Dimension.OVERWORLD, false),
-            StructureInfo(Shipwreck(VERSION), Dimension.OVERWORLD, false),  //            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.OVERWORLD, false),
-            //            new StructureInfo<>(new RuinedPortal(VERSION), Dimension.NETHER, false),
+            StructureInfo(Shipwreck(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(RuinedPortal(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(RuinedPortal(VERSION), Dimension.NETHER, false),
             StructureInfo(PillagerOutpost(VERSION), Dimension.OVERWORLD, false),
-            StructureInfo(OceanRuin(VERSION), Dimension.OVERWORLD, false),  //            new StructureInfo<>(new NetherFossil(VERSION), Dimension.NETHER, false),
+            StructureInfo(OceanRuin(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(NetherFossil(VERSION), Dimension.NETHER, false),
             StructureInfo(Monument(VERSION), Dimension.OVERWORLD, false),
             StructureInfo(Mansion(VERSION), Dimension.OVERWORLD, true, 2000),
             StructureInfo(JunglePyramid(VERSION), Dimension.OVERWORLD, true),
             StructureInfo(Igloo(VERSION), Dimension.OVERWORLD, false),
-            StructureInfo(Fortress(VERSION), Dimension.NETHER, true),  //            new StructureInfo<>(new EndCity(VERSION), Dimension.END, false),
+            StructureInfo(Fortress(VERSION), Dimension.NETHER, true),
+//            StructureInfo(EndCity(VERSION), Dimension.END, false),
             StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, true, 1000),
-            StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false))
+            StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false)
+    )
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
-    val jungles = Biome.REGISTRY.values.filter {it.category == Biome.Category.JUNGLE }
-    val mushrooms = Biome.REGISTRY.values.filter {it.category == Biome.Category.MUSHROOM }
-    val mesa = Biome.REGISTRY.values.filter {it.category == Biome.Category.MESA }
-    val ocean = Biome.REGISTRY.values.filter {it.category == Biome.Category.OCEAN }
-    val icy = Biome.REGISTRY.values.filter {it.category == Biome.Category.ICY }
+    val jungles = Biome.REGISTRY.values.filter { it.category == Biome.Category.JUNGLE }
+    val mushrooms = Biome.REGISTRY.values.filter { it.category == Biome.Category.MUSHROOM }
+    val mesa = Biome.REGISTRY.values.filter { it.category == Biome.Category.MESA }
+    val ocean = Biome.REGISTRY.values.filter { it.category == Biome.Category.OCEAN }
+    val icy = Biome.REGISTRY.values.filter { it.category == Biome.Category.ICY }
 
     //only overworld biomes can be here because of hardcoded things
     @JvmField
@@ -83,6 +87,8 @@ object Main {
             "oceans", ImmutableList.copyOf(ocean),
             "icy", ImmutableList.copyOf(icy)
     )
+//    val ALL_OF_ANY_OF_BIOMES = emptyMap<String, ImmutableList<Biome>>()
+
     val STRUCT_NAMES = STRUCTURES.map { it.structName }
     val BIOME_NAMES = ALL_OF_ANY_OF_BIOMES.keys.toTypedArray()
     var HEADERS = (listOf("seed") + STRUCT_NAMES + BIOME_NAMES).toTypedArray()

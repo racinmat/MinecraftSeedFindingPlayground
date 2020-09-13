@@ -68,44 +68,43 @@ layer notes
     1/4 chance return s
     1/4 chance return se
 
-- ScaleLayer
-  - 2nd iteration
-    - if (x is even and z is even) 
-      - return center
+- ScaleLayer, rewritten to more readable form
+  - if (x is even and z is even) 
+    - return center
+  
+  - if x is even
+    - 50% return center
+    - 50% return south/down
+
+  - if z is even
+    - 50% return center
+    - 50% return east/right
     
-    - if x is even
-      - 50% return center
-      - 50% return south/down
+  - if is fuzzy
+    - 1/4 chance return center
+    - 1/4 chance return east/right
+    - 1/4 chance return south/down
+    - 1/4 chance return south-east/down-right
 
-    - if z is even
-      - 50% return center
-      - 50% return east/right
-      
-    - if is fuzzy
-      - 1/4 chance return center
-      - 1/4 chance return east/right
-      - 1/4 chance return south/down
-      - 1/4 chance return south-east/down-right
-
-    - if e, s, se are same
-      - return e
-    - if (center == e && (center == se || s != se))
-      - return center
-    - if (center == s && (center == se || e != se)) 
-      - return center
-    - if (center == se && e != s)
-      - return center
-    - if (e == s && center != se)
-      - return e
-    - if (e == se && center != s)
-      - return e
-    - if (s == se && center != e)
-      - return s
-    - else
-      - 1/4 chance return parent
-      - 1/4 chance return e
-      - 1/4 chance return s
-      - 1/4 chance return se      
+  - if e, s, se are same
+    - return e
+  - if (center == e && (center == se || s != se))
+    - return center
+  - if (center == s && (center == se || e != se)) 
+    - return center
+  - if (center == se && e != s)
+    - return center
+  - if (e == s && center != se)
+    - return e
+  - if (e == se && center != s)
+    - return e
+  - if (s == se && center != e)
+    - return s
+  - else
+    - 1/4 chance return parent
+    - 1/4 chance return e
+    - 1/4 chance return s
+    - 1/4 chance return se      
  
       
 - LandLayer <- XCrossLayer
