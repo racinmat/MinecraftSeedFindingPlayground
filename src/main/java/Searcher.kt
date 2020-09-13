@@ -129,24 +129,38 @@ object Searcher {
             val source = sources[dim]!!
             // here will be shortcutting
             val baseBlayer = source.getLayer(18)
+            val secScalelayer = source.getLayer(21)
 
-            for (mansionPos in structures[structures.keys.first { it.structName == "mansion" && it.isRequired }]!!) {
-                // first heuristics, based on dark forest being able to generate using ranf
+            //filtering through mansion positions
+            val mansion = structures.keys.first { it.structName == "mansion" && it.isRequired }
+            val mansionNewPositions = structures[mansion]?.filter f@{ mansionPos->
                 val bpos = mansionPos.toBlockPos()
                 val rpos18 = bpos.toRegionPos(baseBlayer.scale)
+                val rpos21 = bpos.toRegionPos(secScalelayer.scale)
                 val localSeed = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x, rpos18.z)
                 val localSeedS = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x, rpos18.z + 1)
                 val localSeedE = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x + 1, rpos18.z)
                 val localSeedSE = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x + 1, rpos18.z + 1)
-                val sampling = Math.floorMod(localSeed shr 24, 6) == 1 || Math.floorMod(localSeedS shr 24, 6) == 1 ||
+                val randCanHitDarkForest = Math.floorMod(localSeed shr 24, 6) == 1 || Math.floorMod(localSeedS shr 24, 6) == 1 ||
                         Math.floorMod(localSeedE shr 24, 6) == 1 || Math.floorMod(localSeedSE shr 24, 6) == 1
-//            isDarkForest
+                if (!randCanHitDarkForest) return@f false
+
                 // second heuristic based on looking at the lowest level where we know we get the dark forest
                 val bid = Biome.DARK_FOREST.id
-                val isDarkForest = baseBlayer.get(rpos18.x, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x, 0, rpos18.z + 1) == bid ||
+                val l18canBeDarkForest = baseBlayer.get(rpos18.x, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x, 0, rpos18.z + 1) == bid ||
                         baseBlayer.get(rpos18.x + 1, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x + 1, 0, rpos18.z + 1) == bid
-//            isDarkForest
+                if (!l18canBeDarkForest) return@f false
+
+                // third heuristic based on looking at the lowest level where we know we get the dark forest
+                val l21canBeDarkForest = secScalelayer.get(rpos21.x, 0, rpos21.z) == bid || secScalelayer.get(rpos21.x, 0, rpos21.z + 1) == bid ||
+                        secScalelayer.get(rpos21.x + 1, 0, rpos21.z) == bid || secScalelayer.get(rpos21.x + 1, 0, rpos21.z + 1) == bid
+                if (!l21canBeDarkForest) return@f false
+
+                true
             }
+
+            if (mansionNewPositions.isNullOrEmpty()) return null
+            structures[mansion] = mansionNewPositions   // to use the result of pruned positions
         }
 
         //after the shortcut

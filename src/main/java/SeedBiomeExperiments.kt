@@ -208,8 +208,8 @@ object SeedBiomeExperiments {
 ////        var results = fromCsv("broken_small/distances_0_10.csv");
 //        var results = fromCsv("good_seeds/distances_0_10.csv");
 //        val results = fromCsv("mansions2examine/distances_0_120.csv")
-        val results = fromCsv("mansions2examine2/distances_0_43100.csv")
-//        val results = fromCsv("distances_0_11930000.csv")
+//        val results = fromCsv("mansions2examine2/distances_0_43100.csv")
+        val results = fromCsv("distances_0_11930000.csv")
         val seeds = results.map { it.seed }
         var i = 0
         val mansionRows = seeds.flatMap { seed ->
@@ -301,8 +301,8 @@ object SeedBiomeExperiments {
 
         val df = dataFrameOf(mansionRows)
         df.print(maxWidth = 350)
-        df.writeCSV(File("mansions_0_43100.csv"))
-//        df.writeCSV(File("mansions_0_11930000.csv"))
+//        df.writeCSV(File("mansions_0_43100.csv"))
+        df.writeCSV(File("mansions_0_11930000.csv"))
 
         println(df.schema())
         val summ = df.summarize(
