@@ -6,6 +6,7 @@ import GlobalState.trySeed
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
+import kaptainwutax.biomeutils.layer.land.BaseBiomesLayer
 import kaptainwutax.biomeutils.source.BiomeSource
 import kaptainwutax.biomeutils.source.EndBiomeSource
 import kaptainwutax.biomeutils.source.NetherBiomeSource
@@ -116,15 +117,41 @@ object Searcher {
     fun searchWorldSeed(
             blockSearchRadius: Int, worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
             bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
+        //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
+        val sources: ConcurrentMap<Dimension, BiomeSource> = ConcurrentHashMap()
+
         trySeed()
 
-        // here will be shortcutting
+        //use dark forest based shortcutting only if I search for mansion and require it
+        if (structures.keys.any { it.structName == "mansion" && it.isRequired }) {
+            val dim = Dimension.OVERWORLD
+            if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
+            val source = sources[dim]!!
+            // here will be shortcutting
+            val baseBlayer = source.getLayer(18)
+
+            for (mansionPos in structures[structures.keys.first { it.structName == "mansion" && it.isRequired }]!!) {
+                // first heuristics, based on dark forest being able to generate using ranf
+                val bpos = mansionPos.toBlockPos()
+                val rpos18 = bpos.toRegionPos(baseBlayer.scale)
+                val localSeed = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x, rpos18.z)
+                val localSeedS = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x, rpos18.z + 1)
+                val localSeedE = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x + 1, rpos18.z)
+                val localSeedSE = Test.getLocalSeed(baseBlayer, worldSeed, rpos18.x + 1, rpos18.z + 1)
+                val sampling = Math.floorMod(localSeed shr 24, 6) == 1 || Math.floorMod(localSeedS shr 24, 6) == 1 ||
+                        Math.floorMod(localSeedE shr 24, 6) == 1 || Math.floorMod(localSeedSE shr 24, 6) == 1
+//            isDarkForest
+                // second heuristic based on looking at the lowest level where we know we get the dark forest
+                val bid = Biome.DARK_FOREST.id
+                val isDarkForest = baseBlayer.get(rpos18.x, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x, 0, rpos18.z + 1) == bid ||
+                        baseBlayer.get(rpos18.x + 1, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x + 1, 0, rpos18.z + 1) == bid
+//            isDarkForest
+            }
+        }
 
         //after the shortcut
         examineSeed()
 
-        //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
-        val sources: ConcurrentMap<Dimension, BiomeSource?> = ConcurrentHashMap()
         // here was code for stopping, but I just run it until it's killed
         val structureDistances: ConcurrentMap<String, Double> = ConcurrentHashMap()
         for ((structure, positions) in structures.entries) {

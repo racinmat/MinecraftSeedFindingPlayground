@@ -70,13 +70,25 @@ object SeedBiomeExperiments {
         var tries = 0L
         val results = mutableMapOf<String, Int>()
         val resultTimes = mutableMapOf<String, Double>()
+        val seedsKept = mutableMapOf(
+                "baseBiomeRoll12x2" to 0,
+                "biomecheck182x2" to 0,
+                "biomecheck212x2" to 0,
+                "biomecheckSource" to 0
+        )    //here I calculate from how many seeds I discarded all positions using this heuristic
+        var seedsTried = 0
         while (true) {
             val seed = Random().nextLong()
+            seedsTried++
 //            todo: here find mansion and try as many biomes as you can, make statistics of each part, how many positives and false positives it had and how much time it took
             val origin = Vec3i(0, 0, 0)
             val rand = ChunkRand()
             val mansionPositions = mansionPositions(structure, seed, origin, rand)
             val source = OverworldBiomeSource(VERSION, seed)
+            var baseBiomeRollAnyFound = false
+            var biomecheck18AnyFound = false
+            var biomecheck21AnyFound = false
+            var biomecheckSourceAnyFound = false
             if (tries > numTries) break
             for (mansionPos in mansionPositions) {
                 tries++
@@ -85,14 +97,14 @@ object SeedBiomeExperiments {
                 val secondScalelayer = source.getLayer(21)
                 val bpos = mansionPos.toBlockPos()
 
-                // cuts off 49% seeds, is 130x faster than canSpawn
+                // cuts off 49% seeds, is 51 faster than canSpawn
                 // tempered rolls dark forest on basebiome
                 val baseBiomeRoll12x2 = measureTimedValue {
                     val rpos18 = bpos.toRegionPos(baseBlayer.scale)
-                    val localSeed = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x, rpos18.z)
-                    val localSeedS = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x, rpos18.z + 1)
-                    val localSeedE = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x + 1, rpos18.z)
-                    val localSeedSE = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x + 1, rpos18.z + 1)
+                    val localSeed = Test.getLocalSeed(baseBlayer, seed, rpos18.x, rpos18.z)
+                    val localSeedS = Test.getLocalSeed(baseBlayer, seed, rpos18.x, rpos18.z + 1)
+                    val localSeedE = Test.getLocalSeed(baseBlayer, seed, rpos18.x + 1, rpos18.z)
+                    val localSeedSE = Test.getLocalSeed(baseBlayer, seed, rpos18.x + 1, rpos18.z + 1)
                     val isDarkForest = Math.floorMod(localSeed shr 24, 6) == 1 || Math.floorMod(localSeedS shr 24, 6) == 1 ||
                             Math.floorMod(localSeedE shr 24, 6) == 1 || Math.floorMod(localSeedSE shr 24, 6) == 1
                     isDarkForest
@@ -101,8 +113,9 @@ object SeedBiomeExperiments {
                 if (!resultTimes.containsKey("baseBiomeRoll12x2")) resultTimes["baseBiomeRoll12x2"] = 0.0
                 results["baseBiomeRoll12x2"] = results["baseBiomeRoll12x2"]!! + baseBiomeRoll12x2.value.toInt()
                 resultTimes["baseBiomeRoll12x2"] = resultTimes["baseBiomeRoll12x2"]!! + baseBiomeRoll12x2.duration.inSeconds
+                baseBiomeRollAnyFound = baseBiomeRollAnyFound || baseBiomeRoll12x2.value
 
-                // cuts off 84% seeds, is 4.3x faster than canSpawn
+                // cuts off 84% seeds, is 1.7x faster than canSpawn
                 // just checks
                 val biomecheck182x2 = measureTimedValue {
                     val rpos18 = bpos.toRegionPos(baseBlayer.scale)
@@ -116,6 +129,21 @@ object SeedBiomeExperiments {
                 if (!resultTimes.containsKey("biomecheck182x2")) resultTimes["biomecheck182x2"] = 0.0
                 results["biomecheck182x2"] = results["biomecheck182x2"]!! + biomecheck182x2.value.toInt()
                 resultTimes["biomecheck182x2"] = resultTimes["biomecheck182x2"]!! + biomecheck182x2.duration.inSeconds
+                biomecheck18AnyFound = biomecheck18AnyFound || biomecheck182x2.value
+
+                val biomecheck212x2 = measureTimedValue {
+                    val rpos18 = bpos.toRegionPos(baseBlayer.scale)
+                    val bid = Biome.DARK_FOREST.id
+                    val isDarkForest = baseBlayer.get(rpos18.x, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x, 0, rpos18.z + 1) == bid ||
+                            baseBlayer.get(rpos18.x + 1, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x + 1, 0, rpos18.z + 1) == bid
+                    isDarkForest
+                }
+
+                if (!results.containsKey("biomecheck212x2")) results["biomecheck212x2"] = 0
+                if (!resultTimes.containsKey("biomecheck212x2")) resultTimes["biomecheck212x2"] = 0.0
+                results["biomecheck212x2"] = results["biomecheck212x2"]!! + biomecheck212x2.value.toInt()
+                resultTimes["biomecheck212x2"] = resultTimes["biomecheck212x2"]!! + biomecheck212x2.duration.inSeconds
+                biomecheck21AnyFound = biomecheck21AnyFound || biomecheck212x2.value
 
 //                val biomecheck182x2 = measureTimedValue {
 //                // MAKE SURE SPECIAL DOESNT INTERFERE
@@ -126,19 +154,28 @@ object SeedBiomeExperiments {
 //                }
 
                 val biomecheckSource = measureTimedValue {
-                    val isDarkForest = structure.canSpawn(bpos.x, bpos.z, source)
+                    val isDarkForest = structure.canSpawn(mansionPos.x, mansionPos.z, source)
                     isDarkForest
                 }
                 if (!results.containsKey("biomecheckSource")) results["biomecheckSource"] = 0
                 if (!resultTimes.containsKey("biomecheckSource")) resultTimes["biomecheckSource"] = 0.0
                 results["biomecheckSource"] = results["biomecheckSource"]!! + biomecheckSource.value.toInt()
                 resultTimes["biomecheckSource"] = resultTimes["biomecheckSource"]!! + biomecheckSource.duration.inSeconds
+                biomecheckSourceAnyFound = biomecheckSourceAnyFound || biomecheckSource.value
             }
+
+            if (baseBiomeRollAnyFound) seedsKept["baseBiomeRoll12x2"] = seedsKept["baseBiomeRoll12x2"]!! + 1
+            if (biomecheck18AnyFound) seedsKept["biomecheck182x2"] = seedsKept["biomecheck182x2"]!! + 1
+            if (biomecheck21AnyFound) seedsKept["biomecheck212x2"] = seedsKept["biomecheck212x2"]!! + 1
+            if (biomecheckSourceAnyFound) seedsKept["biomecheckSource"] = seedsKept["biomecheckSource"]!! + 1
         }
         println("results:")
         println(results)
         println("result times:")
         println(resultTimes)
+        println("seeds to search next:")
+        println(seedsKept)
+        println("from $seedsTried seeds total")
     }
 
     @JvmStatic
@@ -202,6 +239,9 @@ object SeedBiomeExperiments {
                 val layer20name = biomeNameAtRPos(secondScalelayer, rpos20.x, rpos20.z)
                 val rpos21 = bpos.toRegionPos(secondScalelayer.scale)
                 val layer21name = biomeNameAtRPos(secondScalelayer, rpos21.x, rpos21.z)
+                val layer21nameE = biomeNameAtRPos(secondScalelayer, rpos21.x + 1, rpos21.z)
+                val layer21nameS = biomeNameAtRPos(secondScalelayer, rpos21.x, rpos21.z + 1)
+                val layer21nameSE = biomeNameAtRPos(secondScalelayer, rpos21.x + 1, rpos21.z + 1)
 //                println("layer 21 biome: $layer21name, should be ${Biome.DARK_FOREST.name}")
 //                assert(source.getBiome(bpos.x, 0, bpos.z) == Biome.DARK_FOREST)
 //                println("layer 18 biome: ${Biome.REGISTRY[bid]?.name}")
@@ -243,7 +283,10 @@ object SeedBiomeExperiments {
                 mapOf("seed" to seed, "bpos" to bpos,
                         "layer18name" to layer18name, "layer18nameE" to layer18nameE,
                         "layer18nameS" to layer18nameS, "layer18nameSE" to layer18nameSE,
-                        "layer20name" to layer20name, "layer21name" to layer21name, "surfaceName" to surfaceName,
+                        "layer20name" to layer20name,
+                        "layer21name" to layer21name, "layer21nameE" to layer21nameE,
+                        "layer21nameS" to layer21nameS, "layer21nameSE" to layer21nameSE,
+                        "surfaceName" to surfaceName,
                         "baseBiomeRoll1" to baseBiomeRoll1, "baseBiomeRoll1S" to baseBiomeRoll1S,
                         "baseBiomeRoll1E" to baseBiomeRoll1E, "baseBiomeRoll1SE" to baseBiomeRoll1SE,
                         "continentRoll0" to continentRoll0,
@@ -267,6 +310,7 @@ object SeedBiomeExperiments {
                 "layer18name2x2 wrong num" to { df.rows.map { "dark_forest" !in listOf(it["layer18name"], it["layer18nameS"], it["layer18nameE"], it["layer18nameSE"]) }.count { it } },
                 "layer20name wrong num" to { it["layer20name"].eq("dark_forest").not().count { it } },
                 "layer21name wrong num" to { it["layer21name"].eq("dark_forest").not().count { it } },
+                "layer21name2x2 wrong num" to { df.rows.map { "dark_forest" !in listOf(it["layer21name"], it["layer21nameS"], it["layer21nameE"], it["layer21nameSE"]) }.count { it } },
                 "surfaceName wrong num" to { it["surfaceName"].asStrings().count { it !in setOf("dark_forest", "dark_forest_hills") } },
                 "baseBiomeRoll1 wrong num" to { it["baseBiomeRoll1"].eq(false).count { it } },
                 "baseBiomeRoll12x2 wrong num" to { df.rows.map { !listOf(it["baseBiomeRoll1"], it["baseBiomeRoll1S"], it["baseBiomeRoll1E"], it["baseBiomeRoll1SE"]).any() }.count { it } },
