@@ -14,6 +14,7 @@ import kaptainwutax.seedutils.mc.MCVersion
 import kaptainwutax.seedutils.mc.pos.CPos
 import kaptainwutax.seedutils.util.math.Vec3i
 import krangl.*
+import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.time.ExperimentalTime
@@ -97,7 +98,7 @@ object SeedBiomeExperiments {
                 val secondScalelayer = source.getLayer(21)
                 val bpos = mansionPos.toBlockPos()
 
-                // cuts off 49% seeds, is 51 faster than canSpawn
+                // cuts off 49% positions, not even 1% of seeds, is 78 faster than canSpawn
                 // tempered rolls dark forest on basebiome
                 val baseBiomeRoll12x2 = measureTimedValue {
                     val rpos18 = bpos.toRegionPos(baseBlayer.scale)
@@ -115,8 +116,8 @@ object SeedBiomeExperiments {
                 resultTimes["baseBiomeRoll12x2"] = resultTimes["baseBiomeRoll12x2"]!! + baseBiomeRoll12x2.duration.inSeconds
                 baseBiomeRollAnyFound = baseBiomeRollAnyFound || baseBiomeRoll12x2.value
 
-                // cuts off 84% seeds, is 1.7x faster than canSpawn
-                // just checks
+                // cuts off 84% positions, 20% seeds, is 2.7x faster than canSpawn
+                // just checks, but lower level
                 val biomecheck182x2 = measureTimedValue {
                     val rpos18 = bpos.toRegionPos(baseBlayer.scale)
                     val bid = Biome.DARK_FOREST.id
@@ -131,11 +132,13 @@ object SeedBiomeExperiments {
                 resultTimes["biomecheck182x2"] = resultTimes["biomecheck182x2"]!! + biomecheck182x2.duration.inSeconds
                 biomecheck18AnyFound = biomecheck18AnyFound || biomecheck182x2.value
 
+                // cuts off 92% positions, 47% seeds, is 2.6x faster than canSpawn
+                // just check, but seems it cuts lots of seeds
                 val biomecheck212x2 = measureTimedValue {
-                    val rpos18 = bpos.toRegionPos(baseBlayer.scale)
+                    val rpos21 = bpos.toRegionPos(secondScalelayer.scale)
                     val bid = Biome.DARK_FOREST.id
-                    val isDarkForest = baseBlayer.get(rpos18.x, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x, 0, rpos18.z + 1) == bid ||
-                            baseBlayer.get(rpos18.x + 1, 0, rpos18.z) == bid || baseBlayer.get(rpos18.x + 1, 0, rpos18.z + 1) == bid
+                    val isDarkForest = secondScalelayer.get(rpos21.x, 0, rpos21.z) == bid || secondScalelayer.get(rpos21.x, 0, rpos21.z + 1) == bid ||
+                            secondScalelayer.get(rpos21.x + 1, 0, rpos21.z) == bid || secondScalelayer.get(rpos21.x + 1, 0, rpos21.z + 1) == bid
                     isDarkForest
                 }
 
@@ -182,8 +185,8 @@ object SeedBiomeExperiments {
     fun main(args: Array<String>) {
 //        the big dataset is upt to seed 5590 or sth. like that
 
-        benchHeuristics(100_000L)
-        return
+//        benchHeuristics(100_000L)
+//        return
 
 //        experiments()
 //
@@ -298,7 +301,7 @@ object SeedBiomeExperiments {
 
         val df = dataFrameOf(mansionRows)
         df.print(maxWidth = 350)
-//        df.writeCSV(File("mansions_0_43100.csv"))
+        df.writeCSV(File("mansions_0_43100.csv"))
 //        df.writeCSV(File("mansions_0_11930000.csv"))
 
         println(df.schema())
