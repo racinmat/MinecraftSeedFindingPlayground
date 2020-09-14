@@ -124,6 +124,35 @@ object Searcher {
 
         trySeed()
 
+        /*
+        Following shortcutshave been tested on millions of seeds to have 0 false negatives and thus should not reject any viable seed
+        but they have been tested only to distance up to 2000 from origin, which is aligned with my requirements, but I was told it
+        might not work for bigger numbers and larger distances.
+        Based on search with logging on 15 cores, after finding 10 viable seeds:
+        2308241 seeds were tried and only 1071535 were examined on actual requirements after passing shortcuts.
+        Which means 53% seeds were excluded using simple and fast heuristics.
+         */
+
+        //use jungle based shortcutting only if I search for mansion and require it
+        if  (JUNGLE_REQUIRED) {
+            val jungles = bList.first { it.biomesList.equals(filterBiomes { it.category == Biome.Category.JUNGLE }) && it.isRequired }
+            val dim = Dimension.OVERWORLD
+            if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
+            val source = sources[dim]!!
+            // here will be shortcutting
+            val specialLayer = source.getLayer(12)
+            val specialFound = cartesianProduct(
+                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale,
+                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale).map { (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                // special gives us special, so it results in jungle in base biome layer
+                Math.floorMod(Test.getLocalSeed(specialLayer, worldSeed, rpos12.x, rpos12.z) shr 24, 13) == 0
+            }.any{it}
+            if (!specialFound) return null
+        }
+
         //use dark forest based shortcutting only if I search for mansion and require it
         if (MANSION_REQUIRED) {
             structPoss = ConcurrentHashMap(structPoss)  // because I modify here the position list during pruning
@@ -164,24 +193,6 @@ object Searcher {
 
             if (mansionNewPositions.isNullOrEmpty()) return null
             structPoss[mansion] = mansionNewPositions   // to use the result of pruned positions
-        }
-
-        if  (JUNGLE_REQUIRED) {
-            val jungles = bList.first { it.biomesList.equals(filterBiomes { it.category == Biome.Category.JUNGLE }) && it.isRequired }
-            val dim = Dimension.OVERWORLD
-            if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
-            val source = sources[dim]!!
-            // here will be shortcutting
-            val specialLayer = source.getLayer(12)
-            cartesianProduct(
-                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale,
-                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale).map { (bposX, bposZ) ->
-                val bpos = BPos(bposX, 0, bposZ)
-                val rpos12 = bpos.toRegionPos(specialLayer.scale)
-
-                // special gives us special, so it results in jungle in base biome layer
-                Math.floorMod(Test.getLocalSeed(specialLayer, worldSeed, rpos12.x, rpos12.z) shr 24, 13) == 0
-            }.any{it}
         }
 
         //after the shortcut

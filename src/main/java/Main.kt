@@ -24,8 +24,8 @@ object Main {
     val VERSION = MCVersion.v1_16_1
 
     //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-//    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
-    val NUM_CORES = 1 // for debugging
+    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+//    val NUM_CORES = 1 // for debugging
 
     const val STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1500
 
@@ -181,8 +181,8 @@ object Main {
         //todo: figure out how to do flushing of logger so it corresponds to prints
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
-        LOGGING = true
-        Stats.LOGGING = true
+        LOGGING = false
+        Stats.LOGGING = LOGGING
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
 // check statistics from Neils fork
