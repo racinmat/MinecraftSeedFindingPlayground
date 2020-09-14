@@ -201,8 +201,7 @@ object SeedBiomeExperiments {
         val jungles = filterBiomes { it.category == Biome.Category.JUNGLE }
         var seedsTried = 0
         while (true) {
-//            val seed = Random().nextLong()
-            val seed = 562949953421340L
+            val seed = Random().nextLong()
             seedsTried++
             if (seedsTried > numTries) break
             if (seedsTried % 10_000 == 0) println("${LocalDateTime.now()} done $seedsTried samples from $numTries tries, percent ${100 * seedsTried.toFloat() / numTries.toFloat()}%")
@@ -232,7 +231,7 @@ object SeedBiomeExperiments {
             results["anyColdLayerPlains"] = results["anyColdLayerPlains"]!! + anyColdLayerPlains.value.toInt()
             resultTimes["anyColdLayerPlains"] = resultTimes["anyColdLayerPlains"]!! + anyColdLayerPlains.duration.inSeconds
 
-            // cuts off 48% seeds, is 180x faster than locateBiome
+            // cuts off 27% seeds, is 113x faster than locateBiome, but has false negatives
             // check that any has special biome
             val anySpecial = measureTimedValue {
                 cartesianProduct(
@@ -251,12 +250,12 @@ object SeedBiomeExperiments {
             results["anySpecial"] = results["anySpecial"]!! + anySpecial.value.toInt()
             resultTimes["anySpecial"] = resultTimes["anySpecial"]!! + anySpecial.duration.inSeconds
 
-            // cuts off 48% seeds, is 180x faster than locateBiome
-            // check that any has special biome
+            // cuts off 13% seeds, is 78x faster than locateBiome, no false negatives
+            // check that any has special biome, broader to cover s, se, e
             val anySpecialBroader = measureTimedValue {
                 cartesianProduct(
-                        -1500 until 1500+specialLayer.scale step specialLayer.scale,
-                        -1500 until 1500+specialLayer.scale step specialLayer.scale).map { (bposX, bposZ) ->
+                        -1500 until 1500+specialLayer.scale*2 step specialLayer.scale,
+                        -1500 until 1500+specialLayer.scale*2 step specialLayer.scale).map { (bposX, bposZ) ->
                     val bpos = BPos(bposX, 0, bposZ)
                     val rpos12 = bpos.toRegionPos(specialLayer.scale)
 
@@ -270,7 +269,7 @@ object SeedBiomeExperiments {
             results["anySpecialBroader"] = results["anySpecialBroader"]!! + anySpecialBroader.value.toInt()
             resultTimes["anySpecialBroader"] = resultTimes["anySpecialBroader"]!! + anySpecialBroader.duration.inSeconds
 
-            // cuts off 71% seeds, is 11kx faster than locateBiome
+            // cuts off 67% seeds, is 9% SLOWER than locateBiome, not usable for shortcutting
             // just check, but at lower level
             val anyJungle18 = measureTimedValue {
                 cartesianProduct(
@@ -285,7 +284,7 @@ object SeedBiomeExperiments {
             }
 
             if (!results.containsKey("anyJungle18")) results["anyJungle18"] = 0
-            if (!resultTimes.containsKey("biomecheck212x2")) resultTimes["anyJungle18"] = 0.0
+            if (!resultTimes.containsKey("anyJungle18")) resultTimes["anyJungle18"] = 0.0
             results["anyJungle18"] = results["anyJungle18"]!! + anyJungle18.value.toInt()
             resultTimes["anyJungle18"] = resultTimes["anyJungle18"]!! + anyJungle18.duration.inSeconds
 

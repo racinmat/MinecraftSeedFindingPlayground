@@ -3,6 +3,8 @@ import GlobalState.examineSeed
 import GlobalState.getCurrentSeed
 import GlobalState.nextSeed
 import GlobalState.trySeed
+import Main.JUNGLE_REQUIRED
+import Main.MANSION_REQUIRED
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
@@ -123,7 +125,7 @@ object Searcher {
         trySeed()
 
         //use dark forest based shortcutting only if I search for mansion and require it
-        if (structPoss.keys.any { it.structName == "mansion" && it.isRequired }) {
+        if (MANSION_REQUIRED) {
             structPoss = ConcurrentHashMap(structPoss)  // because I modify here the position list during pruning
             val dim = Dimension.OVERWORLD
             if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
@@ -162,6 +164,24 @@ object Searcher {
 
             if (mansionNewPositions.isNullOrEmpty()) return null
             structPoss[mansion] = mansionNewPositions   // to use the result of pruned positions
+        }
+
+        if  (JUNGLE_REQUIRED) {
+            val jungles = bList.first { it.biomesList.equals(filterBiomes { it.category == Biome.Category.JUNGLE }) && it.isRequired }
+            val dim = Dimension.OVERWORLD
+            if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
+            val source = sources[dim]!!
+            // here will be shortcutting
+            val specialLayer = source.getLayer(12)
+            cartesianProduct(
+                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale,
+                    -jungles.maxDistance until jungles.maxDistance+specialLayer.scale*2 step specialLayer.scale).map { (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                // special gives us special, so it results in jungle in base biome layer
+                Math.floorMod(Test.getLocalSeed(specialLayer, worldSeed, rpos12.x, rpos12.z) shr 24, 13) == 0
+            }.any{it}
         }
 
         //after the shortcut

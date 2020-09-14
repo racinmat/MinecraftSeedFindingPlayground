@@ -24,8 +24,8 @@ object Main {
     val VERSION = MCVersion.v1_16_1
 
     //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
-//    val NUM_CORES = 1 // for debugging
+//    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+    val NUM_CORES = 1 // for debugging
 
     const val STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1500
 
@@ -49,40 +49,44 @@ object Main {
 
     @JvmField
     val STRUCTURES = listOf(
-            StructureInfo(Village(VERSION), Dimension.OVERWORLD, true, 500)
-//            StructureInfo(SwampHut(VERSION), Dimension.OVERWORLD, false),
-//            StructureInfo(Shipwreck(VERSION), Dimension.OVERWORLD, false),
-////            StructureInfo(RuinedPortal(VERSION), Dimension.OVERWORLD, false),
-////            StructureInfo(RuinedPortal(VERSION), Dimension.NETHER, false),
-//            StructureInfo(PillagerOutpost(VERSION), Dimension.OVERWORLD, false),
-//            StructureInfo(OceanRuin(VERSION), Dimension.OVERWORLD, false),
-////            StructureInfo(NetherFossil(VERSION), Dimension.NETHER, false),
-//            StructureInfo(Monument(VERSION), Dimension.OVERWORLD, false),
-//            StructureInfo(Mansion(VERSION), Dimension.OVERWORLD, true, 2_000),
-//            StructureInfo(JunglePyramid(VERSION), Dimension.OVERWORLD, true),
-//            StructureInfo(Igloo(VERSION), Dimension.OVERWORLD, false),
-//            StructureInfo(Fortress(VERSION), Dimension.NETHER, true),
-////            StructureInfo(EndCity(VERSION), Dimension.END, false),
-//            StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, true, 1_000),
-//            StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false)
+            StructureInfo(Village(VERSION), Dimension.OVERWORLD, true, 500),
+            StructureInfo(SwampHut(VERSION), Dimension.OVERWORLD, false),
+            StructureInfo(Shipwreck(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(RuinedPortal(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(RuinedPortal(VERSION), Dimension.NETHER, false),
+            StructureInfo(PillagerOutpost(VERSION), Dimension.OVERWORLD, false),
+            StructureInfo(OceanRuin(VERSION), Dimension.OVERWORLD, false),
+//            StructureInfo(NetherFossil(VERSION), Dimension.NETHER, false),
+            StructureInfo(Monument(VERSION), Dimension.OVERWORLD, false),
+            StructureInfo(Mansion(VERSION), Dimension.OVERWORLD, true, 2_000),
+            StructureInfo(JunglePyramid(VERSION), Dimension.OVERWORLD, true),
+            StructureInfo(Igloo(VERSION), Dimension.OVERWORLD, false),
+            StructureInfo(Fortress(VERSION), Dimension.NETHER, true),
+//            StructureInfo(EndCity(VERSION), Dimension.END, false),
+            StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, true, 1_000),
+            StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false)
     )
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
     //only overworld biomes can be here because of hardcoded things
     @JvmField
     val ALL_OF_ANY_OF_BIOMES = ImmutableList.of(
-            BiomeInfo(filterBiomes { it.category == Biome.Category.JUNGLE }, "jungles", true, maxDistance = 2_000)
-//            BiomeInfo(filterBiomes { it.category == Biome.Category.MUSHROOM }, "mushrooms", false),
-//            BiomeInfo(filterBiomes { it.category == Biome.Category.MESA }, "mesas", true),
-//            BiomeInfo(filterBiomes { it.category == Biome.Category.OCEAN }, "oceans", true),
-//            BiomeInfo(filterBiomes { it.category == Biome.Category.ICY }, "icy", true)
+            BiomeInfo(filterBiomes { it.category == Biome.Category.JUNGLE }, "jungles", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.MUSHROOM }, "mushrooms", false),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.MESA }, "mesas", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.OCEAN }, "oceans", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.ICY }, "icy", true)
     )
 //    val ALL_OF_ANY_OF_BIOMES = emptyMap<String, ImmutableList<Biome>>()
 
     val STRUCT_NAMES = STRUCTURES.map { it.structName }
     val BIOME_NAMES = ALL_OF_ANY_OF_BIOMES.map { it.name }.toTypedArray()
     var HEADERS = (listOf("seed") + STRUCT_NAMES + BIOME_NAMES).toTypedArray()
-    fun initBiomeGroups() {}
+
+    //things to used for shortcutting, inferred from requirements
+    val MANSION_REQUIRED = STRUCTURES.any { it.structName == "mansion" && it.isRequired }
+    val JUNGLE_REQUIRED = ALL_OF_ANY_OF_BIOMES.any { it.biomesList.equals(filterBiomes { it.category == Biome.Category.JUNGLE }) && it.isRequired }
+
 
     @Throws(FileNotFoundException::class)
     fun readFileSeed(filename: String): Long {
@@ -177,9 +181,8 @@ object Main {
         //todo: figure out how to do flushing of logger so it corresponds to prints
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
-        LOGGING = false
-        Stats.LOGGING = false
-        initBiomeGroups()
+        LOGGING = true
+        Stats.LOGGING = true
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
 // check statistics from Neils fork

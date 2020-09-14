@@ -53,17 +53,17 @@ object GlobalState {
     fun addSeed(r: SeedResult) {
         foundSeeds.add(r)
         val numResults = foundSeeds.size
-        if (numResults % 10_000 == 0) {
-//        if (numResults % 1_000 == 0) {
-//        if (numResults % 100 == 0) {
-//        if (numResults % 10 == 0) {
-//        if (numResults % 1 == 0) {
-            OUTPUT_THREAD.execute { Main.LOGGER.info("Found seeds: $numResults") }
-        }
-        if (numResults % 100_000 == 0) {
 //        if (numResults % 10_000 == 0) {
 //        if (numResults % 1_000 == 0) {
 //        if (numResults % 100 == 0) {
+        if (numResults % 10 == 0) {
+//        if (numResults % 1 == 0) {
+            OUTPUT_THREAD.execute { Main.LOGGER.info("Found seeds: $numResults") }
+        }
+//        if (numResults % 100_000 == 0) {
+//        if (numResults % 10_000 == 0) {
+//        if (numResults % 1_000 == 0) {
+        if (numResults % 100 == 0) {
 //        if (numResults % 10 == 0) {
 //        if (numResults % 1 == 0) {
             resultsToCSV()
@@ -128,8 +128,8 @@ object GlobalState {
             val fileName = "distances_${Main.STRUCTURE_SEED_MIN}_${copiedSeeds.size}.csv"
             OUTPUT_THREAD.execute {
                 try {
-                    Main.toCsv(copiedSeeds, fileName)
-                    Main.writeFileSeed("last_seed.txt", curSeed)
+//                    Main.toCsv(copiedSeeds, fileName)
+//                    Main.writeFileSeed("last_seed.txt", curSeed)
                     Main.LOGGER.info("Saved the CSV file named: $fileName")
                     Main.LOGGER.info("Found ${copiedSeeds.size} seeds.")
                     if (LOGGING) printBiomeLayersStats()
