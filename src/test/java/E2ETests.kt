@@ -21,7 +21,7 @@ class E2ETests {
         val structures = Searcher.getStructuresPosList(structureSeed,
                 ImmutableList.copyOf(Main.STRUCTURES), origin, rand)
         Assertions.assertNotNull(structures)
-        val seedResult = Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, seed, structures!!,
+        val seedResult = Searcher.searchWorldSeed(seed, structures!!,
                 Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)!!
         Assertions.assertNotNull(seedResult)
         Assertions.assertEquals(seedResult.seed, seed)

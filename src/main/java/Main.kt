@@ -1,36 +1,31 @@
 import GlobalState.LOGGING
-import GlobalState.OUTPUT_THREAD
 import GlobalState.getCurrentSeed
 import GlobalState.nextSeed
 import GlobalState.reset
 import GlobalState.shutdown
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import kaptainwutax.biomeutils.Biome
 import kaptainwutax.biomeutils.Stats
-import kaptainwutax.biomeutils.StatsCallback
 import kaptainwutax.featureutils.structure.*
 import kaptainwutax.seedutils.mc.Dimension
 import kaptainwutax.seedutils.mc.MCVersion
 import kaptainwutax.seedutils.util.math.DistanceMetric
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.junit.platform.commons.logging.LoggerFactory
 import java.io.*
 import java.util.*
 import java.util.logging.LogManager
 import java.util.logging.Logger
-import kotlin.math.log10
-import kotlin.math.pow
-import kotlin.math.roundToInt
+
+fun filterBiomes(predicate: (Biome) -> Boolean) = ImmutableList.copyOf(Biome.REGISTRY.values.filter { predicate(it) })
 
 object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
 
     //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
-    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
-//    val NUM_CORES = 1 // for debugging
+//    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
+    val NUM_CORES = 1 // for debugging
 
     const val STRUCTURE_AND_BIOME_SEARCH_RADIUS = 1500
 
@@ -73,20 +68,14 @@ object Main {
     )
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
-    val jungles = Biome.REGISTRY.values.filter { it.category == Biome.Category.JUNGLE }
-    val mushrooms = Biome.REGISTRY.values.filter { it.category == Biome.Category.MUSHROOM }
-    val mesa = Biome.REGISTRY.values.filter { it.category == Biome.Category.MESA }
-    val ocean = Biome.REGISTRY.values.filter { it.category == Biome.Category.OCEAN }
-    val icy = Biome.REGISTRY.values.filter { it.category == Biome.Category.ICY }
-
     //only overworld biomes can be here because of hardcoded things
     @JvmField
     val ALL_OF_ANY_OF_BIOMES = ImmutableList.of(
-            BiomeInfo(ImmutableList.copyOf(jungles), "jungles", true),
-            BiomeInfo(ImmutableList.copyOf(mushrooms), "mushrooms", false),
-            BiomeInfo(ImmutableList.copyOf(mesa), "mesas", true),
-            BiomeInfo(ImmutableList.copyOf(ocean), "oceans", true),
-            BiomeInfo(ImmutableList.copyOf(icy), "icy", true)
+            BiomeInfo(filterBiomes { it.category == Biome.Category.JUNGLE }, "jungles", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.MUSHROOM }, "mushrooms", false),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.MESA }, "mesas", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.OCEAN }, "oceans", true),
+            BiomeInfo(filterBiomes { it.category == Biome.Category.ICY }, "icy", true)
     )
 //    val ALL_OF_ANY_OF_BIOMES = emptyMap<String, ImmutableList<Biome>>()
 

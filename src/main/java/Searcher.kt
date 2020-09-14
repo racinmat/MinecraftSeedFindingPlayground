@@ -72,9 +72,8 @@ object Searcher {
         return c1.flatMap { lhsElem -> c2.map { rhsElem -> lhsElem to rhsElem } }
     }
 
-    fun getStructuresPosList(structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>, origin: Vec3i?, rand: ChunkRand?): ConcurrentMap<StructureInfo<*, *>, List<CPos>>? {
-        val structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>> = ConcurrentHashMap()
-        for (structureInfo in sList) {
+    fun getStructuresPosList(structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>, origin: Vec3i?, rand: ChunkRand?): Map<StructureInfo<*, *>, ImmutableList<CPos>>? {
+        return sList.map { structureInfo->
             val structure = structureInfo.structure
             val structSearchRange = structureInfo.maxDistance
             val lowerBound = structure.at(-structSearchRange shr 4, -structSearchRange shr 4)
@@ -88,12 +87,11 @@ object Searcher {
             }.filterNotNull()
             // not enough structures in the region, this seed is not interesting, quitting
             if (structPositions.isEmpty() && structureInfo.isRequired) {
-                GlobalState.incr(structureInfo.structName);
+                GlobalState.incr(structureInfo.structName)
                 return null
             }
-            structures[structureInfo] = structPositions
-        }
-        return structures
+            structureInfo to ImmutableList.copyOf(structPositions)
+        }.toMap()
     }
 
     fun searchStructureSeed(
@@ -117,15 +115,17 @@ object Searcher {
         // here was code for stopping, but I just run it until it's killed
     }
 
-    fun searchWorldSeed(worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
+    fun searchWorldSeed(worldSeed: Long, structures: Map<StructureInfo<*, *>, List<CPos>>,
                         bList: ImmutableList<BiomeInfo>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
         val sources: ConcurrentMap<Dimension, BiomeSource> = ConcurrentHashMap()
+        var structPoss = structures
 
         trySeed()
 
         //use dark forest based shortcutting only if I search for mansion and require it
-        if (structures.keys.any { it.structName == "mansion" && it.isRequired }) {
+        if (structPoss.keys.any { it.structName == "mansion" && it.isRequired }) {
+            structPoss = ConcurrentHashMap(structPoss)  // because I modify here the position list during pruning
             val dim = Dimension.OVERWORLD
             if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
             val source = sources[dim]!!
@@ -134,8 +134,8 @@ object Searcher {
             val secScalelayer = source.getLayer(21)
 
             //filtering through mansion positions
-            val mansion = structures.keys.first { it.structName == "mansion" && it.isRequired }
-            val mansionNewPositions = structures[mansion]?.filter f@{ mansionPos ->
+            val mansion = structPoss.keys.first { it.structName == "mansion" && it.isRequired }
+            val mansionNewPositions = structPoss[mansion]?.filter f@{ mansionPos ->
                 val bpos = mansionPos.toBlockPos()
                 val rpos18 = bpos.toRegionPos(baseBlayer.scale)
                 val rpos21 = bpos.toRegionPos(secScalelayer.scale)
@@ -162,7 +162,7 @@ object Searcher {
             }
 
             if (mansionNewPositions.isNullOrEmpty()) return null
-            structures[mansion] = mansionNewPositions   // to use the result of pruned positions
+            structPoss[mansion] = mansionNewPositions   // to use the result of pruned positions
         }
 
         //after the shortcut
@@ -171,7 +171,7 @@ object Searcher {
         val bigConst = 10e9
         // here was code for stopping, but I just run it until it's killed
         val structureDistances: ConcurrentMap<String, Double> = ConcurrentHashMap()
-        for ((structure, positions) in structures.entries) {
+        for ((structure, positions) in structPoss.entries) {
             val dim = structure.dimension
             if (!sources.containsKey(dim)) sources[dim] = getBiomeSource(dim, worldSeed)
             val source = sources[dim]

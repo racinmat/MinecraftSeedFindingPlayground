@@ -183,6 +183,7 @@ object SeedBiomeExperiments {
 
     @JvmStatic
     fun main(args: Array<String>) {
+//        todo: try to make heuristics for jungle based on special being true on special layer, might be good for pruning
 //        the big dataset is upt to seed 5590 or sth. like that
 
 //        benchHeuristics(100_000L)
