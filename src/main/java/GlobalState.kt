@@ -127,7 +127,7 @@ object GlobalState {
             OUTPUT_THREAD.execute {
                 try {
                     Main.toCsv(copiedSeeds, fileName)
-//                    Main.writeFileSeed("last_seed.txt", curSeed)
+                    Main.writeFileSeed("last_seed.txt", curSeed)
                     Main.LOGGER.info("Saved the CSV file named: $fileName")
                     Main.LOGGER.info("Found ${copiedSeeds.size} seeds.")
                     if (LOGGING) printBiomeLayersStats()

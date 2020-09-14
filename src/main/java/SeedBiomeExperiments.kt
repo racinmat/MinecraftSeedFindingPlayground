@@ -17,6 +17,7 @@ import krangl.*
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.streams.toList
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
@@ -57,9 +58,8 @@ object SeedBiomeExperiments {
     /*
     * Results of experiments performed on 12142828 mansions positions in distance up to 2000 blocks chebyshev distance
     * from origin (0, 0, 0):
-    * layer18name wrong num  layer18name2x2 wrong num   layer20name wrong num   layer21name wrong num   surfaceName wrong num   baseBiomeRoll1 wrong num   baseBiomeRoll12x2 wrong num   continentRoll0 wrong num
-    *               7563612                         0                  425742                  425742                       0                    7194366                             0                   10922837
-    *
+    * layer18name wrong num  layer18name2x2 wrong num   layer20name wrong num   layer21name wrong num    layer21name2x2 wrong num  surfaceName wrong num   baseBiomeRoll1 wrong num   baseBiomeRoll12x2 wrong num   continentRoll0 wrong num   coldBiomeRoll1 wrong num
+    *               7563612                         0                  425742                  425742                           0                      0                    7194366                             0                   10922837                    3428268
     * Based on this it seems for our usecase we need to check if 2x2 [(x,z);(x+1,z+1)] grid generates at least one nextInt(6) == 1
     * */
 
@@ -212,7 +212,7 @@ object SeedBiomeExperiments {
         val results = fromCsv("distances_0_11930000.csv")
         val seeds = results.map { it.seed }
         var i = 0
-        val mansionRows = seeds.flatMap { seed ->
+        val mansionRows = seeds.parallelStream().flatMap { seed ->
 //            println("\nseed: $seed")
             val structure = Mansion(VERSION)
             val origin = Vec3i(0, 0, 0)
@@ -296,8 +296,8 @@ object SeedBiomeExperiments {
                         "coldRollGt1" to coldRollOk, "coldRollGt1E" to coldRollOkE,
                         "coldRollGt1S" to coldRollOkS, "coldRollGt1SE" to coldRollOkSE)
 
-            }
-        }
+            }.stream()
+        }.toList()
 
         val df = dataFrameOf(mansionRows)
         df.print(maxWidth = 350)

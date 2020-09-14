@@ -1,3 +1,4 @@
+import GlobalState.LOGGING
 import GlobalState.OUTPUT_THREAD
 import GlobalState.getCurrentSeed
 import GlobalState.nextSeed
@@ -82,7 +83,7 @@ object Main {
     @JvmField
     val ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
             "jungles", ImmutableList.copyOf(jungles),
-//            "mushrooms", ImmutableList.copyOf(mushrooms),
+            "mushrooms", ImmutableList.copyOf(mushrooms),
             "mesas", ImmutableList.copyOf(mesa),
             "oceans", ImmutableList.copyOf(ocean),
             "icy", ImmutableList.copyOf(icy)
@@ -187,6 +188,8 @@ object Main {
         //todo: figure out how to do flushing of logger so it corresponds to prints
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
+        LOGGING = false
+        Stats.LOGGING = false
         initBiomeGroups()
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
