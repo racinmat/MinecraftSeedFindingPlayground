@@ -186,8 +186,8 @@ object SeedBiomeExperiments {
     * Results of experiments performed on 2000000 jungles in distance up to 1500 blocks chebyshev distance
     * todo: need to calibrate it with findings of nearest jungle
     * from origin (0, 0, 0):
-    * anyColdLayerPlains wrong num   anySpecial wrong num   anyJungle18 wrong num
-    *                          109                 717367                  608631
+    * anyColdLayerPlains wrong num   anySpecial wrong num   anyJungle18 wrong num   anyColdLayerPlains missed   anySpecial missed   anyJungle18 missed
+    *                      2947657                2269766                 1185958                           0              231958                    0
     *
     * from 200k seeds. It seems they don't actually behave as constraint, they hold for all seeds
     * results:
@@ -448,6 +448,17 @@ object SeedBiomeExperiments {
                 Math.floorMod(Test.getLocalSeed(specialLayer, seed, rpos12.x, rpos12.z) shr 24, 13) == 0
             }.any{it}
 
+            //region 12, with taking also s, e, es of the region becaus it misses lots of jungles
+            val anySpecialBroader = cartesianProduct(
+                    -1500 until 1500+specialLayer.scale*2 step specialLayer.scale,
+                    -1500 until 1500+specialLayer.scale*2 step specialLayer.scale).map f@{ (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                // special gives us special, so it results in jungle in base biome layer
+                Math.floorMod(Test.getLocalSeed(specialLayer, seed, rpos12.x, rpos12.z) shr 24, 13) == 0
+            }.any{it}
+
             //region 18
             val anyJungle18 = cartesianProduct(
                     -1500 until 1500+baseLayer.scale step baseLayer.scale,
@@ -461,7 +472,7 @@ object SeedBiomeExperiments {
 
             mapOf("seed" to seed, "nearestJungle" to nearestJungle,
                     "anyColdLayerPlains" to anyColdLayerPlains, "anySpecial" to anySpecial,
-                    "anyJungle18" to anyJungle18
+                    "anySpecialBroader" to anySpecialBroader, "anyJungle18" to anyJungle18
             )
         }.toList()
 
@@ -472,14 +483,16 @@ object SeedBiomeExperiments {
 //        df.writeCSV(File("jungles_15_100000.csv"))
         df.writeCSV(File("jungles_15_7600001.csv"))
 
-//        val df = DataFrame.readCSV("jungles_15_7600001_4M.csv")
+//        val df = DataFrame.readCSV("jungles_15_7600001.csv")
         println(df.schema())
         val summ = df.summarize(
                 "anyColdLayerPlains wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anyColdLayerPlains"] as Boolean)}.count { it } },
                 "anySpecial wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anySpecial"] as Boolean)}.count { it } },
+                "anySpecialBroader wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anySpecialBroader"] as Boolean)}.count { it } },
                 "anyJungle18 wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anyJungle18"] as Boolean)}.count { it } },
                 "anyColdLayerPlains missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anyColdLayerPlains"] as Boolean)}.count { it } },
                 "anySpecial missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anySpecial"] as Boolean)}.count { it } },
+                "anySpecialBroader missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anySpecialBroader"] as Boolean)}.count { it } },
                 "anyJungle18 missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anyJungle18"] as Boolean)}.count { it } }
         )
         summ.print(maxWidth = 350)
