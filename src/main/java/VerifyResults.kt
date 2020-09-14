@@ -36,7 +36,7 @@ object VerifyResults {
         val origin = Vec3i(0, 0, 0)
         val rand = ChunkRand()
         val structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand) ?: return null
-        return Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
+        return Searcher.searchWorldSeed(worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
     }
 
     fun checkSeedResult(seedResult: SeedResult): Boolean {
@@ -45,7 +45,7 @@ object VerifyResults {
         val origin = Vec3i(0, 0, 0)
         val rand = ChunkRand()
         val structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand)!!
-        val result = Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
+        val result = Searcher.searchWorldSeed(worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
         println("checking seed: $worldSeed")
         println("in results: $seedResult")
         println("expected: $result")

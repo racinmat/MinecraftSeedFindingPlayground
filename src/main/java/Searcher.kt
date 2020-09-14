@@ -43,8 +43,11 @@ data class StructureInfo<C : RegionStructure.Config, D : RegionStructure.Data<*>
 
 }
 
+data class BiomeInfo
+@JvmOverloads constructor(val biomesList: ImmutableList<Biome>, val name: String, val isRequired: Boolean, val maxDistance: Int = Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS) {
+}
 
-class SearchingThread(private val structures: ImmutableList<StructureInfo<*, *>>, private val biomes: ImmutableMap<String, ImmutableList<Biome>>) : Thread(), Runnable {
+class SearchingThread(private val structures: ImmutableList<StructureInfo<*, *>>, private val biomes: ImmutableList<BiomeInfo>) : Thread(), Runnable {
     override fun run() {
         searching()
     }
@@ -58,7 +61,7 @@ class SearchingThread(private val structures: ImmutableList<StructureInfo<*, *>>
                 break
             }
             structureSeed = nextSeed
-            Searcher.searchStructureSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING)
+            Searcher.searchStructureSeed(structureSeed, structures, biomes, Main.BIOME_SEARCH_SPACING)
         }
     }
 }
@@ -94,8 +97,8 @@ object Searcher {
     }
 
     fun searchStructureSeed(
-            blockSearchRadius: Int, structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>,
-            bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int) {
+            structureSeed: Long, sList: ImmutableList<StructureInfo<*, *>>, bList: ImmutableList<BiomeInfo>,
+            biomeCheckSpacing: Int) {
         val origin = Vec3i(0, 0, 0)
         val rand = ChunkRand()
         val structures = getStructuresPosList(structureSeed, sList, origin, rand) ?: return
@@ -107,16 +110,15 @@ object Searcher {
                 GlobalState.OUTPUT_THREAD.execute({ Main.LOGGER.info("will check struct seed: $structureSeed, upperBits: $upperBits") })
             }
             val worldSeed: Long = (upperBits shl 48) or structureSeed
-            val seedResult = searchWorldSeed(blockSearchRadius, worldSeed, structures, bList, biomeCheckSpacing, origin, rand)
+            val seedResult = searchWorldSeed(worldSeed, structures, bList, biomeCheckSpacing, origin, rand)
                     ?: continue
             addSeed(seedResult)
         }
         // here was code for stopping, but I just run it until it's killed
     }
 
-    fun searchWorldSeed(
-            blockSearchRadius: Int, worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
-            bList: ImmutableMap<String, ImmutableList<Biome>>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
+    fun searchWorldSeed(worldSeed: Long, structures: ConcurrentMap<StructureInfo<*, *>, List<CPos>>,
+                        bList: ImmutableList<BiomeInfo>, biomeCheckSpacing: Int, origin: Vec3i?, rand: ChunkRand): SeedResult? {
         //caching BiomeSources per seed so I utilize the caching https://discordapp.com/channels/505310901461581824/532998733135085578/749750365716480060
         val sources: ConcurrentMap<Dimension, BiomeSource> = ConcurrentHashMap()
 
@@ -133,7 +135,7 @@ object Searcher {
 
             //filtering through mansion positions
             val mansion = structures.keys.first { it.structName == "mansion" && it.isRequired }
-            val mansionNewPositions = structures[mansion]?.filter f@{ mansionPos->
+            val mansionNewPositions = structures[mansion]?.filter f@{ mansionPos ->
                 val bpos = mansionPos.toBlockPos()
                 val rpos18 = bpos.toRegionPos(baseBlayer.scale)
                 val rpos21 = bpos.toRegionPos(secScalelayer.scale)
@@ -187,24 +189,24 @@ object Searcher {
             }
             // I require this structure and it's not there, end the search before testing biomes
             if (minDistance >= bigConst && structure.isRequired) {
-                GlobalState.incr(structure.structName);
+                GlobalState.incr(structure.structName)
                 return null
             }
             structureDistances[structure.structName] = minDistance
         }
-        val biomeDistances = bList.entries.map f@{ (biomesName, biomesList) ->
+        val biomeDistances = bList.map f@{ bInfo ->
+            val biomesName = bInfo.name
 //        val biomeDistances: ConcurrentMap<String, Double> = bList.entries.map f@{(biomesName, biomesList)->
-            if (biomesList.size == 0) return@f null
+            if (bInfo.biomesList.size == 0) return@f null
             //this is hardcoded for overworld, I should make sure biomelist is from same dimension and make it work in general
             if (!sources.containsKey(Dimension.OVERWORLD)) sources[Dimension.OVERWORLD] = getBiomeSource(Dimension.OVERWORLD, worldSeed)
             val source = sources[Dimension.OVERWORLD]!!
             //todo: add here computation of how many times I hit dark forest and number of seeds I prune using shortcuting
-            val biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
+            val biomePos = distToAnyBiomeKaptainWutax(bInfo.maxDistance, bInfo.biomesList, biomeCheckSpacing, source, rand)
                     ?: run {
-                        GlobalState.incr(biomesList.map { it.name }.joinToString(", "))
-                        return@f biomesName to bigConst
+                        GlobalState.incr(bInfo.biomesList.map { it.name }.joinToString(", "))
+                        if (bInfo.isRequired) return null else return@f biomesName to bigConst
                     }
-
             return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)
         }.filterNotNull().toMap()
         return SeedResult(worldSeed, structureDistances, biomeDistances)

@@ -81,17 +81,17 @@ object Main {
 
     //only overworld biomes can be here because of hardcoded things
     @JvmField
-    val ALL_OF_ANY_OF_BIOMES = ImmutableMap.of(
-            "jungles", ImmutableList.copyOf(jungles),
-            "mushrooms", ImmutableList.copyOf(mushrooms),
-            "mesas", ImmutableList.copyOf(mesa),
-            "oceans", ImmutableList.copyOf(ocean),
-            "icy", ImmutableList.copyOf(icy)
+    val ALL_OF_ANY_OF_BIOMES = ImmutableList.of(
+            BiomeInfo(ImmutableList.copyOf(jungles), "jungles", true),
+            BiomeInfo(ImmutableList.copyOf(mushrooms), "mushrooms", false),
+            BiomeInfo(ImmutableList.copyOf(mesa), "mesas", true),
+            BiomeInfo(ImmutableList.copyOf(ocean), "oceans", true),
+            BiomeInfo(ImmutableList.copyOf(icy), "icy", true)
     )
 //    val ALL_OF_ANY_OF_BIOMES = emptyMap<String, ImmutableList<Biome>>()
 
     val STRUCT_NAMES = STRUCTURES.map { it.structName }
-    val BIOME_NAMES = ALL_OF_ANY_OF_BIOMES.keys.toTypedArray()
+    val BIOME_NAMES = ALL_OF_ANY_OF_BIOMES.map { it.name }.toTypedArray()
     var HEADERS = (listOf("seed") + STRUCT_NAMES + BIOME_NAMES).toTypedArray()
     fun initBiomeGroups() {}
 
@@ -120,7 +120,7 @@ object Main {
                 break
             }
             structureSeed = nextSeed
-            Searcher.searchStructureSeed(STRUCTURE_AND_BIOME_SEARCH_RADIUS, structureSeed, ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES, BIOME_SEARCH_SPACING)
+            Searcher.searchStructureSeed(structureSeed, ImmutableList.copyOf(STRUCTURES), ALL_OF_ANY_OF_BIOMES, BIOME_SEARCH_SPACING)
         }
     }
 
