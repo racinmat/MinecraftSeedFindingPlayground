@@ -5,13 +5,14 @@ import kaptainwutax.biomeutils.Biome
 import kaptainwutax.biomeutils.layer.BiomeLayer
 import kaptainwutax.biomeutils.layer.land.BaseBiomesLayer
 import kaptainwutax.biomeutils.layer.land.ContinentLayer
-import kaptainwutax.biomeutils.layer.temperature.ClimateLayer
 import kaptainwutax.biomeutils.source.OverworldBiomeSource
 import kaptainwutax.featureutils.structure.Mansion
 import kaptainwutax.featureutils.structure.RegionStructure
 import kaptainwutax.seedutils.mc.ChunkRand
 import kaptainwutax.seedutils.mc.MCVersion
+import kaptainwutax.seedutils.mc.pos.BPos
 import kaptainwutax.seedutils.mc.pos.CPos
+import kaptainwutax.seedutils.util.math.DistanceMetric
 import kaptainwutax.seedutils.util.math.Vec3i
 import krangl.*
 import java.io.File
@@ -65,7 +66,7 @@ object SeedBiomeExperiments {
 
     fun Boolean.toInt() = if (this) 1 else 0
 
-    fun benchHeuristics(numTries: Long) {
+    fun benchDarkForesthHeuristics(numTries: Long) {
         val structure = Mansion(VERSION)
 //        val seed = 0L
         var tries = 0L
@@ -181,109 +182,183 @@ object SeedBiomeExperiments {
         println("from $seedsTried seeds total")
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-//        todo: try to make heuristics for jungle based on special being true on special layer, might be good for pruning
-//        the big dataset is upt to seed 5590 or sth. like that
+    /*
+    * Results of experiments performed on 2000000 jungles in distance up to 1500 blocks chebyshev distance
+    * from origin (0, 0, 0):
+    * all 3 heuristics: any special rolls on level 12, or jungle appearch on level 18 or plains rolls on layer 8 are truw for all these 2M jungles
+    *
+    * from 200k seeds. It seems they don't actually behave as constraint, they hold for all seeds
+    * results:
+    * {anyColdLayerPlains=200000, anySpecial=200000, anyJungle18=200000, biomecheckSource=35292}
+    * result times:
+    * {anyColdLayerPlains=0.38975799999938426, anySpecial=0.2552148000006136, anyJungle18=2.343E-4, biomecheckSource=50.78538900000022}
+    * from 200001 seeds total
+    * */
+    fun benchJungleHeuristics(numTries: Long) {
+        val results = mutableMapOf<String, Int>()
+        val resultTimes = mutableMapOf<String, Double>()
+        val jungles = filterBiomes { it.category == Biome.Category.JUNGLE }
+        var seedsTried = 0
+        while (true) {
+            val seed = Random().nextLong()
+            seedsTried++
+            if (seedsTried > numTries) break
+            if (seedsTried % 10_000 == 0) println("${LocalDateTime.now()} done $seedsTried samples from $numTries tries, percent ${100 * seedsTried.toFloat() / numTries.toFloat()}%")
+            val origin = Vec3i(0, 0, 0)
+            val rand = ChunkRand()
+            val source = OverworldBiomeSource(VERSION, seed)
+            val coldLayer = source.getLayer(8)
+            val specialLayer = source.getLayer(12)
+            val baseLayer = source.getLayer(18)
 
-//        benchHeuristics(100_000L)
-//        return
+            // cuts off not even 1% of seeds, is 117x faster than locateBiome
+            // tempered rolls dark forest on basebiome
+            val anyColdLayerPlains = measureTimedValue {
+                cartesianProduct(
+                        -1500..1500 step coldLayer.scale,
+                        -1500..1500 step coldLayer.scale).map { (bposX, bposZ) ->
+                    val bpos = BPos(bposX, 0, bposZ)
+                    val rpos8 = bpos.toRegionPos(coldLayer.scale)
 
-//        experiments()
-//
-//        val layer = source.getLayer(18)
-//        assert(layer is BaseBiomesLayer)
-//        assert(mansion.canSpawn(mansionPos.x, mansionPos.z, source))
-//        val biomeId = layer.get(bpos.x / layer.scale, 0, bpos.x / layer.scale)
-//        Biome.REGISTRY[biomeId]
+                    // cold gives us plains, so the temperate has chance to give desert
+                    Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x, rpos8.z) shr 24, 6) > 1
+                }.any{it}
+            }
+
+            if (!results.containsKey("anyColdLayerPlains")) results["anyColdLayerPlains"] = 0
+            if (!resultTimes.containsKey("anyColdLayerPlains")) resultTimes["anyColdLayerPlains"] = 0.0
+            results["anyColdLayerPlains"] = results["anyColdLayerPlains"]!! + anyColdLayerPlains.value.toInt()
+            resultTimes["anyColdLayerPlains"] = resultTimes["anyColdLayerPlains"]!! + anyColdLayerPlains.duration.inSeconds
+
+            // cuts off 48% seeds, is 180x faster than locateBiome
+            // check that any has special biome
+            val anySpecial = measureTimedValue {
+                cartesianProduct(
+                        -1500..1500 step specialLayer.scale,
+                        -1500..1500 step specialLayer.scale).map { (bposX, bposZ) ->
+                    val bpos = BPos(bposX, 0, bposZ)
+                    val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                    // special gives us special, so it results in jungle in base biome layer
+                    Math.floorMod(Test.getLocalSeed(specialLayer, seed, rpos12.x, rpos12.z) shr 24, 13) == 0
+                }.any{it}
+            }
+
+            if (!results.containsKey("anySpecial")) results["anySpecial"] = 0
+            if (!resultTimes.containsKey("anySpecial")) resultTimes["anySpecial"] = 0.0
+            results["anySpecial"] = results["anySpecial"]!! + anySpecial.value.toInt()
+            resultTimes["anySpecial"] = resultTimes["anySpecial"]!! + anySpecial.duration.inSeconds
+
+            // cuts off 71% seeds, is 11kx faster than locateBiome
+            // just check, but at lower level
+            val anyJungle18 = measureTimedValue {
+                cartesianProduct(
+                        -1500..1500 step baseLayer.scale,
+                        -1500..1500 step baseLayer.scale).map { (bposX, bposZ) ->
+                    val bpos = BPos(bposX, 0, bposZ)
+                    val rpos18 = bpos.toRegionPos(baseLayer.scale)
+
+                    // cold gives us plains, so the temperate has chance to give desert
+                    biomeNameAtRPos(baseLayer, rpos18.x, rpos18.z) == "jungle"
+                }.any{it}
+            }
+
+            if (!results.containsKey("anyJungle18")) results["anyJungle18"] = 0
+            if (!resultTimes.containsKey("biomecheck212x2")) resultTimes["anyJungle18"] = 0.0
+            results["anyJungle18"] = results["anyJungle18"]!! + anyJungle18.value.toInt()
+            resultTimes["anyJungle18"] = resultTimes["anyJungle18"]!! + anyJungle18.duration.inSeconds
 
 
-//        for (var seed : new long[]{2590977160621592647L,
-//                8494351847174180868L,
-//                -7931401893752860728L}) {
-//            System.out.println(WorldSeed.toStructureSeed(seed));
-//        }
+            val biomecheckSource = measureTimedValue {
+                val nearestJungle = source.locateBiome(0, 0, 0, 1500, 256, jungles, rand, true)
+                nearestJungle != null && nearestJungle.distanceTo(origin, DistanceMetric.CHEBYSHEV) <= 1500
+            }
+            if (!results.containsKey("biomecheckSource")) results["biomecheckSource"] = 0
+            if (!resultTimes.containsKey("biomecheckSource")) resultTimes["biomecheckSource"] = 0.0
+            results["biomecheckSource"] = results["biomecheckSource"]!! + biomecheckSource.value.toInt()
+            resultTimes["biomecheckSource"] = resultTimes["biomecheckSource"]!! + biomecheckSource.duration.inSeconds
+        }
+        println("results:")
+        println(results)
+        println("result times:")
+        println(resultTimes)
+        println("from $seedsTried seeds total")
+    }
 
-//        fixResults();
-//        var results = fromCsv("old_multithread_seeds_2/distances_0_70.csv");
-////        var results = fromCsv("broken_small/distances_0_10.csv");
-//        var results = fromCsv("good_seeds/distances_0_10.csv");
-//        val results = fromCsv("mansions2examine/distances_0_120.csv")
-//        val results = fromCsv("mansions2examine2/distances_0_43100.csv")
+    private fun experimentsDarkForest() {
+        //        var results = fromCsv("old_multithread_seeds_2/distances_0_70.csv");
+        ////        var results = fromCsv("broken_small/distances_0_10.csv");
+        //        var results = fromCsv("good_seeds/distances_0_10.csv");
+        //        val results = fromCsv("mansions2examine/distances_0_120.csv")
+        //        val results = fromCsv("mansions2examine2/distances_0_43100.csv")
         val results = fromCsv("distances_0_11930000.csv")
         val seeds = results.map { it.seed }
         var i = 0
         val mansionRows = seeds.parallelStream().flatMap { seed ->
-//            println("\nseed: $seed")
+            //            println("\nseed: $seed")
             val structure = Mansion(VERSION)
             val origin = Vec3i(0, 0, 0)
             val rand = ChunkRand()
             val mansionPositions = mansionPositions(structure, seed, origin, rand)
             val source = OverworldBiomeSource(VERSION, seed)
             val spawnedMansionPositions = mansionPositions.filter { structure.canSpawn(it.x, it.z, source) }
-            val specialBlayer = source.getLayer(12)
-            val baseBlayer = source.getLayer(18)
-            val firstScalelayer = source.getLayer(20)
-            val secondScalelayer = source.getLayer(21)
-            assert(baseBlayer is BaseBiomesLayer)
-//            println("num mansions: ${spawnedMansionPositions.size}")
+            val coldLayer = source.getLayer(8)
+            val specialLayer = source.getLayer(12)
+            val baseLayer = source.getLayer(18)
+            val firstScaleLayer = source.getLayer(20)
+            val secondScaleLayer = source.getLayer(21)
+            assert(baseLayer is BaseBiomesLayer)
+            //            println("num mansions: ${spawnedMansionPositions.size}")
             spawnedMansionPositions.map { mansionPos ->
                 i += 1
                 if (i % 10_000 == 0) println("${LocalDateTime.now()} done $i mansions from ${seeds.size} seeds, percent ${100 * i.toFloat() / seeds.size.toFloat()}%")
-//                println("mansion pos: ${mansionPos}")
+                //                println("mansion pos: ${mansionPos}")
                 val bpos = mansionPos.toBlockPos()
-                val rpos12 = bpos.toRegionPos(specialBlayer.scale)
-                val rpos18 = bpos.toRegionPos(baseBlayer.scale)
-                val layer18name = biomeNameAtRPos(baseBlayer, rpos18.x, rpos18.z)
-                val layer18nameE = biomeNameAtRPos(baseBlayer, rpos18.x + 1, rpos18.z)
-                val layer18nameS = biomeNameAtRPos(baseBlayer, rpos18.x, rpos18.z + 1)
-                val layer18nameSE = biomeNameAtRPos(baseBlayer, rpos18.x + 1, rpos18.z + 1)
-//                println("layer 18 biome: $layer18name, should be ${Biome.DARK_FOREST.name}")
-                val rpos20 = bpos.toRegionPos(secondScalelayer.scale)
-                val layer20name = biomeNameAtRPos(secondScalelayer, rpos20.x, rpos20.z)
-                val rpos21 = bpos.toRegionPos(secondScalelayer.scale)
-                val layer21name = biomeNameAtRPos(secondScalelayer, rpos21.x, rpos21.z)
-                val layer21nameE = biomeNameAtRPos(secondScalelayer, rpos21.x + 1, rpos21.z)
-                val layer21nameS = biomeNameAtRPos(secondScalelayer, rpos21.x, rpos21.z + 1)
-                val layer21nameSE = biomeNameAtRPos(secondScalelayer, rpos21.x + 1, rpos21.z + 1)
-//                println("layer 21 biome: $layer21name, should be ${Biome.DARK_FOREST.name}")
-//                assert(source.getBiome(bpos.x, 0, bpos.z) == Biome.DARK_FOREST)
-//                println("layer 18 biome: ${Biome.REGISTRY[bid]?.name}")
+                val rpos8 = bpos.toRegionPos(coldLayer.scale)
+                val rpos12 = bpos.toRegionPos(specialLayer.scale)
+                val rpos18 = bpos.toRegionPos(baseLayer.scale)
+                val layer18name = biomeNameAtRPos(baseLayer, rpos18.x, rpos18.z)
+                val layer18nameE = biomeNameAtRPos(baseLayer, rpos18.x + 1, rpos18.z)
+                val layer18nameS = biomeNameAtRPos(baseLayer, rpos18.x, rpos18.z + 1)
+                val layer18nameSE = biomeNameAtRPos(baseLayer, rpos18.x + 1, rpos18.z + 1)
+                //                println("layer 18 biome: $layer18name, should be ${Biome.DARK_FOREST.name}")
+                val rpos20 = bpos.toRegionPos(secondScaleLayer.scale)
+                val layer20name = biomeNameAtRPos(secondScaleLayer, rpos20.x, rpos20.z)
+                val rpos21 = bpos.toRegionPos(secondScaleLayer.scale)
+                val layer21name = biomeNameAtRPos(secondScaleLayer, rpos21.x, rpos21.z)
+                val layer21nameE = biomeNameAtRPos(secondScaleLayer, rpos21.x + 1, rpos21.z)
+                val layer21nameS = biomeNameAtRPos(secondScaleLayer, rpos21.x, rpos21.z + 1)
+                val layer21nameSE = biomeNameAtRPos(secondScaleLayer, rpos21.x + 1, rpos21.z + 1)
+                //                println("layer 21 biome: $layer21name, should be ${Biome.DARK_FOREST.name}")
+                //                assert(source.getBiome(bpos.x, 0, bpos.z) == Biome.DARK_FOREST)
+                //                println("layer 18 biome: ${Biome.REGISTRY[bid]?.name}")
                 val surfaceName = source.getBiome(bpos.x, 0, bpos.z).name
-//                println("source biome: $surfaceName")
+                //                println("source biome: $surfaceName")
 
                 // base biome choose dark forest roll
-                val localSeed = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x, rpos18.z)
-                val baseBiomeRoll1 = Math.floorMod(localSeed shr 24, 6) == 1
-                val localSeedS = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x, rpos18.z + 1)
-                val baseBiomeRoll1S = Math.floorMod(localSeedS shr 24, 6) == 1
-                val localSeedE = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x + 1, rpos18.z)
-                val baseBiomeRoll1E = Math.floorMod(localSeedE shr 24, 6) == 1
-                val localSeedSE = Test.getLocalSeed(Test.getLayer(BaseBiomesLayer::class.java), seed, rpos18.x + 1, rpos18.z + 1)
-                val baseBiomeRoll1SE = Math.floorMod(localSeedSE shr 24, 6) == 1
-//                println("will roll dark forest in desert in BASEBIOMES $baseBiomeRoll1")
+                val baseBiomeRoll1 = Math.floorMod(Test.getLocalSeed(baseLayer, seed, rpos18.x, rpos18.z) shr 24, 6) == 1
+                val baseBiomeRoll1S = Math.floorMod(Test.getLocalSeed(baseLayer, seed, rpos18.x, rpos18.z + 1) shr 24, 6) == 1
+                val baseBiomeRoll1E = Math.floorMod(Test.getLocalSeed(baseLayer, seed, rpos18.x + 1, rpos18.z) shr 24, 6) == 1
+                val baseBiomeRoll1SE = Math.floorMod(Test.getLocalSeed(baseLayer, seed, rpos18.x + 1, rpos18.z + 1) shr 24, 6) == 1
+                //                println("will roll dark forest in desert in BASEBIOMES $baseBiomeRoll1")
                 // continent choose plains
                 val localSeedCont = Test.getLocalSeed(Test.getLayer(ContinentLayer::class.java), seed, rpos18.x, rpos18.z)
                 val continentRoll0 = Math.floorMod(localSeedCont shr 24, 10) == 0
 
                 // cold gives us plains, so the temperate has chance to give desert
-                val coldSeed = Test.getLocalSeed(Test.getLayer(ClimateLayer.Cold::class.java), seed, rpos12.x, rpos12.z)
-                val coldRollOk = Math.floorMod(coldSeed shr 24, 6) > 1
-                val coldSeedS = Test.getLocalSeed(Test.getLayer(ClimateLayer.Cold::class.java), seed, rpos12.x, rpos12.z + 1)
-                val coldRollOkS = Math.floorMod(coldSeedS shr 24, 6) > 1
-                val coldSeedE = Test.getLocalSeed(Test.getLayer(ClimateLayer.Cold::class.java), seed, rpos12.x + 1, rpos12.z)
-                val coldRollOkE = Math.floorMod(coldSeedE shr 24, 6) > 1
-                val coldSeedSE = Test.getLocalSeed(Test.getLayer(ClimateLayer.Cold::class.java), seed, rpos12.x + 1, rpos12.z + 1)
-                val coldRollOkSE = Math.floorMod(coldSeedSE shr 24, 6) > 1
+                val coldRollOk = Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x, rpos8.z) shr 24, 6) > 1
+                val coldRollOkS = Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x, rpos8.z + 1) shr 24, 6) > 1
+                val coldRollOkE = Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x + 1, rpos8.z) shr 24, 6) > 1
+                val coldRollOkSE = Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x + 1, rpos8.z + 1) shr 24, 6) > 1
 
-//                println("will roll plains in CONTINENT $continentRoll0")
+                //                println("will roll plains in CONTINENT $continentRoll0")
                 // not enough structures in the region, this seed is not interesting, quitting
-//            if (structPositions.isEmpty() && structureInfo.isRequired) {
-//                GlobalState.incr(structureInfo.structName);
-//                return null
-//            }
-//            structures[structureInfo] = structPositions
-//                listOf(seed, bpos, layer18name, layer21name, surfaceName, baseBiomeRoll1, continentRoll0)
+                //            if (structPositions.isEmpty() && structureInfo.isRequired) {
+                //                GlobalState.incr(structureInfo.structName);
+                //                return null
+                //            }
+                //            structures[structureInfo] = structPositions
+                //                listOf(seed, bpos, layer18name, layer21name, surfaceName, baseBiomeRoll1, continentRoll0)
                 mapOf("seed" to seed, "bpos" to bpos,
                         "layer18name" to layer18name, "layer18nameE" to layer18nameE,
                         "layer18nameS" to layer18nameS, "layer18nameSE" to layer18nameSE,
@@ -302,7 +377,7 @@ object SeedBiomeExperiments {
 
         val df = dataFrameOf(mansionRows)
         df.print(maxWidth = 350)
-//        df.writeCSV(File("mansions_0_43100.csv"))
+        //        df.writeCSV(File("mansions_0_43100.csv"))
         df.writeCSV(File("mansions_0_11930000.csv"))
 
         println(df.schema())
@@ -323,6 +398,114 @@ object SeedBiomeExperiments {
                 "coldBiomeRoll12x2 wrong num" to { df.rows.map { !listOf(it["coldRollGt1"], it["coldRollGt1S"], it["coldRollGt1E"], it["coldRollGt1SE"]).any() }.count { it } }
         )
         summ.print(maxWidth = 350)
+    }
+
+    private fun experimentsJungle() {
+        // because here I don't have discrete list of positions, but I'm searching for biomes themselves, I don't go beyond layer 19, which has scale 256, which results in 64 positions for range 1024 chebyshev (2048/256)**2
+//        val results = fromCsv("distances_15_10000.csv")
+//        val results = fromCsv("distances_15_100000.csv")
+        val results = fromCsv("distances_15_7600001.csv")
+//        val seeds = results.map { it.seed }
+        val seeds = results.take(2_000_000) .map { it.seed }
+        val jungles = filterBiomes { it.category == Biome.Category.JUNGLE }
+        var i = 0
+        val jungleRows = seeds.parallelStream().map { seed ->
+            i += 1
+            if (i % 100_000 == 0) println("${LocalDateTime.now()} done $i jungles from ${seeds.size} seeds, percent ${100 * i.toFloat() / seeds.size.toFloat()}%")
+            //            println("\nseed: $seed")
+            val rand = ChunkRand()
+            val source = OverworldBiomeSource(VERSION, seed)
+            val coldLayer = source.getLayer(8)
+            val specialLayer = source.getLayer(12)
+            val baseLayer = source.getLayer(18)
+            val secondScaleLayer = source.getLayer(21)
+            assert(baseLayer is BaseBiomesLayer)
+            //            println("num mansions: ${spawnedMansionPositions.size}")
+            val nearestJungle = source.locateBiome(0, 0, 0, 1500, 256, jungles, rand, true)
+
+            //region 8
+            val anyColdLayerPlains = cartesianProduct(
+                    -1500..1500 step coldLayer.scale,
+                    -1500..1500 step coldLayer.scale).map f@{ (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos8 = bpos.toRegionPos(coldLayer.scale)
+
+                // cold gives us plains, so the temperate has chance to give desert
+                Math.floorMod(Test.getLocalSeed(coldLayer, seed, rpos8.x, rpos8.z) shr 24, 6) > 1
+            }.any{it}
+
+            //region 12
+            val anySpecial = cartesianProduct(
+                    -1500..1500 step specialLayer.scale,
+                    -1500..1500 step specialLayer.scale).map f@{ (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                // special gives us special, so it results in jungle in base biome layer
+                Math.floorMod(Test.getLocalSeed(specialLayer, seed, rpos12.x, rpos12.z) shr 24, 13) == 0
+            }.any{it}
+
+            //region 18
+            val anyJungle18 = cartesianProduct(
+                    -1500..1500 step baseLayer.scale,
+                    -1500..1500 step baseLayer.scale).map f@{ (bposX, bposZ) ->
+                val bpos = BPos(bposX, 0, bposZ)
+                val rpos18 = bpos.toRegionPos(baseLayer.scale)
+
+                // cold gives us plains, so the temperate has chance to give desert
+                biomeNameAtRPos(baseLayer, rpos18.x, rpos18.z) == "jungle"
+            }.any{it}
+
+            mapOf("seed" to seed, "nearestJungle" to nearestJungle,
+                    "anyColdLayerPlains" to anyColdLayerPlains, "anySpecial" to anySpecial,
+                    "anyJungle18" to anyJungle18
+            )
+        }.toList()
+
+        val df = dataFrameOf(jungleRows)
+        df.print(maxWidth = 350)
+
+//        df.writeCSV(File("jungles_15_10000.csv"))
+//        df.writeCSV(File("jungles_15_100000.csv"))
+        df.writeCSV(File("jungles_15_7600001.csv"))
+
+        println(df.schema())
+        val summ = df.summarize(
+                "anyColdLayerPlains wrong num" to { it["anyColdLayerPlains"].asBooleans().count { !it!! } },
+                "anySpecial wrong num" to { it["anySpecial"].asBooleans().count { !it!! } },
+                "anyJungle18 wrong num" to { it["anyJungle18"].asBooleans().count { !it!! } }
+        )
+        summ.print(maxWidth = 350)
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+//        todo: try to make heuristics for jungle based on special being true on special layer, might be good for pruning
+//        the big dataset is upt to seed 5590 or sth. like that
+
+//        benchDarkForesthHeuristics(100_000L)
+//        benchJungleHeuristics(100_000L)
+//        benchJungleHeuristics(200_000L)
+//        return
+
+//        experiments()
+//
+//        val layer = source.getLayer(18)
+//        assert(layer is BaseBiomesLayer)
+//        assert(mansion.canSpawn(mansionPos.x, mansionPos.z, source))
+//        val biomeId = layer.get(bpos.x / layer.scale, 0, bpos.x / layer.scale)
+//        Biome.REGISTRY[biomeId]
+
+
+//        for (var seed : new long[]{2590977160621592647L,
+//                8494351847174180868L,
+//                -7931401893752860728L}) {
+//            System.out.println(WorldSeed.toStructureSeed(seed));
+//        }
+
+//        fixResults();
+//        experimentsDarkForest()
+        experimentsJungle()
 
         GlobalState.shutdown()
     }

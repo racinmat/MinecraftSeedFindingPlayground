@@ -53,13 +53,15 @@ object GlobalState {
     fun addSeed(r: SeedResult) {
         foundSeeds.add(r)
         val numResults = foundSeeds.size
-        if (numResults % 1_000 == 0) {
+        if (numResults % 10_000 == 0) {
+//        if (numResults % 1_000 == 0) {
 //        if (numResults % 100 == 0) {
 //        if (numResults % 10 == 0) {
 //        if (numResults % 1 == 0) {
             OUTPUT_THREAD.execute { Main.LOGGER.info("Found seeds: $numResults") }
         }
-        if (numResults % 10_000 == 0) {
+        if (numResults % 100_000 == 0) {
+//        if (numResults % 10_000 == 0) {
 //        if (numResults % 1_000 == 0) {
 //        if (numResults % 100 == 0) {
 //        if (numResults % 10 == 0) {

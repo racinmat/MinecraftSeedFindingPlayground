@@ -26,13 +26,8 @@ data class SeedResult(
         var seed: Long,
         var structureDistances: Map<String, Double>,
         var biomeDistances: Map<String, Double>) {
-
     override fun toString(): String {
-        return "SeedResult{" +
-                "seed=$seed" +
-                ", structureDistances=$structureDistances" +
-                ", biomeDistances=$biomeDistances" +
-                "}"
+        return "SeedResult(seed=$seed, structureDistances=$structureDistances, biomeDistances=$biomeDistances)"
     }
 }
 
@@ -40,6 +35,10 @@ data class SeedResult(
 data class StructureInfo<C : RegionStructure.Config, D : RegionStructure.Data<*>>
 @JvmOverloads constructor(val structure: RegionStructure<C, D>, val dimension: Dimension, val isRequired: Boolean, val maxDistance: Int = Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS) {
     val structName: String = if (dimension == Dimension.OVERWORLD) structure.name else "${structure.name}_${dimension.getName()}"
+    override fun toString(): String {
+        return "StructureInfo(structure=${structure.name}, dimension=$dimension, isRequired=$isRequired, maxDistance=$maxDistance, structName='$structName')"
+    }
+
 
 }
 
