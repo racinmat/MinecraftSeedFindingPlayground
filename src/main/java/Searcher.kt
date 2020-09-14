@@ -166,6 +166,7 @@ object Searcher {
         //after the shortcut
         examineSeed()
 
+        val bigConst = 10e9
         // here was code for stopping, but I just run it until it's killed
         val structureDistances: ConcurrentMap<String, Double> = ConcurrentHashMap()
         for ((structure, positions) in structures.entries) {
@@ -178,7 +179,6 @@ object Searcher {
 //            var a_range = ContiguousSet.create(Range.closed(-5, 5), DiscreteDomain.integers());
 //            var structDistance = 1e6;
 //            for (var coords : Sets.cartesianProduct(a_range, a_range).stream().sorted((x1, x2) -> Math.abs(x1.get(0)) + Math.abs(x1.get(1)) - Math.abs(x2.get(0)) - Math.abs(x2.get(1))).collect(Collectors.toList())) {
-            val bigConst = 10e9
             var minDistance = bigConst // some big number, I don't want Double.MAX_VALUE
             for (pos in positions) {
                 if (!searchStructure.canSpawn(pos.x, pos.z, source)) continue
@@ -201,8 +201,8 @@ object Searcher {
             //todo: add here computation of how many times I hit dark forest and number of seeds I prune using shortcuting
             val biomePos = distToAnyBiomeKaptainWutax(blockSearchRadius, biomesList, biomeCheckSpacing, source, rand)
                     ?: run {
-                        GlobalState.incr(biomesList.map { it.name }.joinToString { ", " })
-                        return@f null // returns null when no biome is found, skipping this seed
+                        GlobalState.incr(biomesList.map { it.name }.joinToString(", "))
+                        return@f biomesName to bigConst
                     }
 
             return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)

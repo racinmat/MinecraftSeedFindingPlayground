@@ -26,7 +26,7 @@ object VerifyResults {
         return records.map {
             SeedResult(it["seed"].toLong(),
                     Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap(),
-                    Main.STRUCT_NAMES.map { s -> s to it[s].toDouble() }.toMap()
+                    Main.BIOME_NAMES.map { s -> s to it[s].toDouble() }.toMap()
             )
         }
     }
@@ -47,7 +47,7 @@ object VerifyResults {
         val structures = Searcher.getStructuresPosList(structureSeed, ImmutableList.copyOf(Main.STRUCTURES), origin, rand)!!
         val result = Searcher.searchWorldSeed(Main.STRUCTURE_AND_BIOME_SEARCH_RADIUS, worldSeed, structures, Main.ALL_OF_ANY_OF_BIOMES, Main.BIOME_SEARCH_SPACING, origin, rand)
         println("checking seed: $worldSeed")
-        println("expected: $seedResult")
+        println("in results: $seedResult")
         println("expected: $result")
         return seedResult.equals(result)
     }
@@ -77,7 +77,8 @@ object VerifyResults {
 //        var results = fromCsv("old_multithread_seeds_2/distances_0_70.csv");
 ////        var results = fromCsv("broken_small/distances_0_10.csv");
 //        var results = fromCsv("good_seeds/distances_0_10.csv");
-        val results = fromCsv("distances_0_70.csv")
+//        val results = fromCsv("distances_0_70.csv")
+        val results = fromCsv("distances_0_80000.csv")
         //        var results = fromCsv("distances_4168_50.csv");
 //        var results = fromCsv("distances_8449_50.csv");
 //        var results = fromCsv("good_seeds/distances_4168_50_fixed.csv");
