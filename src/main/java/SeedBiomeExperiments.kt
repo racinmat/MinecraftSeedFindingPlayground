@@ -184,8 +184,10 @@ object SeedBiomeExperiments {
 
     /*
     * Results of experiments performed on 2000000 jungles in distance up to 1500 blocks chebyshev distance
+    * todo: need to calibrate it with findings of nearest jungle
     * from origin (0, 0, 0):
-    * all 3 heuristics: any special rolls on level 12, or jungle appearch on level 18 or plains rolls on layer 8 are truw for all these 2M jungles
+    * anyColdLayerPlains wrong num   anySpecial wrong num   anyJungle18 wrong num
+    *                          109                 717367                  608631
     *
     * from 200k seeds. It seems they don't actually behave as constraint, they hold for all seeds
     * results:
@@ -200,7 +202,8 @@ object SeedBiomeExperiments {
         val jungles = filterBiomes { it.category == Biome.Category.JUNGLE }
         var seedsTried = 0
         while (true) {
-            val seed = Random().nextLong()
+//            val seed = Random().nextLong()
+            val seed = 562949953421340L
             seedsTried++
             if (seedsTried > numTries) break
             if (seedsTried % 10_000 == 0) println("${LocalDateTime.now()} done $seedsTried samples from $numTries tries, percent ${100 * seedsTried.toFloat() / numTries.toFloat()}%")
@@ -215,8 +218,8 @@ object SeedBiomeExperiments {
             // tempered rolls dark forest on basebiome
             val anyColdLayerPlains = measureTimedValue {
                 cartesianProduct(
-                        -1500..1500 step coldLayer.scale,
-                        -1500..1500 step coldLayer.scale).map { (bposX, bposZ) ->
+                        -1500 until 1500+coldLayer.scale step coldLayer.scale,
+                        -1500 until 1500+coldLayer.scale step coldLayer.scale).map { (bposX, bposZ) ->
                     val bpos = BPos(bposX, 0, bposZ)
                     val rpos8 = bpos.toRegionPos(coldLayer.scale)
 
@@ -234,8 +237,8 @@ object SeedBiomeExperiments {
             // check that any has special biome
             val anySpecial = measureTimedValue {
                 cartesianProduct(
-                        -1500..1500 step specialLayer.scale,
-                        -1500..1500 step specialLayer.scale).map { (bposX, bposZ) ->
+                        -1500 until 1500+specialLayer.scale step specialLayer.scale,
+                        -1500 until 1500+specialLayer.scale step specialLayer.scale).map { (bposX, bposZ) ->
                     val bpos = BPos(bposX, 0, bposZ)
                     val rpos12 = bpos.toRegionPos(specialLayer.scale)
 
@@ -253,8 +256,8 @@ object SeedBiomeExperiments {
             // just check, but at lower level
             val anyJungle18 = measureTimedValue {
                 cartesianProduct(
-                        -1500..1500 step baseLayer.scale,
-                        -1500..1500 step baseLayer.scale).map { (bposX, bposZ) ->
+                        -1500 until 1500+baseLayer.scale step baseLayer.scale,
+                        -1500 until 1500+baseLayer.scale step baseLayer.scale).map { (bposX, bposZ) ->
                     val bpos = BPos(bposX, 0, bposZ)
                     val rpos18 = bpos.toRegionPos(baseLayer.scale)
 
@@ -405,8 +408,8 @@ object SeedBiomeExperiments {
 //        val results = fromCsv("distances_15_10000.csv")
 //        val results = fromCsv("distances_15_100000.csv")
         val results = fromCsv("distances_15_7600001.csv")
-//        val seeds = results.map { it.seed }
-        val seeds = results.take(2_000_000) .map { it.seed }
+        val seeds = results.map { it.seed }
+//        val seeds = results.take(4_000_000) .map { it.seed }
         val jungles = filterBiomes { it.category == Biome.Category.JUNGLE }
         var i = 0
         val jungleRows = seeds.parallelStream().map { seed ->
@@ -421,12 +424,12 @@ object SeedBiomeExperiments {
             val secondScaleLayer = source.getLayer(21)
             assert(baseLayer is BaseBiomesLayer)
             //            println("num mansions: ${spawnedMansionPositions.size}")
-            val nearestJungle = source.locateBiome(0, 0, 0, 1500, 256, jungles, rand, true)
+            val nearestJungle = source.locateBiome(0, 0, 0, 1500, 64, jungles, rand, true)
 
             //region 8
             val anyColdLayerPlains = cartesianProduct(
-                    -1500..1500 step coldLayer.scale,
-                    -1500..1500 step coldLayer.scale).map f@{ (bposX, bposZ) ->
+                    -1500 until 1500+coldLayer.scale step coldLayer.scale,
+                    -1500 until 1500+coldLayer.scale step coldLayer.scale).map f@{ (bposX, bposZ) ->
                 val bpos = BPos(bposX, 0, bposZ)
                 val rpos8 = bpos.toRegionPos(coldLayer.scale)
 
@@ -436,8 +439,8 @@ object SeedBiomeExperiments {
 
             //region 12
             val anySpecial = cartesianProduct(
-                    -1500..1500 step specialLayer.scale,
-                    -1500..1500 step specialLayer.scale).map f@{ (bposX, bposZ) ->
+                    -1500 until 1500+specialLayer.scale step specialLayer.scale,
+                    -1500 until 1500+specialLayer.scale step specialLayer.scale).map f@{ (bposX, bposZ) ->
                 val bpos = BPos(bposX, 0, bposZ)
                 val rpos12 = bpos.toRegionPos(specialLayer.scale)
 
@@ -447,8 +450,8 @@ object SeedBiomeExperiments {
 
             //region 18
             val anyJungle18 = cartesianProduct(
-                    -1500..1500 step baseLayer.scale,
-                    -1500..1500 step baseLayer.scale).map f@{ (bposX, bposZ) ->
+                    -1500 until 1500+baseLayer.scale step baseLayer.scale,
+                    -1500 until 1500+baseLayer.scale step baseLayer.scale).map f@{ (bposX, bposZ) ->
                 val bpos = BPos(bposX, 0, bposZ)
                 val rpos18 = bpos.toRegionPos(baseLayer.scale)
 
@@ -469,11 +472,15 @@ object SeedBiomeExperiments {
 //        df.writeCSV(File("jungles_15_100000.csv"))
         df.writeCSV(File("jungles_15_7600001.csv"))
 
+//        val df = DataFrame.readCSV("jungles_15_7600001_4M.csv")
         println(df.schema())
         val summ = df.summarize(
-                "anyColdLayerPlains wrong num" to { it["anyColdLayerPlains"].asBooleans().count { !it!! } },
-                "anySpecial wrong num" to { it["anySpecial"].asBooleans().count { !it!! } },
-                "anyJungle18 wrong num" to { it["anyJungle18"].asBooleans().count { !it!! } }
+                "anyColdLayerPlains wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anyColdLayerPlains"] as Boolean)}.count { it } },
+                "anySpecial wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anySpecial"] as Boolean)}.count { it } },
+                "anyJungle18 wrong num" to { df.rows.map {it["nearestJungle"] == "" && (it["anyJungle18"] as Boolean)}.count { it } },
+                "anyColdLayerPlains missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anyColdLayerPlains"] as Boolean)}.count { it } },
+                "anySpecial missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anySpecial"] as Boolean)}.count { it } },
+                "anyJungle18 missed" to { df.rows.map {it["nearestJungle"] != "" && !(it["anyJungle18"] as Boolean)}.count { it } }
         )
         summ.print(maxWidth = 350)
     }
