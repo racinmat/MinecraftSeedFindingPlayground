@@ -184,10 +184,9 @@ object SeedBiomeExperiments {
 
     /*
     * Results of experiments performed on 2000000 jungles in distance up to 1500 blocks chebyshev distance
-    * todo: need to calibrate it with findings of nearest jungle
     * from origin (0, 0, 0):
-    * anyColdLayerPlains wrong num   anySpecial wrong num   anyJungle18 wrong num   anyColdLayerPlains missed   anySpecial missed   anyJungle18 missed
-    *                      2947657                2269766                 1185958                           0              231958                    0
+    * anyColdLayerPlains wrong num   anySpecial wrong num   anySpecialBroader wrong num   anyJungle18 wrong num   anyColdLayerPlains missed   anySpecial missed   anySpecialBroader missed   anyJungle18 missed
+                           2947657                2269766                       2942460                 1185958                           0              231958                          0                    0
     *
     * from 200k seeds. It seems they don't actually behave as constraint, they hold for all seeds
     * results:
@@ -251,6 +250,25 @@ object SeedBiomeExperiments {
             if (!resultTimes.containsKey("anySpecial")) resultTimes["anySpecial"] = 0.0
             results["anySpecial"] = results["anySpecial"]!! + anySpecial.value.toInt()
             resultTimes["anySpecial"] = resultTimes["anySpecial"]!! + anySpecial.duration.inSeconds
+
+            // cuts off 48% seeds, is 180x faster than locateBiome
+            // check that any has special biome
+            val anySpecialBroader = measureTimedValue {
+                cartesianProduct(
+                        -1500 until 1500+specialLayer.scale step specialLayer.scale,
+                        -1500 until 1500+specialLayer.scale step specialLayer.scale).map { (bposX, bposZ) ->
+                    val bpos = BPos(bposX, 0, bposZ)
+                    val rpos12 = bpos.toRegionPos(specialLayer.scale)
+
+                    // special gives us special, so it results in jungle in base biome layer
+                    Math.floorMod(Test.getLocalSeed(specialLayer, seed, rpos12.x, rpos12.z) shr 24, 13) == 0
+                }.any{it}
+            }
+
+            if (!results.containsKey("anySpecialBroader")) results["anySpecialBroader"] = 0
+            if (!resultTimes.containsKey("anySpecialBroader")) resultTimes["anySpecialBroader"] = 0.0
+            results["anySpecialBroader"] = results["anySpecialBroader"]!! + anySpecialBroader.value.toInt()
+            resultTimes["anySpecialBroader"] = resultTimes["anySpecialBroader"]!! + anySpecialBroader.duration.inSeconds
 
             // cuts off 71% seeds, is 11kx faster than locateBiome
             // just check, but at lower level
@@ -505,8 +523,8 @@ object SeedBiomeExperiments {
 
 //        benchDarkForesthHeuristics(100_000L)
 //        benchJungleHeuristics(100_000L)
-//        benchJungleHeuristics(200_000L)
-//        return
+        benchJungleHeuristics(200_000L)
+        return
 
 //        experiments()
 //
@@ -523,7 +541,7 @@ object SeedBiomeExperiments {
 //            System.out.println(WorldSeed.toStructureSeed(seed));
 //        }
 
-//        fixResults();
+//        fixResults()
 //        experimentsDarkForest()
         experimentsJungle()
 
