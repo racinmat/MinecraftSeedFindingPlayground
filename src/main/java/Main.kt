@@ -19,6 +19,8 @@ import java.util.logging.Logger
 
 fun filterBiomes(predicate: (Biome) -> Boolean) = ImmutableList.copyOf(Biome.REGISTRY.values.filter { predicate(it) })
 
+fun Boolean.toInt() = if (this) 1 else 0
+
 object Main {
     @JvmField
     val VERSION = MCVersion.v1_16_1
@@ -42,7 +44,6 @@ object Main {
     //    public static final double SEED_THR = 1e-2;
     @JvmField
     val DISTANCE = DistanceMetric.CHEBYSHEV
-    const val SEED_THR = -80000.0
 
     @JvmField
     var LOGGER: Logger = Logger.getLogger(Main::class.java.name)
@@ -65,18 +66,18 @@ object Main {
 //            StructureInfo(EndCity(VERSION), Dimension.END, false),
             StructureInfo(DesertPyramid(VERSION), Dimension.OVERWORLD, true, 1_000),
             StructureInfo(BuriedTreasure(VERSION), Dimension.OVERWORLD, false)
-    )
+    ).sortedBy { - (it.isRequired.toInt() * 100 + it.structure.spacing) } // so I have at first required structures which have highest spacing -> there is least of them on given area
 
     // will search all of (any of biomes), so will search if any biome from each category will be found
     //only overworld biomes can be here because of hardcoded things
     @JvmField
-    val ALL_OF_ANY_OF_BIOMES = ImmutableList.of(
+    val ALL_OF_ANY_OF_BIOMES = listOf(
             BiomeInfo(filterBiomes { it.category == Biome.Category.JUNGLE }, "jungles", true),
             BiomeInfo(filterBiomes { it.category == Biome.Category.MUSHROOM }, "mushrooms", false),
             BiomeInfo(filterBiomes { it.category == Biome.Category.MESA }, "mesas", true),
             BiomeInfo(filterBiomes { it.category == Biome.Category.OCEAN }, "oceans", true),
             BiomeInfo(filterBiomes { it.category == Biome.Category.ICY }, "icy", true)
-    )
+    ).sortedBy { - (it.isRequired.toInt()) }.let { ImmutableList.copyOf(it) }
 //    val ALL_OF_ANY_OF_BIOMES = emptyMap<String, ImmutableList<Biome>>()
 
     val STRUCT_NAMES = STRUCTURES.map { it.structName }

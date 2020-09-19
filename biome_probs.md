@@ -108,13 +108,13 @@ layer notes
  
       
 - LandLayer <- XCrossLayer
-  - if (center is shallow ocean) and (all diags are shallow)
+  - if (center is shallow ocean) and (all diags are shallow ocean)
       return center
-  - if (center is not shallow ocean) and (all diags are shallow)
+  - if (center is not shallow ocean) and (all diags are shallow ocean)
       80% return center else continue
-  - if (center is not shallow ocean) and (all diags are not shallow)
+  - if (center is not shallow ocean) and (all diags are not shallow ocean)
       return center
-  - if (center is not shallow ocean) and (some diags are shallow, some not)
+  - if (center is not shallow ocean) and (some diags are shallow ocean, some not)
       80% return center else continue
   - if center not shallow ocean || sw, se, ne, nw are shallow ocean
     - if center is shallow ocean || sw, se, ne, nw are not shallow ocean || 80% prob

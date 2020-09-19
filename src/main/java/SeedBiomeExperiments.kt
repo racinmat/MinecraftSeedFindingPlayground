@@ -64,8 +64,6 @@ object SeedBiomeExperiments {
     * Based on this it seems for our usecase we need to check if 2x2 [(x,z);(x+1,z+1)] grid generates at least one nextInt(6) == 1
     * */
 
-    fun Boolean.toInt() = if (this) 1 else 0
-
     fun benchDarkForesthHeuristics(numTries: Long) {
         val structure = Mansion(VERSION)
 //        val seed = 0L
