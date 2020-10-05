@@ -7,10 +7,10 @@ public abstract class CrossLayer extends BiomeLayer {
 
 	public CrossLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
 		super(version, worldSeed, salt, parent);
-	}
+	end
 
 	@Override
-	public int sample(int x, int y, int z) {
+	function sample(self, x::Int32, y::Int32z::Int32)::Int32
 		this.setSeed(x, z);
 
 		return this.sample(
@@ -20,7 +20,7 @@ public abstract class CrossLayer extends BiomeLayer {
 				this.getParent().get(x - 1, y, z),
 				this.getParent().get(x, y, z)
 			);
-	}
+	end
 
 	public abstract int sample(int n, int e, int s, int w, int center);
 

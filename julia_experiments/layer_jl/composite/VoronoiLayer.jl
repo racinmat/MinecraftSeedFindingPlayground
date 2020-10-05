@@ -14,39 +14,39 @@ public class VoronoiLayer extends BiomeLayer {
         super(version, worldSeed, version.isOlderThan(MCVersion.v1_15) ? 10L : 0L, parent);
         this.seed = version.isOlderThan(MCVersion.v1_15) ? worldSeed : WorldSeed.toHash(worldSeed);
         this.is3D = is3D;
-    }
+    end
 
-    public long getSeed() {
+    function getSeed(self)::Int64
         return this.seed;
-    }
+    end
 
-    public boolean is3D() {
+    function is3D(self)::Bool
         return this.is3D;
-    }
+    end
 
     @Override
-    public int sample(int x, int y, int z) {
+    function sample(self, x::Int32, y::Int32z::Int32)::Int32
         return this.getVersion().isOlderThan(MCVersion.v1_14) ? this.sample13(x, z) : this.sample14(x, y, z);
-    }
+    end
 
-    private int sample13(int x, int z) {
+    function sample13(self, x::Int32z::Int32)::Int32
         int offset;
         x -= 2;
         z -= 2;
-        int pX = x >> 2;
-        int pZ = z >> 2;
-        int sX = pX << 2;
-        int sZ = pZ << 2;
+        pX = x >> 2;
+        pZ = z >> 2;
+        sX = pX << 2;
+        sZ = pZ << 2;
         double[] off_0_0 = calcOffset(this.layerSeed, sX, sZ, 0, 0);
         double[] off_1_0 = calcOffset(this.layerSeed, sX, sZ, 4, 0);
         double[] off_0_1 = calcOffset(this.layerSeed, sX, sZ, 0, 4);
         double[] off_1_1 = calcOffset(this.layerSeed, sX, sZ, 4, 4);
 
-        int cell = (z & 3) * 4 + (x & 3);
-        double corner0 = calcContribution(off_0_0, cell >> 2, cell & 3);
-        double corner1 = calcContribution(off_1_0, cell >> 2, cell & 3);
-        double corner2 = calcContribution(off_0_1, cell >> 2, cell & 3);
-        double corner3 = calcContribution(off_1_1, cell >> 2, cell & 3);
+        cell = (z & 3) * 4 + (x & 3);
+        corner0 = calcContribution(off_0_0, cell >> 2, cell & 3);
+        corner1 = calcContribution(off_1_0, cell >> 2, cell & 3);
+        corner2 = calcContribution(off_0_1, cell >> 2, cell & 3);
+        corner3 = calcContribution(off_1_1, cell >> 2, cell & 3);
         if (corner0 < corner1 && corner0 < corner2 && corner0 < corner3) {
             offset = 0;
         } else if (corner1 < corner0 && corner1 < corner2 && corner1 < corner3) {
@@ -55,7 +55,7 @@ public class VoronoiLayer extends BiomeLayer {
             offset = 2;
         } else {
             offset = 3;
-        }
+        end
 
 
         //  X -> (offset&1)
@@ -66,85 +66,85 @@ public class VoronoiLayer extends BiomeLayer {
         // |___|___|
 
         return this.getParent().get(pX + (offset & 1), 0, pZ + (offset >> 1));
-    }
+    end
 
-    private int sample14(int x, int y, int z) {
-        int i = x - 2;
-        int j = y - 2;
-        int k = z - 2;
-        int l = i >> 2;
-        int m = j >> 2;
-        int n = k >> 2;
-        double d = (double)(i & 3) / 4.0D;
-        double e = (double)(j & 3) / 4.0D;
-        double f = (double)(k & 3) / 4.0D;
+    function sample14(self, x::Int32, y::Int32z::Int32)::Int32
+        i = x - 2;
+        j = y - 2;
+        k = z - 2;
+        l = i >> 2;
+        m = j >> 2;
+        n = k >> 2;
+        d = (double)(i & 3) / 4.0D;
+        e = (double)(j & 3) / 4.0D;
+        f = (double)(k & 3) / 4.0D;
         double[] ds = new double[8];
 
-        for (int cell = 0; cell < 8; ++cell) {
-            boolean bl = (cell & 4) == 0;
-            boolean bl2 = (cell & 2) == 0;
-            boolean bl3 = (cell & 1) == 0;
-            int aa = bl ? l : l + 1;
-            int ab = bl2 ? m : m + 1;
-            int ac = bl3 ? n : n + 1;
-            double g = bl ? d : d - 1.0D;
-            double h = bl2 ? e : e - 1.0D;
-            double s = bl3 ? f : f - 1.0D;
+        for (cell = 0; cell < 8; ++cell) {
+            bl = (cell & 4) == 0;
+            bl2 = (cell & 2) == 0;
+            bl3 = (cell & 1) == 0;
+            aa = bl ? l : l + 1;
+            ab = bl2 ? m : m + 1;
+            ac = bl3 ? n : n + 1;
+            g = bl ? d : d - 1.0D;
+            h = bl2 ? e : e - 1.0D;
+            s = bl3 ? f : f - 1.0D;
             ds[cell] = calcSquaredDistance(this.seed, aa, ab, ac, g, h, s);
-        }
+        end
 
-        int index = 0;
-        double min = ds[0];
+        index = 0;
+        min = ds[0];
 
-        for(int cell = 1; cell < 8; ++cell) {
+        for(cell = 1; cell < 8; ++cell) {
             if(ds[cell] >= min)continue;
             index = cell;
             min = ds[cell];
-        }
+        end
 
-        int xFinal = (index & 4) == 0 ? l : l + 1;
-        int yFinal = (index & 2) == 0 ? m : m + 1;
-        int zFinal = (index & 1) == 0 ? n : n + 1;
+        xFinal = (index & 4) == 0 ? l : l + 1;
+        yFinal = (index & 2) == 0 ? m : m + 1;
+        zFinal = (index & 1) == 0 ? n : n + 1;
         return this.getParent().get(xFinal, this.is3D ? yFinal : 0, zFinal);
-    }
+    end
 
     private static double calcContribution(double[] d, int x, int z) {
         return ((double) x - d[1]) * ((double) x - d[1]) + ((double) z - d[0]) * ((double) z - d[0]);
-    }
+    end
 
     private static double[] calcOffset(long layerSeed, int x, int z, int offX, int offZ) {
-        long mixedSeed = SeedMixer.mixSeed(layerSeed, x + offX);
+        mixedSeed = SeedMixer.mixSeed(layerSeed, x + offX);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, z + offZ);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, x + offX);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, z + offZ);
-        double d1 = (((double) ((int) Math.floorMod(mixedSeed >> 24, 1024L)) / 1024.0D) - 0.5D) * 3.6D + offX;
+        d1 = (((double) ((int) Math.floorMod(mixedSeed >> 24, 1024L)) / 1024.0D) - 0.5D) * 3.6D + offX;
         mixedSeed = SeedMixer.mixSeed(mixedSeed, layerSeed);
-        double d2 = (((double) ((int) Math.floorMod(mixedSeed >> 24, 1024L)) / 1024.0D) - 0.5D) * 3.6D + offZ;
+        d2 = (((double) ((int) Math.floorMod(mixedSeed >> 24, 1024L)) / 1024.0D) - 0.5D) * 3.6D + offZ;
         return new double[] {d1, d2};
-    }
+    end
 
-    private static double calcSquaredDistance(long seed, int x, int y, int z, double xFraction, double yFraction, double zFraction) {
-        long mixedSeed = SeedMixer.mixSeed(seed, x);
+    function calcSquaredDistance(self, seed::Int64, x::Int32, y::Int32, z::Int32, xFraction::Float64, yFraction::Float64zFraction::Float64)::Float64
+        mixedSeed = SeedMixer.mixSeed(seed, x);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, y);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, z);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, x);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, y);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, z);
-        double d = distribute(mixedSeed);
+        d = distribute(mixedSeed);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, seed);
-        double e = distribute(mixedSeed);
+        e = distribute(mixedSeed);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, seed);
-        double f = distribute(mixedSeed);
+        f = distribute(mixedSeed);
         return square(zFraction + f) + square(yFraction + e) + square(xFraction + d);
-    }
+    end
 
-    private static double distribute(long seed) {
-        double d = (double) ((int) Math.floorMod(seed >> 24, 1024L)) / 1024.0D;
+    function distribute(self, seed::Int64)::Float64
+        d = (double) ((int) Math.floorMod(seed >> 24, 1024L)) / 1024.0D;
         return (d - 0.5D) * 0.9D;
-    }
+    end
 
-    private static double square(double d) {
+    function square(self, d::Float64)::Float64
         return d * d;
-    }
+    end
 
 }

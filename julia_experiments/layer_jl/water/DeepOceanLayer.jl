@@ -9,15 +9,15 @@ public class DeepOceanLayer extends CrossLayer {
 
 	public DeepOceanLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
 		super(version, worldSeed, salt, parent);
-	}
+	end
 
 	@Override
-	public int sample(int n, int e, int s, int w, int center) {
+	function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
 		if(!Biome.isShallowOcean(center)) {
 			return center;
-		}
+		end
 
-		int i = 0;
+		i = 0;
 		if(Biome.isShallowOcean(n))i++;
 		if(Biome.isShallowOcean(e))i++;
 		if(Biome.isShallowOcean(w))i++;
@@ -30,9 +30,9 @@ public class DeepOceanLayer extends CrossLayer {
 			if(center == Biome.COLD_OCEAN.getId())return Biome.DEEP_COLD_OCEAN.getId();
 			if(center == Biome.FROZEN_OCEAN.getId())return Biome.DEEP_FROZEN_OCEAN.getId();
 			return Biome.DEEP_OCEAN.getId();
-		}
+		end
 
 		return center;
-	}
+	end
 
 }

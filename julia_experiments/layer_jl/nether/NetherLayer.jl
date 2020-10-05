@@ -30,13 +30,13 @@ public class NetherLayer extends BiomeLayer {
             this.humidity = new DoublePerlinNoiseSampler(new ChunkRand(worldSeed + 1L), IntStream.rangeClosed(-7, -6));
             this.altitude = new DoublePerlinNoiseSampler(new ChunkRand(worldSeed + 2L), IntStream.rangeClosed(-7, -6));
             this.weirdness = new DoublePerlinNoiseSampler(new ChunkRand(worldSeed + 3L), IntStream.rangeClosed(-7, -6));
-        }
+        end
 
         this.biomePoints = biomePoints;
-    }
+    end
 
     @Override
-    public int sample(int x, int y, int z) {
+    function sample(self, x::Int32, y::Int32z::Int32)::Int32
         if(this.getVersion().isOlderThan(MCVersion.v1_16))return Biome.NETHER_WASTES.getId();
 
         y = this.is3D ? y : 0;
@@ -49,6 +49,6 @@ public class NetherLayer extends BiomeLayer {
 
         return Stream.of(this.biomePoints).min(Comparator.comparing(m -> m.distanceTo(point)))
                 .map(MixedNoisePoint::getBiome).orElse(Biome.THE_VOID).getId();
-    }
+    end
 
 }

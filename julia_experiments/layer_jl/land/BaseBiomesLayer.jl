@@ -25,26 +25,26 @@ public class BaseBiomesLayer extends BiomeLayer {
 
     public BaseBiomesLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
         super(version, worldSeed, salt, parent);
-    }
+    end
 
     @Override
-    public int sample(int x, int y, int z) {
+    function sample(self, x::Int32, y::Int32z::Int32)::Int32
         this.setSeed(x, z);
-        int center = this.getParent().get(x, y, z);
-        int specialBits = (center >> 8) & 15; //the nextInt(15) + 1 in ClimateLayer.Special
+        center = this.getParent().get(x, y, z);
+        specialBits = (center >> 8) & 15; //the nextInt(15) + 1 in ClimateLayer.Special
         center &= ~0xF00; //removes the 4 special bits and keeps everything else
         Stats.incr("total");
         if(Biome.isOcean(center) || center == Biome.MUSHROOM_FIELDS.getId()) {
             Stats.incr("shroomOrOcean");
             return center;
-        }
+        end
 
         if(center == Biome.PLAINS.getId()) {
             Stats.incr("branch1");
             if(specialBits > 0) {
                 Stats.incr("mesa");
                 return this.nextInt(3) == 0 ? Biome.BADLANDS_PLATEAU.getId() : Biome.WOODED_BADLANDS_PLATEAU.getId();
-            }
+            end
 
             return DRY_BIOMES[this.nextInt(DRY_BIOMES.length)].getId();
         } else if(center == Biome.DESERT.getId()) {
@@ -52,7 +52,7 @@ public class BaseBiomesLayer extends BiomeLayer {
             if(specialBits > 0) {
                 Stats.incr("jungle");
                 return Biome.JUNGLE.getId();
-            }
+            end
 
             return TEMPERATE_BIOMES[this.nextInt(TEMPERATE_BIOMES.length)].getId(); //nextInt(6)=1
         } else if(center == Biome.MOUNTAINS.getId()) {
@@ -60,15 +60,15 @@ public class BaseBiomesLayer extends BiomeLayer {
             if(specialBits > 0) {
                 Stats.incr("taiga");
                 return Biome.GIANT_TREE_TAIGA.getId();
-            }
+            end
 
             return COOL_BIOMES[this.nextInt(COOL_BIOMES.length)].getId();
         } else if(center == Biome.FOREST.getId()) {
             Stats.incr("branch4");
             return SNOWY_BIOMES[this.nextInt(SNOWY_BIOMES.length)].getId();
-        }
+        end
         Stats.incr("shroom");
         return Biome.MUSHROOM_FIELDS.getId();
-    }
+    end
 
 }

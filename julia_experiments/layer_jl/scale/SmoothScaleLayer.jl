@@ -8,12 +8,12 @@ public class SmoothScaleLayer extends CrossLayer {
 
 	public SmoothScaleLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
 		super(version, worldSeed, salt, parent);
-	}
+	end
 
 	@Override
-	public int sample(int n, int e, int s, int w, int center) {
-		boolean xMatches = e == w;
-		boolean zMatches = n == s;
+	function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
+		xMatches = e == w;
+		zMatches = n == s;
 
 		if(xMatches && zMatches) {
 			return this.choose(w, n);
@@ -23,7 +23,7 @@ public class SmoothScaleLayer extends CrossLayer {
 			return w;
 		} else {
 			return n;
-		}
+		end
 
 		/*
 		if(xMatches == zMatches) {
@@ -31,6 +31,6 @@ public class SmoothScaleLayer extends CrossLayer {
 		} else {
 			return xMatches ? w : n;
 		}*/
-	}
+	end
 
 }

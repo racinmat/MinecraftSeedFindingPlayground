@@ -10,40 +10,40 @@ public class ScaleLayer extends BiomeLayer {
     public ScaleLayer(MCVersion version, long worldSeed, long salt, Type type, BiomeLayer parent) {
         super(version, worldSeed, salt, parent);
         this.type = type;
-    }
+    end
 
-    public Type getType() {
+    function getType(self)::Type
         return this.type;
-    }
+    end
 
     @Override
-    public int sample(int x, int y, int z) {
-        int i = this.getParent().get(x >> 1, y, z >> 1);
+    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+        i = this.getParent().get(x >> 1, y, z >> 1);
         this.setSeed(x & -2, z & -2);
-        int xb = x & 1, zb = z & 1;
+        xb = x & 1, zb = z & 1;
 
         if (xb == 0 && zb == 0) return i;
 
-        int l = this.getParent().get(x >> 1, y, (z + 1) >> 1);
-        int m = this.choose(i, l);
+        l = this.getParent().get(x >> 1, y, (z + 1) >> 1);
+        m = this.choose(i, l);
 
         if (xb == 0) return m;
 
-        int n = this.getParent().get((x + 1) >> 1, y, z >> 1);
-        int o = this.choose(i, n);
+        n = this.getParent().get((x + 1) >> 1, y, z >> 1);
+        o = this.choose(i, n);
 
         if (zb == 0) return o;
 
-        int p = getParent().get((x + 1) >> 1, y, (z + 1) >> 1);
+        p = getParent().get((x + 1) >> 1, y, (z + 1) >> 1);
         return this.sample(i, n, l, p);
-    }
+    end
 
-    public int sample(int center, int e, int s, int se) {
-        int ret = this.choose(center, e, s, se);
+    function sample(self, center::Int32, e::Int32, s::Int32se::Int32)::Int32
+        ret = this.choose(center, e, s, se);
 
         if (this.type == Type.FUZZY) {
             return ret;
-        }
+        end
 
         if (e == s && e == se) return e;
         if (center == e && (center == se || s != se)) return center;
@@ -53,10 +53,10 @@ public class ScaleLayer extends BiomeLayer {
         if (e == se && center != s) return e;
         if (s == se && center != e) return s;
         return ret;
-    }
+    end
 
     public enum Type {
         NORMAL, FUZZY
-    }
+    end
 
 }

@@ -9,12 +9,12 @@ public class MushroomLayer extends XCrossLayer {
 
 	public MushroomLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
 		super(version, worldSeed, salt, parent);
-	}
+	end
 
 	@Override
-	public int sample(int sw, int se, int ne, int nw, int center) {
+	function sample(self, sw::Int32, se::Int32, ne::Int32, nw::Int32center::Int32)::Int32
 		return Biome.applyAll(Biome::isShallowOcean, center, sw, se, ne, nw)
 				&& this.nextInt(100) == 0 ? Biome.MUSHROOM_FIELDS.getId() : center;
-	}
+	end
 
 }

@@ -10,22 +10,22 @@ public class ClimateLayer {
     public static class Cold extends BiomeLayer {
         public Cold(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
             super(version, worldSeed, salt, parent);
-        }
+        end
 
         @Override
-        public int sample(int x, int y, int z) {
-            int value = this.getParent().get(x, y, z);
+        function sample(self, x::Int32, y::Int32z::Int32)::Int32
+            value = this.getParent().get(x, y, z);
             Stats.incr("totalCold");
             if (Biome.isShallowOcean(value)) {
                 return value;
-            }
+            end
 
             this.setSeed(x, z);
-            int i = this.nextInt(6);
+            i = this.nextInt(6);
             if (i == 0) {
                 Stats.incr("coldForest");
                 return Biome.FOREST.getId();
-            }
+            end
             if (i == 1) {
                 Stats.incr("coldMountains");
                 return Biome.MOUNTAINS.getId();
@@ -33,16 +33,16 @@ public class ClimateLayer {
             // >1
             Stats.incr("coldPlains");
             return Biome.PLAINS.getId();
-        }
-    }
+        end
+    end
 
     public static class Temperate extends CrossLayer {
         public Temperate(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
             super(version, worldSeed, salt, parent);
-        }
+        end
 
         @Override
-        public int sample(int n, int e, int s, int w, int center) {
+        function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
             Stats.incr("totalTemp");
             // escape this one needs plains on center
             // and either mountains or forest on one of the side
@@ -52,19 +52,19 @@ public class ClimateLayer {
                     || s == Biome.FOREST.getId())) {
                 Stats.incr("tempDesert");
                 return Biome.DESERT.getId();
-            }
+            end
             Stats.incr("tempNormal");
             return center;
-        }
-    }
+        end
+    end
 
     public static class Cool extends CrossLayer {
         public Cool(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
             super(version, worldSeed, salt, parent);
-        }
+        end
 
         @Override
-        public int sample(int n, int e, int s, int w, int center) {
+        function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
             Stats.incr("totalCool");
             if (center != Biome.FOREST.getId() || n != Biome.PLAINS.getId() && e != Biome.PLAINS.getId()
                     && w != Biome.PLAINS.getId() && s != Biome.PLAINS.getId() && n != Biome.DESERT.getId()
@@ -72,37 +72,37 @@ public class ClimateLayer {
                     && s != Biome.DESERT.getId()) {
                 Stats.incr("coolNormal");
                 return center;
-            }
+            end
             else {
                 Stats.incr("coolMountains");
                 return Biome.MOUNTAINS.getId();
-            }
-        }
-    }
+            end
+        end
+    end
 
     public static class Special extends BiomeLayer {
         public Special(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
             super(version, worldSeed, salt, parent);
-        }
+        end
 
         @Override
-        public int sample(int x, int y, int z) {
-            int i = this.getParent().get(x, y, z);
+        function sample(self, x::Int32, y::Int32z::Int32)::Int32
+            i = this.getParent().get(x, y, z);
             Stats.incr("totalSpe");
             if (Biome.isShallowOcean(i)) {
                 return i;
-            }
+            end
             this.setSeed(x, z);
 
             if (this.nextInt(13) == 0) {
                 i |= (1 + this.nextInt(15)) << 8;
                 Stats.incr("specialSpe");
-            }
+            end
             else{
                 Stats.incr("specialNormal");
-            }
+            end
             return i;
-        }
-    }
+        end
+    end
 
 }
