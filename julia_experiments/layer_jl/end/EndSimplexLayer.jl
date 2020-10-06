@@ -7,9 +7,13 @@ struct EndSimplexLayer <: BiomeLayer
     layerSeed::Int64
     localSeed::Int64
 
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
+
     SIMPLEX_SKIP::LCG = LCG.JAVA.combine(17292);
     simplex::SimplexNoiseSampler
-
 end
 
 public class EndSimplexLayer extends BiomeLayer {

@@ -6,6 +6,11 @@ struct ColdClimateLayer <: BiomeLayer
     salt::Int64
     layerSeed::Int64
     localSeed::Int64
+
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
 end
 
 struct TemperateClimateLayer <: CrossLayer
@@ -15,6 +20,11 @@ struct TemperateClimateLayer <: CrossLayer
     salt::Int64
     layerSeed::Int64
     localSeed::Int64
+
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
 end
 
 struct CoolClimateLayer <: CrossLayer
@@ -24,6 +34,11 @@ struct CoolClimateLayer <: CrossLayer
     salt::Int64
     layerSeed::Int64
     localSeed::Int64
+
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
 end
 
 struct SpecialClimateLayer <: BiomeLayer
@@ -33,6 +48,11 @@ struct SpecialClimateLayer <: BiomeLayer
     salt::Int64
     layerSeed::Int64
     localSeed::Int64
+
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
 end
 
 public class ClimateLayer {

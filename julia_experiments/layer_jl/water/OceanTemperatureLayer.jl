@@ -7,6 +7,11 @@ struct OceanTemperatureLayer <: BiomeLayer
     layerSeed::Int64
     localSeed::Int64
 
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
+
 	perlin::PerlinNoiseSampler
 end
 

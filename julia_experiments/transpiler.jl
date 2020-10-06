@@ -80,3 +80,19 @@ file = files[5]
 [write(file, replace(read(file, String), r_w)) for r_w in rewrite_rules]
 replace_file(file)
 [replace_file(file) for file in files]
+
+# magic to generate constructors for all structures
+
+constructors = """
+struct(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+struct(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+struct(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+struct(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+"""
+
+function add_constructors(file)
+    struct_name = #todo: grepnout
+    replace(constructors, "struct"=>struct_name)
+    #todo: locate row after struct definition and insert them here
+end
+# todo: implement inserting constructors after struct and replacing struct with actual struct name

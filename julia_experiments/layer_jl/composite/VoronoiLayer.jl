@@ -7,6 +7,11 @@ struct VoronoiLayer <: BiomeLayer
     layerSeed::Int64
     localSeed::Int64
 
+    scale::Int32
+    layerId::Int32
+
+    layerCache::LayerCache
+
     seed::Int64
     is3D::Bool
 end

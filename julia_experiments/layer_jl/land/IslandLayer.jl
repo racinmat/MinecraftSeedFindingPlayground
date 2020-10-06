@@ -6,6 +6,11 @@ struct IslandLayer <: CrossLayer
     salt::Int64
     layerSeed::Int64
     localSeed::Int64
+
+    scale::Int32 = -1
+    layerId::Int32 = -1
+
+    layerCache::LayerCache = new LayerCache(1024)
 end
 
 public class IslandLayer extends CrossLayer {
