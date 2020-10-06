@@ -1,8 +1,11 @@
-package kaptainwutax.biomeutils.layer.end;
+struct EndBiomeLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class EndBiomeLayer extends BiomeLayer {
 

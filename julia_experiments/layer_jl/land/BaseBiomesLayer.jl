@@ -1,9 +1,12 @@
-package kaptainwutax.biomeutils.layer.land;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.Stats;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct BaseBiomesLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class BaseBiomesLayer extends BiomeLayer {
 

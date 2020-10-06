@@ -1,10 +1,16 @@
-package kaptainwutax.biomeutils.layer.end;
 
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.noise.SimplexNoiseSampler;
-import kaptainwutax.seedutils.lcg.LCG;
-import kaptainwutax.seedutils.lcg.rand.JRand;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct EndSimplexLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+
+    SIMPLEX_SKIP::LCG = LCG.JAVA.combine(17292);
+    simplex::SimplexNoiseSampler
+
+end
 
 public class EndSimplexLayer extends BiomeLayer {
 

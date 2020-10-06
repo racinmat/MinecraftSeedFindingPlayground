@@ -1,9 +1,12 @@
-package kaptainwutax.biomeutils.layer.water;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.layer.composite.CrossLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct NoiseToRiverLayer <: CrossLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class NoiseToRiverLayer extends CrossLayer {
 

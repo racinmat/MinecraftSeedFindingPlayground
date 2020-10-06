@@ -1,10 +1,39 @@
-package kaptainwutax.biomeutils.layer.temperature;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.Stats;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.layer.composite.CrossLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct ColdClimateLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
+
+struct TemperateClimateLayer <: CrossLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
+
+struct CoolClimateLayer <: CrossLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
+
+struct SpecialClimateLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class ClimateLayer {
     public static class Cold extends BiomeLayer {

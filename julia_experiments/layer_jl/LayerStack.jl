@@ -1,9 +1,9 @@
-package kaptainwutax.biomeutils.layer;
 
-import kaptainwutax.biomeutils.layer.composite.VoronoiLayer;
-import kaptainwutax.biomeutils.layer.scale.ScaleLayer;
+struct LayerStack{T} <:Vector{T} where {T<:BiomeLayer}
+	layerIdCounter::Int32
+end
 
-import java.util.ArrayList;
+LayerStack{T}() <:Vector{T} where {T<:BiomeLayer} = LayerStack{T}(0)
 
 public  class LayerStack<T extends BiomeLayer> extends ArrayList<T> {
 

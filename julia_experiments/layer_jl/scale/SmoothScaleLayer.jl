@@ -1,8 +1,12 @@
-package kaptainwutax.biomeutils.layer.scale;
 
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.layer.composite.CrossLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct SmoothScaleLayer <: CrossLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class SmoothScaleLayer extends CrossLayer {
 

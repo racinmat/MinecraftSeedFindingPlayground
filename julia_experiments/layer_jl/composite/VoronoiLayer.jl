@@ -1,9 +1,15 @@
-package kaptainwutax.biomeutils.layer.composite;
 
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
-import kaptainwutax.seedutils.mc.seed.SeedMixer;
-import kaptainwutax.seedutils.mc.seed.WorldSeed;
+struct VoronoiLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+
+    seed::Int64
+    is3D::Bool
+end
 
 public class VoronoiLayer extends BiomeLayer {
 

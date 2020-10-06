@@ -1,7 +1,5 @@
-package kaptainwutax.biomeutils.layer;
 
-import kaptainwutax.seedutils.mc.MCVersion;
-import kaptainwutax.seedutils.mc.seed.SeedMixer;
+abstract type BiomeLayer end
 
 public abstract class BiomeLayer {
 

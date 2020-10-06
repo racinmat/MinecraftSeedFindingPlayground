@@ -1,7 +1,5 @@
-package kaptainwutax.biomeutils.layer.composite;
 
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+abstract type XCrossLayer <: BiomeLayer end
 
 public abstract class XCrossLayer extends BiomeLayer {
 

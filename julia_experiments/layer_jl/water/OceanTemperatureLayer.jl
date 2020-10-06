@@ -1,10 +1,14 @@
-package kaptainwutax.biomeutils.layer.water;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.noise.PerlinNoiseSampler;
-import kaptainwutax.seedutils.lcg.rand.JRand;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct OceanTemperatureLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+
+	perlin::PerlinNoiseSampler
+end
 
 public class OceanTemperatureLayer extends BiomeLayer {
 

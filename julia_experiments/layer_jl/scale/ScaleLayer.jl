@@ -1,7 +1,14 @@
-package kaptainwutax.biomeutils.layer.scale;
 
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct ScaleLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+
+    type::Type
+end
 
 public class ScaleLayer extends BiomeLayer {
 

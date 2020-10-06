@@ -1,9 +1,12 @@
-package kaptainwutax.biomeutils.layer.land;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.layer.composite.XCrossLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct LandLayer <: XCrossLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class LandLayer extends XCrossLayer {
 

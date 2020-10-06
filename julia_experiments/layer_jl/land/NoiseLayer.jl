@@ -1,8 +1,12 @@
-package kaptainwutax.biomeutils.layer.land;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct NoiseLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
+
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+end
 
 public class NoiseLayer extends BiomeLayer {
 

@@ -1,8 +1,9 @@
-package kaptainwutax.biomeutils.layer;
 
-import kaptainwutax.mathutils.util.Mth;
-
-import java.util.Arrays;
+struct LayerCache
+	keys::Vector{Int64}
+	values::Vector{Int32}
+	mask::Int32
+end
 
 public class LayerCache {
 

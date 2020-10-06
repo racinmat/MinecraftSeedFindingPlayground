@@ -1,15 +1,21 @@
-package kaptainwutax.biomeutils.layer.nether;
 
-import kaptainwutax.biomeutils.Biome;
-import kaptainwutax.biomeutils.layer.BiomeLayer;
-import kaptainwutax.biomeutils.noise.DoublePerlinNoiseSampler;
-import kaptainwutax.biomeutils.noise.MixedNoisePoint;
-import kaptainwutax.seedutils.mc.ChunkRand;
-import kaptainwutax.seedutils.mc.MCVersion;
+struct NetherLayer <: BiomeLayer
+    version::MCVersion
+    parents::Vector{<:BiomeLayer}
 
-import java.util.Comparator;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+    salt::Int64
+    layerSeed::Int64
+    localSeed::Int64
+
+    temperature::DoublePerlinNoiseSampler
+    humidity::DoublePerlinNoiseSampler
+    altitude::DoublePerlinNoiseSampler
+    weirdness::DoublePerlinNoiseSampler
+
+    biomePoints::Vector{<:MixedNoisePoint}
+    is3D::Bool
+
+end
 
 public class NetherLayer extends BiomeLayer {
 
