@@ -59,7 +59,7 @@ public abstract class BiomeLayer {
     end
 
     function getParent(this)::BiomeLayer
-        return this.getParent(0);
+        return this.parents[1];
     end
 
     function getParent(this, id::Int32)::BiomeLayer
@@ -117,11 +117,11 @@ public abstract class BiomeLayer {
     end
 
     function choose(this, a::Int32b::Int32)::Int32
-        return this.nextInt(2) == 0 ? a : b;
+        return nextInt(this, 2) == 0 ? a : b;
     end
 
     function choose(this, a::Int32, b::Int32, c::Int32d::Int32)::Int32
-        i = this.nextInt(4);
+        i = nextInt(this, 4);
         return i == 0 ? a : i == 1 ? b : i == 2 ? c : d;
     end
 

@@ -27,7 +27,7 @@ public class MushroomLayer extends XCrossLayer {
 	@Override
 	function sample(this, sw::Int32, se::Int32, ne::Int32, nw::Int32center::Int32)::Int32
 		return Biome.applyAll(Biome::isShallowOcean, center, sw, se, ne, nw)
-				&& this.nextInt(100) == 0 ? Biome.MUSHROOM_FIELDS.getId() : center;
+				&& nextInt(this, 100) == 0 ? Biome.MUSHROOM_FIELDS.getId() : center;
 	end
 
 }

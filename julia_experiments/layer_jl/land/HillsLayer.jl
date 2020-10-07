@@ -26,9 +26,9 @@ public class HillsLayer extends BiomeLayer {
 
 	@Override
 	function sample(this, x::Int32, y::Int32z::Int32)::Int32
-		this.setSeed(x, z);
-		i = this.getParent(0).get(x, y, z); // biomes
-		j = this.getParent(1).get(x, y, z); // noise (river)
+		setSeed(this, x, z);
+		i = this.parents[1].get(x, y, z); // biomes
+		j = this.parents[2].get(x, y, z); // noise (river)
 
 		k = (j - 2) % 29;
 		Biome biome3;
@@ -42,7 +42,7 @@ public class HillsLayer extends BiomeLayer {
 			end
 		end
 
-		if(this.nextInt(3) == 0 || k == 0) {
+		if(nextInt(this, 3) == 0 || k == 0) {
 			l = i;
 			if (i == Biome.DESERT.getId()) {
 				l = Biome.DESERT_HILLS.getId();
@@ -59,7 +59,7 @@ public class HillsLayer extends BiomeLayer {
 			} else if(i == Biome.SNOWY_TAIGA.getId()) {
 				l = Biome.SNOWY_TAIGA_HILLS.getId();
 			} else if(i == Biome.PLAINS.getId()) {
-				l = this.nextInt(3) == 0 ? Biome.WOODED_HILLS.getId() : Biome.FOREST.getId();
+				l = nextInt(this, 3) == 0 ? Biome.WOODED_HILLS.getId() : Biome.FOREST.getId();
 			} else if(i == Biome.SNOWY_TUNDRA.getId()) {
 				l = Biome.SNOWY_MOUNTAINS.getId();
 			} else if(i == Biome.JUNGLE.getId()) {
@@ -84,8 +84,8 @@ public class HillsLayer extends BiomeLayer {
 			// in 1.12 this check is only for DEEP_OCEAN but since the other can't spawn, its ok
 			else if((i == Biome.DEEP_OCEAN.getId() || i == Biome.DEEP_LUKEWARM_OCEAN.getId()
 					|| i == Biome.DEEP_COLD_OCEAN.getId() || i == Biome.DEEP_FROZEN_OCEAN.getId())
-					&& this.nextInt(3) == 0) {
-				l = this.nextInt(2) == 0 ? Biome.PLAINS.getId() : Biome.FOREST.getId();
+					&& nextInt(this, 3) == 0) {
+				l = nextInt(this, 2) == 0 ? Biome.PLAINS.getId() : Biome.FOREST.getId();
 			end
 
 			if(k == 0 && l != i) {
@@ -96,10 +96,10 @@ public class HillsLayer extends BiomeLayer {
 			if(l != i) {
 				m = 0;
 				b = Biome.REGISTRY.get(i);
-				if(Biome.areSimilar(this.getParent(0).get(x, y,z - 1), b))m++;
-				if(Biome.areSimilar(this.getParent(0).get(x + 1, y, z), b))m++;
-				if(Biome.areSimilar(this.getParent(0).get(x - 1, y, z), b))m++;
-				if(Biome.areSimilar(this.getParent(0).get(x, y,z + 1), b))m++;
+				if(Biome.areSimilar(this.parents[1].get(x, y,z - 1), b))m++;
+				if(Biome.areSimilar(this.parents[1].get(x + 1, y, z), b))m++;
+				if(Biome.areSimilar(this.parents[1].get(x - 1, y, z), b))m++;
+				if(Biome.areSimilar(this.parents[1].get(x, y,z + 1), b))m++;
 				if(m >= 3)return l;
 			end
 		end

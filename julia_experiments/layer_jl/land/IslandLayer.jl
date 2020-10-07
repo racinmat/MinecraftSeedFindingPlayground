@@ -26,7 +26,7 @@ public class IslandLayer extends CrossLayer {
 
 	@Override
 	function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
-		return Biome.applyAll(Biome::isShallowOcean, center, n, e, s, w)  && this.nextInt(2) == 0 ? Biome.PLAINS.getId() : center;
+		return Biome.applyAll(Biome::isShallowOcean, center, n, e, s, w)  && nextInt(this, 2) == 0 ? Biome.PLAINS.getId() : center;
 	end
 
 }

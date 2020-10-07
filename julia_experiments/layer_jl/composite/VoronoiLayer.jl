@@ -24,7 +24,7 @@ VoronoiLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(v
 VoronoiLayer(version::MCVersion, worldSeed::Int64, is3D::Bool, parent::BiomeLayer) = VoronoiLayer(version, parent, isOlderThan(version, v"1.15") ? 10L : 0L, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024), isOlderThan(version, v"1.15") ? worldSeed : WorldSeed.toHash(worldSeed), is3D)
 
 function sample(this, x::Int32, y::Int32z::Int32)::Int32
-    return isOlderThan(this.version, v"1.14") ? sample13(this, x, z) : this.sample14(x, y, z);
+    return isOlderThan(this.version, v"1.14") ? sample13(this, x, z) : sample14(this, x, y, z);
 end
 
 public class VoronoiLayer extends BiomeLayer {
@@ -48,7 +48,7 @@ public class VoronoiLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        return this.getVersion().isOlderThan(MCVersion.v1_14) ? this.sample13(x, z) : this.sample14(x, y, z);
+        return this.version.isOlderThan(MCVersion.v1_14) ? sample13(this, x, z) : this.sample14(x, y, z);
     end
 
     function sample13(this, x::Int32z::Int32)::Int32
@@ -87,7 +87,7 @@ public class VoronoiLayer extends BiomeLayer {
         // | 2 | 3 |  \_/
         // |___|___|
 
-        return this.getParent().get(pX + (offset & 1), 0, pZ + (offset >> 1));
+        return this.parents[1].get(pX + (offset & 1), 0, pZ + (offset >> 1));
     end
 
     function sample14(this, x::Int32, y::Int32z::Int32)::Int32
@@ -127,7 +127,7 @@ public class VoronoiLayer extends BiomeLayer {
         xFinal = (index & 4) == 0 ? l : l + 1;
         yFinal = (index & 2) == 0 ? m : m + 1;
         zFinal = (index & 1) == 0 ? n : n + 1;
-        return this.getParent().get(xFinal, this.is3D ? yFinal : 0, zFinal);
+        return this.parents[1].get(xFinal, this.is3D ? yFinal : 0, zFinal);
     end
 
     private static double calcContribution(double[] d, int x, int z) {

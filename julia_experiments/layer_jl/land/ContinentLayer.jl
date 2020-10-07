@@ -26,9 +26,9 @@ public class ContinentLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        this.setSeed(x, z);
+        setSeed(this, x, z);
         if(x == 0 && z == 0)return Biome.PLAINS.getId();
-        return this.nextInt(10) == 0 ? Biome.PLAINS.getId() : Biome.OCEAN.getId();
+        return nextInt(this, 10) == 0 ? Biome.PLAINS.getId() : Biome.OCEAN.getId();
     end
 
 }

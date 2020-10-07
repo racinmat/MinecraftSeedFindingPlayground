@@ -26,8 +26,8 @@ public class RiverLayer extends BiomeLayer {
 
 	@Override
 	function sample(this, x::Int32, y::Int32z::Int32)::Int32
-		landStackCenter = this.getParent(0).get(x, y, z);
-		noiseStackCenter = this.getParent(1).get(x, y, z);
+		landStackCenter = this.parents[1].get(x, y, z);
+		noiseStackCenter = this.parents[2].get(x, y, z);
 
 		if(Biome.isOcean(landStackCenter))return landStackCenter;
 

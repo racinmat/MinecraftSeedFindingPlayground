@@ -35,28 +35,28 @@ public class ScaleLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        i = this.getParent().get(x >> 1, y, z >> 1);
-        this.setSeed(x & -2, z & -2);
+        i = this.parents[1].get(x >> 1, y, z >> 1);
+        setSeed(this, x & -2, z & -2);
         xb = x & 1, zb = z & 1;
 
         if (xb == 0 && zb == 0) return i;
 
-        l = this.getParent().get(x >> 1, y, (z + 1) >> 1);
-        m = this.choose(i, l);
+        l = this.parents[1].get(x >> 1, y, (z + 1) >> 1);
+        m = choose(this, i, l);
 
         if (xb == 0) return m;
 
-        n = this.getParent().get((x + 1) >> 1, y, z >> 1);
-        o = this.choose(i, n);
+        n = this.parents[1].get((x + 1) >> 1, y, z >> 1);
+        o = choose(this, i, n);
 
         if (zb == 0) return o;
 
-        p = getParent().get((x + 1) >> 1, y, (z + 1) >> 1);
-        return this.sample(i, n, l, p);
+        p = parents[1].get((x + 1) >> 1, y, (z + 1) >> 1);
+        return sample(this, i, n, l, p);
     end
 
     function sample(this, center::Int32, e::Int32, s::Int32se::Int32)::Int32
-        ret = this.choose(center, e, s, se);
+        ret = choose(this, center, e, s, se);
 
         if (this.type == Type.FUZZY) {
             return ret;

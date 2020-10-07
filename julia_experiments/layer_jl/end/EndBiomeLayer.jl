@@ -32,7 +32,7 @@ public class EndBiomeLayer extends BiomeLayer {
             return Biome.THE_END.getId();
         end
 
-        height = Float.intBitsToFloat(this.getParent().get(x * 2 + 1, 0, z * 2 + 1));
+        height = Float.intBitsToFloat(this.parents[1].get(x * 2 + 1, 0, z * 2 + 1));
 
         if(height > 40.0F) {
             return Biome.END_HIGHLANDS.getId();

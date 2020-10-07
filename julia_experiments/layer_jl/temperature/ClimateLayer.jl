@@ -68,14 +68,14 @@ public class ClimateLayer {
 
         @Override
         function sample(this, x::Int32, y::Int32z::Int32)::Int32
-            value = this.getParent().get(x, y, z);
+            value = this.parents[1].get(x, y, z);
             Stats.incr("totalCold");
             if (Biome.isShallowOcean(value)) {
                 return value;
             end
 
-            this.setSeed(x, z);
-            i = this.nextInt(6);
+            setSeed(this, x, z);
+            i = nextInt(this, 6);
             if (i == 0) {
                 Stats.incr("coldForest");
                 return Biome.FOREST.getId();
@@ -141,15 +141,15 @@ public class ClimateLayer {
 
         @Override
         function sample(this, x::Int32, y::Int32z::Int32)::Int32
-            i = this.getParent().get(x, y, z);
+            i = this.parents[1].get(x, y, z);
             Stats.incr("totalSpe");
             if (Biome.isShallowOcean(i)) {
                 return i;
             end
-            this.setSeed(x, z);
+            setSeed(this, x, z);
 
-            if (this.nextInt(13) == 0) {
-                i |= (1 + this.nextInt(15)) << 8;
+            if (nextInt(this, 13) == 0) {
+                i |= (1 + nextInt(this, 15)) << 8;
                 Stats.incr("specialSpe");
             end
             else{

@@ -9,14 +9,14 @@ public abstract class CrossLayer extends BiomeLayer {
 
 	@Override
 	function sample(this, x::Int32, y::Int32z::Int32)::Int32
-		this.setSeed(x, z);
+		setSeed(this, x, z);
 
-		return this.sample(
-				this.getParent().get(x, y, z - 1),
-				this.getParent().get(x + 1, y, z),
-				this.getParent().get(x, y,z + 1),
-				this.getParent().get(x - 1, y, z),
-				this.getParent().get(x, y, z)
+		return sample(this, 
+				this.parents[1].get(x, y, z - 1),
+				this.parents[1].get(x + 1, y, z),
+				this.parents[1].get(x, y,z + 1),
+				this.parents[1].get(x - 1, y, z),
+				this.parents[1].get(x, y, z)
 			);
 	end
 

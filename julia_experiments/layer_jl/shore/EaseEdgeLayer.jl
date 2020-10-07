@@ -27,10 +27,10 @@ public class EaseEdgeLayer extends CrossLayer {
     @Override
     function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
         int[] is = new int[1];
-        if (!this.replaceEdgeIfNeeded(is, n, e, s, w, center, Biome.MOUNTAINS, Biome.MOUNTAIN_EDGE) &&
-                this.replaceEdge(is, n, e, s, w, center, Biome.WOODED_BADLANDS_PLATEAU, Biome.BADLANDS) &&
-                this.replaceEdge(is, n, e, s, w, center, Biome.BADLANDS_PLATEAU, Biome.BADLANDS) &&
-                this.replaceEdge(is, n, e, s, w, center, Biome.GIANT_TREE_TAIGA, Biome.TAIGA)) {
+        if (!replaceEdgeIfNeeded(this, is, n, e, s, w, center, Biome.MOUNTAINS, Biome.MOUNTAIN_EDGE) &&
+                replaceEdge(this, is, n, e, s, w, center, Biome.WOODED_BADLANDS_PLATEAU, Biome.BADLANDS) &&
+                replaceEdge(this, is, n, e, s, w, center, Biome.BADLANDS_PLATEAU, Biome.BADLANDS) &&
+                replaceEdge(this, is, n, e, s, w, center, Biome.GIANT_TREE_TAIGA, Biome.TAIGA)) {
 
             if (center == Biome.DESERT.getId() && anyMatch(Biome.SNOWY_TUNDRA, n, e, w, s)) {
                 return Biome.WOODED_MOUNTAINS.getId();
@@ -63,7 +63,7 @@ public class EaseEdgeLayer extends CrossLayer {
         if (!Biome.areSimilar(m, n)) {
             return false;
         } else {
-            if (this.canBeNeighbors(i, n) && this.canBeNeighbors(j, n) && this.canBeNeighbors(l, n) && this.canBeNeighbors(k, n)) {
+            if (canBeNeighbors(this, i, n) && this.canBeNeighbors(j, n) && this.canBeNeighbors(l, n) && this.canBeNeighbors(k, n)) {
                 is[0] = m;
             } else {
                 is[0] = o.getId();

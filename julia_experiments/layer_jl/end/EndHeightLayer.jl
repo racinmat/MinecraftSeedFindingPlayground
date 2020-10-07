@@ -37,7 +37,7 @@ public class EndHeightLayer extends BiomeLayer {
             for(rz = -12; rz <= 12; ++rz) {
                 shiftedX = scaledX + rx;
                 shiftedZ = scaledZ + rz;
-                if (shiftedX * shiftedX + shiftedZ * shiftedZ > 4096L && this.getParent().get(shiftedX, 0, shiftedZ) == 1) {
+                if (shiftedX * shiftedX + shiftedZ * shiftedZ > 4096L && this.parents[1].get(shiftedX, 0, shiftedZ) == 1) {
                     elevation = (Math.abs((float)shiftedX) * 3439.0F + Math.abs((float)shiftedZ) * 147.0F) % 13.0F + 9.0F;
                     smoothX = (float)(oddX - rx * 2);
                     smoothZ = (float)(oddZ - rz * 2);

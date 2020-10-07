@@ -27,7 +27,7 @@ public class LandLayer extends XCrossLayer {
     @Override
     function sample(this, sw::Int32, se::Int32, ne::Int32, nw::Int32center::Int32)::Int32
         if(!Biome.isShallowOcean(center) || Biome.applyAll(Biome::isShallowOcean, sw, se, ne, nw)) {
-            if(Biome.isShallowOcean(center) || (Biome.applyAll(v -> !Biome.isShallowOcean(v), sw, se, ne, nw)) || this.nextInt(5) != 0) {
+            if(Biome.isShallowOcean(center) || (Biome.applyAll(v -> !Biome.isShallowOcean(v), sw, se, ne, nw)) || nextInt(this, 5) != 0) {
                 return center;
             end
 
@@ -53,23 +53,23 @@ public class LandLayer extends XCrossLayer {
         i = 1;
         j = 1;
 
-        if(!Biome.isShallowOcean(nw) && this.nextInt(i++) == 0) {
+        if(!Biome.isShallowOcean(nw) && nextInt(this, i++) == 0) {
             j = nw;
         end
 
-        if(!Biome.isShallowOcean(ne) && this.nextInt(i++) == 0) {
+        if(!Biome.isShallowOcean(ne) && nextInt(this, i++) == 0) {
             j = ne;
         end
 
-        if(!Biome.isShallowOcean(sw) && this.nextInt(i++) == 0) {
+        if(!Biome.isShallowOcean(sw) && nextInt(this, i++) == 0) {
             j = sw;
         end
 
-        if(!Biome.isShallowOcean(se) && this.nextInt(i) == 0) {
+        if(!Biome.isShallowOcean(se) && nextInt(this, i) == 0) {
             j = se;
         end
 
-        if(this.nextInt(3) == 0) {
+        if(nextInt(this, 3) == 0) {
             return j;
         end
 

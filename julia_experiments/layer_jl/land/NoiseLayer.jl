@@ -26,9 +26,9 @@ public class NoiseLayer extends BiomeLayer {
 
 	@Override
 	function sample(this, x::Int32, y::Int32z::Int32)::Int32
-		this.setSeed(x, z);
-		i = this.getParent().get(x, y, z);
-		return Biome.isShallowOcean(i) ? i : this.nextInt(299999) + 2;
+		setSeed(this, x, z);
+		i = this.parents[1].get(x, y, z);
+		return Biome.isShallowOcean(i) ? i : nextInt(this, 299999) + 2;
 	end
 
 }

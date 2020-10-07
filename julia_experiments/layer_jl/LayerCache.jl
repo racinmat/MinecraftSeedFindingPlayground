@@ -28,8 +28,8 @@ public class LayerCache {
 	end
 
 	function get(this, x::Int32, y::Int32, z::Int32sampler::Sampler)::Int32
-		key = this.uniqueHash(x, y, z);
-		id = this.murmur64(key) & this.mask;
+		key = uniqueHash(this, x, y, z);
+		id = murmur64(this, key) & this.mask;
 
 		if(this.keys[id] == key) {
 			return this.values[id];

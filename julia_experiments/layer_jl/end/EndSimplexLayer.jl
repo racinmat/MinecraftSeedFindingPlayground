@@ -23,7 +23,7 @@ EndSimplexLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLaye
 
 public class EndSimplexLayer extends BiomeLayer {
 
-    public SIMPLEX_SKIP = LCG.JAVA.combine(17292);
+    SIMPLEX_SKIP = LCG.JAVA.combine(17292);
     protected final SimplexNoiseSampler simplex;
 
     public EndSimplexLayer(MCVersion version, long worldSeed) {

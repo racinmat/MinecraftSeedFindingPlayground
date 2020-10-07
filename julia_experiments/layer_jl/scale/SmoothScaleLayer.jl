@@ -30,7 +30,7 @@ public class SmoothScaleLayer extends CrossLayer {
 		zMatches = n == s;
 
 		if(xMatches && zMatches) {
-			return this.choose(w, n);
+			return choose(this, w, n);
 		} else if(!xMatches && !zMatches) {
 			return center;
 		} else if(xMatches) {
@@ -41,7 +41,7 @@ public class SmoothScaleLayer extends CrossLayer {
 
 		/*
 		if(xMatches == zMatches) {
-			return xMatches ? this.choose(w, n): center;
+			return xMatches ? choose(this, w, n): center;
 		} else {
 			return xMatches ? w : n;
 		}*/

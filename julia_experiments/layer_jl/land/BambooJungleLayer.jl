@@ -26,9 +26,9 @@ public class BambooJungleLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        this.setSeed(x, z);
-        value = this.getParent().get(x, y, z);
-        return value == Biome.JUNGLE.getId() && this.nextInt(10) == 0 ? Biome.BAMBOO_JUNGLE.getId() : value;
+        setSeed(this, x, z);
+        value = this.parents[1].get(x, y, z);
+        return value == Biome.JUNGLE.getId() && nextInt(this, 10) == 0 ? Biome.BAMBOO_JUNGLE.getId() : value;
     end
 
 }

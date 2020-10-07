@@ -5,8 +5,8 @@ pkg"activate ."
 
 files = walkdir("layer_jl") .|> (x->joinpath.(x[1], x[3])) |> Iterators.flatten |> collect
 
-reg, func = regexes[2]
-line = split(read(file, String), "\n")[19]
+reg, func = regexes[5]
+line = split(read(file, String), "\n")[51]
 function replace_file(file)
     new_lines = []
     for line in split(read(file, String), "\n")
@@ -62,11 +62,19 @@ function replace_end(line, m)
     "$(line_begin)end$(line_end)"
 end
 
+function replace_this(line, m)
+    line_begin = line[1:m.offset-1]
+    line_end = line[m.offsets[end]+length(m.captures[end])+1:end]
+    method = m.captures[1]
+    "$(line_begin)$(method)(this, $(line_end)"
+end
+
 regexes = [
     r"(public|private) (static )?(\w+) (\w+)\(((\w+ \w+, )*)(\w+ \w+)\) (\{)"=>replace_method,
     r"(public|private) (static )?(\w+) (\w+)\(\) (\{)"=>replace_method_no_args,
     r"(\w+) (\w+) = .*;"=>replace_assignment,
-    r"^\s+(\})\s+$"=>replace_end
+    r"^\s+(\})\s+$"=>replace_end,
+    r"this\.(\w+)\("=>replace_this
 ]
 
 # rewrite_rules = [

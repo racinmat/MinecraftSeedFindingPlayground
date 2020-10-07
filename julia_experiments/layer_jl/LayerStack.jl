@@ -21,7 +21,7 @@ public  class LayerStack<T extends BiomeLayer> extends ArrayList<T> {
 	end
 
 	function setScales(this)::Nothing
-		this.setRecursiveScale(this.get(this.size() - 1), 1);
+		setRecursiveScale(this, this.get(this.size() - 1), 1);
 	end
 
 	function setRecursiveScale(this, last::BiomeLayerscale::Int32)::Nothing
@@ -33,7 +33,7 @@ public  class LayerStack<T extends BiomeLayer> extends ArrayList<T> {
 			if(last instanceof ScaleLayer)shift = 1;
 			else if(last instanceof VoronoiLayer)shift = 2;
 
-			this.setRecursiveScale(biomeLayer, scale << shift);
+			setRecursiveScale(this, biomeLayer, scale << shift);
 			max = Math.max(max, scale);
 		end
 
