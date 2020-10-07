@@ -28,7 +28,7 @@ public class SunflowerPlainsLayer extends BiomeLayer {
 	function sample(this, x::Int32, y::Int32z::Int32)::Int32
 		setSeed(this, x, z);
 		value = this.parents[1].get(x, y, z);
-		return value == Biome.PLAINS.getId() && nextInt(this, 57) == 0 ? Biome.SUNFLOWER_PLAINS.getId() : value;
+		return value == Biome.PLAINS.id && nextInt(this, 57) == 0 ? Biome.SUNFLOWER_PLAINS.id : value;
 	end
 
 }

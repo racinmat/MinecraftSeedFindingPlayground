@@ -32,16 +32,16 @@ public class EaseEdgeLayer extends CrossLayer {
                 replaceEdge(this, is, n, e, s, w, center, Biome.BADLANDS_PLATEAU, Biome.BADLANDS) &&
                 replaceEdge(this, is, n, e, s, w, center, Biome.GIANT_TREE_TAIGA, Biome.TAIGA)) {
 
-            if (center == Biome.DESERT.getId() && anyMatch(Biome.SNOWY_TUNDRA, n, e, w, s)) {
-                return Biome.WOODED_MOUNTAINS.getId();
+            if (center == Biome.DESERT.id && anyMatch(Biome.SNOWY_TUNDRA, n, e, w, s)) {
+                return Biome.WOODED_MOUNTAINS.id;
             } else {
-                if (center == Biome.SWAMP.getId()) {
+                if (center == Biome.SWAMP.id) {
                     if (anyMatch(Biome.DESERT, n, e, w, s) || anyMatch(Biome.SNOWY_TUNDRA, n, e, w, s) || anyMatch(Biome.SNOWY_TAIGA, n, e, w, s)) {
-                        return Biome.PLAINS.getId();
+                        return Biome.PLAINS.id;
                     end
 
                     if (anyMatch(Biome.JUNGLE, n, e, w, s) || anyMatch(Biome.BAMBOO_JUNGLE, n, e, w, s)) {
-                        return Biome.JUNGLE_EDGE.getId();
+                        return Biome.JUNGLE_EDGE.id;
                     end
                 end
 
@@ -54,7 +54,7 @@ public class EaseEdgeLayer extends CrossLayer {
 
     public static boolean anyMatch(Biome biome, int... values) {
         for (int value : values) {
-            if (value == biome.getId()) return true;
+            if (value == biome.id) return true;
         end
         return false;
     end
@@ -66,19 +66,19 @@ public class EaseEdgeLayer extends CrossLayer {
             if (canBeNeighbors(this, i, n) && canBeNeighbors(this, j, n) && canBeNeighbors(this, l, n) && canBeNeighbors(this, k, n)) {
                 is[0] = m;
             } else {
-                is[0] = o.getId();
+                is[0] = o.id;
             end
             return true;
         end
     end
 
     private boolean replaceEdge(int[] is, int i, int j, int k, int l, int m, Biome n, Biome o) {
-        if (m != n.getId()) return true;
+        if (m != n.id) return true;
 
         if (Biome.areSimilar(i, n) && Biome.areSimilar(j, n) && Biome.areSimilar(l, n) && Biome.areSimilar(k, n)) {
             is[0] = m;
         } else {
-            is[0] = o.getId();
+            is[0] = o.id;
         end
         return false;
     end

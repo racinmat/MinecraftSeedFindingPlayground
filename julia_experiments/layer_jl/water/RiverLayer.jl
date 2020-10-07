@@ -31,11 +31,11 @@ public class RiverLayer extends BiomeLayer {
 
 		if(Biome.isOcean(landStackCenter))return landStackCenter;
 
-		if(noiseStackCenter == Biome.RIVER.getId()) {
-			if(landStackCenter == Biome.SNOWY_TUNDRA.getId()) {
-				return Biome.FROZEN_RIVER.getId();
+		if(noiseStackCenter == Biome.RIVER.id) {
+			if(landStackCenter == Biome.SNOWY_TUNDRA.id) {
+				return Biome.FROZEN_RIVER.id;
 			} else {
-				return landStackCenter != Biome.MUSHROOM_FIELDS.getId() && landStackCenter != Biome.MUSHROOM_FIELD_SHORE.getId() ? noiseStackCenter & 255 : Biome.MUSHROOM_FIELD_SHORE.getId();
+				return landStackCenter != Biome.MUSHROOM_FIELDS.id && landStackCenter != Biome.MUSHROOM_FIELD_SHORE.id ? noiseStackCenter & 255 : Biome.MUSHROOM_FIELD_SHORE.id;
 			end
 		end
 

@@ -26,7 +26,8 @@ types = Dict("int"=>"Int32","double"=>"Float64", "long"=>"Int64", "boolean"=>"Bo
     "BiomeLayer"=>"BiomeLayer", "Sampler"=>"Sampler", "T"=>"T", "Biome"=>"Biome", "MCVersion"=>"MCVersion",
     "Type"=>"Type", "Dimension"=>"Dimension", "Factory"=>"Factory", "BiomeSource"=>"BiomeSource",
     "NetherBiomeSource"=>"NetherBiomeSource", "BPos"=>"BPos", "String"=>"AbstractString", "Category"=>"Category",
-    "Precipitation"=>"Precipitation", "float"=>"Float32", "Temperature"=>"Temperature", "OverworldBiomeSource"=>"OverworldBiomeSource")
+    "Precipitation"=>"Precipitation", "float"=>"Float32", "Temperature"=>"Temperature",
+    "OverworldBiomeSource"=>"OverworldBiomeSource")
 
 function replace_method(line, m)
     args = [split(var, " ")[1] for var in split(m.captures[5], ", ")[1:end-1]]
@@ -46,7 +47,7 @@ function replace_method_no_args(line, m)
     m.captures
     line_begin = line[1:m.offset-1]
     line_end = line[m.offsets[end]+length(m.captures[end]):end]
-    "$(line_begin)function $(m.captures[4])(self)::$(types[m.captures[3]])$(line_end)"
+    "$(line_begin)function $(m.captures[4])(this)::$(types[m.captures[3]])$(line_end)"
 end
 
 function replace_assignment(line, m)

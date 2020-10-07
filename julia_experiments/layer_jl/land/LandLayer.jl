@@ -32,19 +32,19 @@ public class LandLayer extends XCrossLayer {
             end
 
             if(Biome.isShallowOcean(nw)) {
-                return Biome.equalsOrDefault(center, Biome.FOREST.getId(), nw);
+                return Biome.equalsOrDefault(center, Biome.FOREST.id, nw);
             end
 
             if(Biome.isShallowOcean(sw)) {
-                return Biome.equalsOrDefault(center, Biome.FOREST.getId(), sw);
+                return Biome.equalsOrDefault(center, Biome.FOREST.id, sw);
             end
 
             if(Biome.isShallowOcean(ne)) {
-                return Biome.equalsOrDefault(center, Biome.FOREST.getId(), ne);
+                return Biome.equalsOrDefault(center, Biome.FOREST.id, ne);
             end
 
             if(Biome.isShallowOcean(se)) {
-                return Biome.equalsOrDefault(center, Biome.FOREST.getId(), se);
+                return Biome.equalsOrDefault(center, Biome.FOREST.id, se);
             end
 
             return center;
@@ -73,7 +73,7 @@ public class LandLayer extends XCrossLayer {
             return j;
         end
 
-        return j == Biome.FOREST.getId() ? Biome.FOREST.getId() : center;
+        return j == Biome.FOREST.id ? Biome.FOREST.id : center;
     end
 
 }

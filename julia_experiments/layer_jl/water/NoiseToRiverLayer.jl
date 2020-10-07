@@ -27,7 +27,7 @@ public class NoiseToRiverLayer extends CrossLayer {
 	@Override
 	function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
 		i = isValidForRiver(center);
-		return i == isValidForRiver(w) && i == isValidForRiver(n) && i == isValidForRiver(e) && i == isValidForRiver(s) ? -1 : Biome.RIVER.getId();
+		return i == isValidForRiver(w) && i == isValidForRiver(n) && i == isValidForRiver(e) && i == isValidForRiver(s) ? -1 : Biome.RIVER.id;
 	end
 
 	function isValidForRiver(this, value::Int32)::Int32

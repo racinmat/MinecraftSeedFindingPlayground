@@ -53,7 +53,7 @@ public class NetherLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        if(this.version.isOlderThan(MCVersion.v1_16))return Biome.NETHER_WASTES.getId();
+        if(this.version.isOlderThan(MCVersion.v1_16))return Biome.NETHER_WASTES.id;
 
         y = this.is3D ? y : 0;
 
@@ -64,7 +64,7 @@ public class NetherLayer extends BiomeLayer {
                 (float)this.weirdness.sample(x, y, z), 0.0F);
 
         return Stream.of(this.biomePoints).min(Comparator.comparing(m -> m.distanceTo(point)))
-                .map(MixedNoisePoint::getBiome).orElse(Biome.THE_VOID).getId();
+                .map(MixedNoisePoint::getBiome).orElse(Biome.THE_VOID).id;
     end
 
 }

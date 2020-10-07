@@ -38,59 +38,59 @@ public class HillsLayer extends BiomeLayer {
 
 			if(biome == null || !biome.hasParent()) {
 				biome3 = biome == null ? null : biome.getChild();
-				return biome3 == null ? i : biome3.getId();
+				return biome3 == null ? i : biome3.id;
 			end
 		end
 
 		if(nextInt(this, 3) == 0 || k == 0) {
 			l = i;
-			if (i == Biome.DESERT.getId()) {
-				l = Biome.DESERT_HILLS.getId();
-			} else if(i == Biome.FOREST.getId()) {
-				l = Biome.WOODED_HILLS.getId();
-			} else if(i == Biome.BIRCH_FOREST.getId()) {
-				l = Biome.BIRCH_FOREST_HILLS.getId();
-			} else if(i == Biome.DARK_FOREST.getId()) {
-				l = Biome.PLAINS.getId();
-			} else if(i == Biome.TAIGA.getId()) {
-				l = Biome.TAIGA_HILLS.getId();
-			} else if(i == Biome.GIANT_TREE_TAIGA.getId()) {
-				l = Biome.GIANT_TREE_TAIGA_HILLS.getId();
-			} else if(i == Biome.SNOWY_TAIGA.getId()) {
-				l = Biome.SNOWY_TAIGA_HILLS.getId();
-			} else if(i == Biome.PLAINS.getId()) {
-				l = nextInt(this, 3) == 0 ? Biome.WOODED_HILLS.getId() : Biome.FOREST.getId();
-			} else if(i == Biome.SNOWY_TUNDRA.getId()) {
-				l = Biome.SNOWY_MOUNTAINS.getId();
-			} else if(i == Biome.JUNGLE.getId()) {
-				l = Biome.JUNGLE_HILLS.getId();
-			} else if(i == Biome.BAMBOO_JUNGLE.getId()) {
-				l = Biome.BAMBOO_JUNGLE_HILLS.getId();
-			} else if(i == Biome.OCEAN.getId()) {
-				l = Biome.DEEP_OCEAN.getId();
-			} else if(i == Biome.LUKEWARM_OCEAN.getId()) {
-				l = Biome.DEEP_LUKEWARM_OCEAN.getId();
-			} else if(i == Biome.COLD_OCEAN.getId()) {
-				l = Biome.DEEP_COLD_OCEAN.getId();
-			} else if(i == Biome.FROZEN_OCEAN.getId()) {
-				l = Biome.DEEP_FROZEN_OCEAN.getId();
-			} else if(i == Biome.MOUNTAINS.getId()) {
-				l = Biome.WOODED_MOUNTAINS.getId();
-			} else if(i == Biome.SAVANNA.getId()) {
-				l = Biome.SAVANNA_PLATEAU.getId();
+			if (i == Biome.DESERT.id) {
+				l = Biome.DESERT_HILLS.id;
+			} else if(i == Biome.FOREST.id) {
+				l = Biome.WOODED_HILLS.id;
+			} else if(i == Biome.BIRCH_FOREST.id) {
+				l = Biome.BIRCH_FOREST_HILLS.id;
+			} else if(i == Biome.DARK_FOREST.id) {
+				l = Biome.PLAINS.id;
+			} else if(i == Biome.TAIGA.id) {
+				l = Biome.TAIGA_HILLS.id;
+			} else if(i == Biome.GIANT_TREE_TAIGA.id) {
+				l = Biome.GIANT_TREE_TAIGA_HILLS.id;
+			} else if(i == Biome.SNOWY_TAIGA.id) {
+				l = Biome.SNOWY_TAIGA_HILLS.id;
+			} else if(i == Biome.PLAINS.id) {
+				l = nextInt(this, 3) == 0 ? Biome.WOODED_HILLS.id : Biome.FOREST.id;
+			} else if(i == Biome.SNOWY_TUNDRA.id) {
+				l = Biome.SNOWY_MOUNTAINS.id;
+			} else if(i == Biome.JUNGLE.id) {
+				l = Biome.JUNGLE_HILLS.id;
+			} else if(i == Biome.BAMBOO_JUNGLE.id) {
+				l = Biome.BAMBOO_JUNGLE_HILLS.id;
+			} else if(i == Biome.OCEAN.id) {
+				l = Biome.DEEP_OCEAN.id;
+			} else if(i == Biome.LUKEWARM_OCEAN.id) {
+				l = Biome.DEEP_LUKEWARM_OCEAN.id;
+			} else if(i == Biome.COLD_OCEAN.id) {
+				l = Biome.DEEP_COLD_OCEAN.id;
+			} else if(i == Biome.FROZEN_OCEAN.id) {
+				l = Biome.DEEP_FROZEN_OCEAN.id;
+			} else if(i == Biome.MOUNTAINS.id) {
+				l = Biome.WOODED_MOUNTAINS.id;
+			} else if(i == Biome.SAVANNA.id) {
+				l = Biome.SAVANNA_PLATEAU.id;
 			} else if(Biome.areSimilar(i, Biome.WOODED_BADLANDS_PLATEAU)) {
-				l = Biome.BADLANDS.getId();
+				l = Biome.BADLANDS.id;
 			end
 			// in 1.12 this check is only for DEEP_OCEAN but since the other can't spawn, its ok
-			else if((i == Biome.DEEP_OCEAN.getId() || i == Biome.DEEP_LUKEWARM_OCEAN.getId()
-					|| i == Biome.DEEP_COLD_OCEAN.getId() || i == Biome.DEEP_FROZEN_OCEAN.getId())
+			else if((i == Biome.DEEP_OCEAN.id || i == Biome.DEEP_LUKEWARM_OCEAN.id
+					|| i == Biome.DEEP_COLD_OCEAN.id || i == Biome.DEEP_FROZEN_OCEAN.id)
 					&& nextInt(this, 3) == 0) {
-				l = nextInt(this, 2) == 0 ? Biome.PLAINS.getId() : Biome.FOREST.getId();
+				l = nextInt(this, 2) == 0 ? Biome.PLAINS.id : Biome.FOREST.id;
 			end
 
 			if(k == 0 && l != i) {
 				biome3 = Biome.REGISTRY.get(l).getChild();
-				l = biome3 == null ? i : biome3.getId();
+				l = biome3 == null ? i : biome3.id;
 			end
 
 			if(l != i) {

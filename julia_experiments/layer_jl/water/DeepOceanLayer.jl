@@ -37,12 +37,12 @@ public class DeepOceanLayer extends CrossLayer {
 		if(Biome.isShallowOcean(s))i++;
 
 		if(i > 3) {
-			if(center == Biome.WARM_OCEAN.getId())return Biome.DEEP_WARM_OCEAN.getId();
-			if(center == Biome.LUKEWARM_OCEAN.getId())return Biome.DEEP_LUKEWARM_OCEAN.getId();
-			if(center == Biome.OCEAN.getId())return Biome.DEEP_OCEAN.getId();
-			if(center == Biome.COLD_OCEAN.getId())return Biome.DEEP_COLD_OCEAN.getId();
-			if(center == Biome.FROZEN_OCEAN.getId())return Biome.DEEP_FROZEN_OCEAN.getId();
-			return Biome.DEEP_OCEAN.getId();
+			if(center == Biome.WARM_OCEAN.id)return Biome.DEEP_WARM_OCEAN.id;
+			if(center == Biome.LUKEWARM_OCEAN.id)return Biome.DEEP_LUKEWARM_OCEAN.id;
+			if(center == Biome.OCEAN.id)return Biome.DEEP_OCEAN.id;
+			if(center == Biome.COLD_OCEAN.id)return Biome.DEEP_COLD_OCEAN.id;
+			if(center == Biome.FROZEN_OCEAN.id)return Biome.DEEP_FROZEN_OCEAN.id;
+			return Biome.DEEP_OCEAN.id;
 		end
 
 		return center;

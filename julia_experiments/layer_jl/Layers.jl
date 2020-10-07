@@ -1,8 +1,6 @@
-struct MCVersion <: VersionNumber
-end
+MCVersion = VersionNumber
 
 isOlderThan(a::VersionNumber, b::VersionNumber) = a < b
-
 
 include(joinpath(@__DIR__, "composite", "CrossLayer.jl"))
 include(joinpath(@__DIR__, "composite", "VoronoiLayer.jl"))
@@ -41,6 +39,8 @@ include(joinpath(@__DIR__, "source", "BiomeSource.jl"))
 include(joinpath(@__DIR__, "source", "EndBiomeSource.jl"))
 include(joinpath(@__DIR__, "source", "NetherBiomeSource.jl"))
 include(joinpath(@__DIR__, "source", "OverworldBiomeSource.jl"))
+
+include(joinpath(@__DIR__, "Biome.jl"))
 
 bs = OverworldBiomeSource(v"1.14", 1)
 bs.getBiome(0, 0, 0)

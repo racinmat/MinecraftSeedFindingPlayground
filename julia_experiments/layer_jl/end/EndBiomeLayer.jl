@@ -29,20 +29,20 @@ public class EndBiomeLayer extends BiomeLayer {
         z >>= 2;
 
         if((long)x * (long)x + (long)z * (long)z <= 4096L) {
-            return Biome.THE_END.getId();
+            return Biome.THE_END.id;
         end
 
         height = Float.intBitsToFloat(this.parents[1].get(x * 2 + 1, 0, z * 2 + 1));
 
         if(height > 40.0F) {
-            return Biome.END_HIGHLANDS.getId();
+            return Biome.END_HIGHLANDS.id;
         } else if(height >= 0.0F) {
-            return Biome.END_MIDLANDS.getId();
+            return Biome.END_MIDLANDS.id;
         } else if(height >= -20.0F) {
-            return Biome.END_BARRENS.getId();
+            return Biome.END_BARRENS.id;
         end
 
-        return Biome.SMALL_END_ISLANDS.getId();
+        return Biome.SMALL_END_ISLANDS.id;
     end
 
 

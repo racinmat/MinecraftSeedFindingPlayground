@@ -47,41 +47,41 @@ public class BaseBiomesLayer extends BiomeLayer {
         specialBits = (center >> 8) & 15; //the nextInt(15) + 1 in ClimateLayer.Special
         center &= ~0xF00; //removes the 4 special bits and keeps everything else
         Stats.incr("total");
-        if(Biome.isOcean(center) || center == Biome.MUSHROOM_FIELDS.getId()) {
+        if(Biome.isOcean(center) || center == Biome.MUSHROOM_FIELDS.id) {
             Stats.incr("shroomOrOcean");
             return center;
         end
 
-        if(center == Biome.PLAINS.getId()) {
+        if(center == Biome.PLAINS.id) {
             Stats.incr("branch1");
             if(specialBits > 0) {
                 Stats.incr("mesa");
-                return nextInt(this, 3) == 0 ? Biome.BADLANDS_PLATEAU.getId() : Biome.WOODED_BADLANDS_PLATEAU.getId();
+                return nextInt(this, 3) == 0 ? Biome.BADLANDS_PLATEAU.id : Biome.WOODED_BADLANDS_PLATEAU.id;
             end
 
-            return DRY_BIOMES[nextInt(this, DRY_BIOMES.length)].getId();
-        } else if(center == Biome.DESERT.getId()) {
+            return DRY_BIOMES[nextInt(this, DRY_BIOMES.length)].id;
+        } else if(center == Biome.DESERT.id) {
             Stats.incr("branch2");
             if(specialBits > 0) {
                 Stats.incr("jungle");
-                return Biome.JUNGLE.getId();
+                return Biome.JUNGLE.id;
             end
 
-            return TEMPERATE_BIOMES[nextInt(this, TEMPERATE_BIOMES.length)].getId(); //nextInt(6)=1
-        } else if(center == Biome.MOUNTAINS.getId()) {
+            return TEMPERATE_BIOMES[nextInt(this, TEMPERATE_BIOMES.length)].id; //nextInt(6)=1
+        } else if(center == Biome.MOUNTAINS.id) {
             Stats.incr("branch3");
             if(specialBits > 0) {
                 Stats.incr("taiga");
-                return Biome.GIANT_TREE_TAIGA.getId();
+                return Biome.GIANT_TREE_TAIGA.id;
             end
 
-            return COOL_BIOMES[nextInt(this, COOL_BIOMES.length)].getId();
-        } else if(center == Biome.FOREST.getId()) {
+            return COOL_BIOMES[nextInt(this, COOL_BIOMES.length)].id;
+        } else if(center == Biome.FOREST.id) {
             Stats.incr("branch4");
-            return SNOWY_BIOMES[nextInt(this, SNOWY_BIOMES.length)].getId();
+            return SNOWY_BIOMES[nextInt(this, SNOWY_BIOMES.length)].id;
         end
         Stats.incr("shroom");
-        return Biome.MUSHROOM_FIELDS.getId();
+        return Biome.MUSHROOM_FIELDS.id;
     end
 
 }

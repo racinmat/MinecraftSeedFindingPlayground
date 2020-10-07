@@ -78,15 +78,15 @@ public class ClimateLayer {
             i = nextInt(this, 6);
             if (i == 0) {
                 Stats.incr("coldForest");
-                return Biome.FOREST.getId();
+                return Biome.FOREST.id;
             end
             if (i == 1) {
                 Stats.incr("coldMountains");
-                return Biome.MOUNTAINS.getId();
+                return Biome.MOUNTAINS.id;
             }//<=1
             // >1
             Stats.incr("coldPlains");
-            return Biome.PLAINS.getId();
+            return Biome.PLAINS.id;
         end
     end
 
@@ -100,12 +100,12 @@ public class ClimateLayer {
             Stats.incr("totalTemp");
             // escape this one needs plains on center
             // and either mountains or forest on one of the side
-            if (center == Biome.PLAINS.getId() && (n == Biome.MOUNTAINS.getId() || e == Biome.MOUNTAINS.getId()
-                    || w == Biome.MOUNTAINS.getId() || s == Biome.MOUNTAINS.getId() || n == Biome.FOREST.getId()
-                    || e == Biome.FOREST.getId() || w == Biome.FOREST.getId()
-                    || s == Biome.FOREST.getId())) {
+            if (center == Biome.PLAINS.id && (n == Biome.MOUNTAINS.id || e == Biome.MOUNTAINS.id
+                    || w == Biome.MOUNTAINS.id || s == Biome.MOUNTAINS.id || n == Biome.FOREST.id
+                    || e == Biome.FOREST.id || w == Biome.FOREST.id
+                    || s == Biome.FOREST.id)) {
                 Stats.incr("tempDesert");
-                return Biome.DESERT.getId();
+                return Biome.DESERT.id;
             end
             Stats.incr("tempNormal");
             return center;
@@ -120,16 +120,16 @@ public class ClimateLayer {
         @Override
         function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
             Stats.incr("totalCool");
-            if (center != Biome.FOREST.getId() || n != Biome.PLAINS.getId() && e != Biome.PLAINS.getId()
-                    && w != Biome.PLAINS.getId() && s != Biome.PLAINS.getId() && n != Biome.DESERT.getId()
-                    && e != Biome.DESERT.getId() && w != Biome.DESERT.getId()
-                    && s != Biome.DESERT.getId()) {
+            if (center != Biome.FOREST.id || n != Biome.PLAINS.id && e != Biome.PLAINS.id
+                    && w != Biome.PLAINS.id && s != Biome.PLAINS.id && n != Biome.DESERT.id
+                    && e != Biome.DESERT.id && w != Biome.DESERT.id
+                    && s != Biome.DESERT.id) {
                 Stats.incr("coolNormal");
                 return center;
             end
             else {
                 Stats.incr("coolMountains");
-                return Biome.MOUNTAINS.getId();
+                return Biome.MOUNTAINS.id;
             end
         end
     end

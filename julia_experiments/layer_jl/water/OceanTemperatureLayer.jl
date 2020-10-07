@@ -34,16 +34,16 @@ public class OceanTemperatureLayer extends BiomeLayer {
 		normalizedNoise = this.perlin.sample((double)x / 8.0D, (double)z / 8.0D, 0.0D, 0.0D, 0.0D);
 
 		if(normalizedNoise > 0.4D) {
-			return Biome.WARM_OCEAN.getId();
+			return Biome.WARM_OCEAN.id;
 		} else if(normalizedNoise > 0.2D) {
-			return Biome.LUKEWARM_OCEAN.getId();
+			return Biome.LUKEWARM_OCEAN.id;
 		} else if(normalizedNoise < -0.4D) {
-			return Biome.FROZEN_OCEAN.getId();
+			return Biome.FROZEN_OCEAN.id;
 		} else if(normalizedNoise < -0.2D) {
-			return Biome.COLD_OCEAN.getId();
+			return Biome.COLD_OCEAN.id;
 		end
 
-		return Biome.OCEAN.getId();
+		return Biome.OCEAN.id;
 	end
 
 	public static class Apply extends BiomeLayer {
@@ -63,24 +63,24 @@ public class OceanTemperatureLayer extends BiomeLayer {
 					shiftedXZ = this.parents[1].get(x + rx, y, z + rz);
 					if(Biome.isOcean(shiftedXZ))continue;
 
-					if(oceanStackCenter == Biome.WARM_OCEAN.getId()) {
-						return Biome.LUKEWARM_OCEAN.getId();
-					} else if(oceanStackCenter == Biome.FROZEN_OCEAN.getId()) {
-						return Biome.COLD_OCEAN.getId();
+					if(oceanStackCenter == Biome.WARM_OCEAN.id) {
+						return Biome.LUKEWARM_OCEAN.id;
+					} else if(oceanStackCenter == Biome.FROZEN_OCEAN.id) {
+						return Biome.COLD_OCEAN.id;
 					end
 				end
 			end
 
-			if(fullStackCenter != Biome.DEEP_OCEAN.getId())return oceanStackCenter;
+			if(fullStackCenter != Biome.DEEP_OCEAN.id)return oceanStackCenter;
 
-			if(oceanStackCenter == Biome.LUKEWARM_OCEAN.getId()) {
-				return Biome.DEEP_LUKEWARM_OCEAN.getId();
-			} else if(oceanStackCenter == Biome.OCEAN.getId()) {
-				return Biome.DEEP_OCEAN.getId();
-			} else if(oceanStackCenter == Biome.COLD_OCEAN.getId()) {
-				return Biome.DEEP_COLD_OCEAN.getId();
-			} else if(oceanStackCenter == Biome.FROZEN_OCEAN.getId()) {
-				return Biome.DEEP_FROZEN_OCEAN.getId();
+			if(oceanStackCenter == Biome.LUKEWARM_OCEAN.id) {
+				return Biome.DEEP_LUKEWARM_OCEAN.id;
+			} else if(oceanStackCenter == Biome.OCEAN.id) {
+				return Biome.DEEP_OCEAN.id;
+			} else if(oceanStackCenter == Biome.COLD_OCEAN.id) {
+				return Biome.DEEP_COLD_OCEAN.id;
+			} else if(oceanStackCenter == Biome.FROZEN_OCEAN.id) {
+				return Biome.DEEP_FROZEN_OCEAN.id;
 			end
 
 			return oceanStackCenter;
