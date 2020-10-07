@@ -48,7 +48,7 @@ public class VoronoiLayer extends BiomeLayer {
 
     @Override
     function sample(this, x::Int32, y::Int32z::Int32)::Int32
-        return this.version.isOlderThan(MCVersion.v1_14) ? sample13(this, x, z) : this.sample14(x, y, z);
+        return this.version.isOlderThan(MCVersion.v1_14) ? sample13(this, x, z) : sample14(this, x, y, z);
     end
 
     function sample13(this, x::Int32z::Int32)::Int32

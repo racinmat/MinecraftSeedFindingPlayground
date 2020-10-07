@@ -63,7 +63,7 @@ public class EaseEdgeLayer extends CrossLayer {
         if (!Biome.areSimilar(m, n)) {
             return false;
         } else {
-            if (canBeNeighbors(this, i, n) && this.canBeNeighbors(j, n) && this.canBeNeighbors(l, n) && this.canBeNeighbors(k, n)) {
+            if (canBeNeighbors(this, i, n) && canBeNeighbors(this, j, n) && canBeNeighbors(this, l, n) && canBeNeighbors(this, k, n)) {
                 is[0] = m;
             } else {
                 is[0] = o.getId();

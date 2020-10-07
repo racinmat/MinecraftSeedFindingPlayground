@@ -21,7 +21,7 @@ public  class LayerStack<T extends BiomeLayer> extends ArrayList<T> {
 	end
 
 	function setScales(this)::Nothing
-		setRecursiveScale(this, this.get(this.size() - 1), 1);
+		setRecursiveScale(this, get(this, size(this, ) - 1), 1);
 	end
 
 	function setRecursiveScale(this, last::BiomeLayerscale::Int32)::Nothing

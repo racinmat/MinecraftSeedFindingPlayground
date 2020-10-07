@@ -10,7 +10,6 @@ line = split(read(file, String), "\n")[51]
 function replace_file(file)
     new_lines = []
     for line in split(read(file, String), "\n")
-        print(line)
         for (reg, func) in regexes
             m = match(reg, line)
             if !isnothing(m)
@@ -25,7 +24,9 @@ end
 
 types = Dict("int"=>"Int32","double"=>"Float64", "long"=>"Int64", "boolean"=>"Bool","void"=>"Nothing",
     "BiomeLayer"=>"BiomeLayer", "Sampler"=>"Sampler", "T"=>"T", "Biome"=>"Biome", "MCVersion"=>"MCVersion",
-    "Type"=>"Type")
+    "Type"=>"Type", "Dimension"=>"Dimension", "Factory"=>"Factory", "BiomeSource"=>"BiomeSource",
+    "NetherBiomeSource"=>"NetherBiomeSource", "BPos"=>"BPos", "String"=>"AbstractString", "Category"=>"Category",
+    "Precipitation"=>"Precipitation", "float"=>"Float32", "Temperature"=>"Temperature", "OverworldBiomeSource"=>"OverworldBiomeSource")
 
 function replace_method(line, m)
     args = [split(var, " ")[1] for var in split(m.captures[5], ", ")[1:end-1]]
@@ -112,3 +113,4 @@ function add_constructors(file)
 end
 
 [add_constructors(file) for file in files]
+String
