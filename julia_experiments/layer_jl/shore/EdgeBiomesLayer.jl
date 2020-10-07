@@ -13,6 +13,11 @@ struct EdgeBiomesLayer <: CrossLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+EdgeBiomesLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+EdgeBiomesLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+EdgeBiomesLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+EdgeBiomesLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class EdgeBiomesLayer extends CrossLayer {
 
     public EdgeBiomesLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
@@ -20,7 +25,7 @@ public class EdgeBiomesLayer extends CrossLayer {
     end
 
     @Override
-    function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
+    function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
         biome = Biome.REGISTRY.get(center);
 
         if (center == Biome.MUSHROOM_FIELDS.getId()) {
@@ -55,13 +60,13 @@ public class EdgeBiomesLayer extends CrossLayer {
         return center;
     end
 
-    function isWooded(self, id::Int32)::Bool
+    function isWooded(this, id::Int32)::Bool
         b = Biome.REGISTRY.get(id);
         if (b != null && b.getCategory() == Biome.Category.JUNGLE) return true;
         return id == Biome.JUNGLE_EDGE.getId() || id == Biome.JUNGLE.getId() || id == Biome.JUNGLE_HILLS.getId() || id == Biome.FOREST.getId() || id == Biome.TAIGA.getId() || Biome.isOcean(id);
     end
 
-    function isBadlands(self, id::Int32)::Bool
+    function isBadlands(this, id::Int32)::Bool
         return id == Biome.BADLANDS.getId() || id == Biome.WOODED_BADLANDS_PLATEAU.getId() || id == Biome.BADLANDS_PLATEAU.getId() || id == Biome.ERODED_BADLANDS.getId() || id == Biome.MODIFIED_WOODED_BADLANDS_PLATEAU.getId() || id == Biome.MODIFIED_BADLANDS_PLATEAU.getId();
     end
 

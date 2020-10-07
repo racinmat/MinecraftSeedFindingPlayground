@@ -15,6 +15,11 @@ struct ScaleLayer <: BiomeLayer
     type::Type
 end
 
+ScaleLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+ScaleLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+ScaleLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+ScaleLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class ScaleLayer extends BiomeLayer {
 
     private final Type type;
@@ -24,12 +29,12 @@ public class ScaleLayer extends BiomeLayer {
         this.type = type;
     end
 
-    function getType(self)::Type
+    function getType(this)::Type
         return this.type;
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         i = this.getParent().get(x >> 1, y, z >> 1);
         this.setSeed(x & -2, z & -2);
         xb = x & 1, zb = z & 1;
@@ -50,7 +55,7 @@ public class ScaleLayer extends BiomeLayer {
         return this.sample(i, n, l, p);
     end
 
-    function sample(self, center::Int32, e::Int32, s::Int32se::Int32)::Int32
+    function sample(this, center::Int32, e::Int32, s::Int32se::Int32)::Int32
         ret = this.choose(center, e, s, se);
 
         if (this.type == Type.FUZZY) {

@@ -13,6 +13,11 @@ struct BaseBiomesLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+BaseBiomesLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+BaseBiomesLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+BaseBiomesLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+BaseBiomesLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class BaseBiomesLayer extends BiomeLayer {
 
     public static final Biome[] DRY_BIOMES = new Biome[] {
@@ -36,7 +41,7 @@ public class BaseBiomesLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         this.setSeed(x, z);
         center = this.getParent().get(x, y, z);
         specialBits = (center >> 8) & 15; //the nextInt(15) + 1 in ClimateLayer.Special

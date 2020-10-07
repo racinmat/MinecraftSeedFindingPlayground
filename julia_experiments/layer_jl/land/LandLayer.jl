@@ -13,6 +13,11 @@ struct LandLayer <: XCrossLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+LandLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+LandLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+LandLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+LandLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class LandLayer extends XCrossLayer {
 
     public LandLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
@@ -20,7 +25,7 @@ public class LandLayer extends XCrossLayer {
     end
 
     @Override
-    function sample(self, sw::Int32, se::Int32, ne::Int32, nw::Int32center::Int32)::Int32
+    function sample(this, sw::Int32, se::Int32, ne::Int32, nw::Int32center::Int32)::Int32
         if(!Biome.isShallowOcean(center) || Biome.applyAll(Biome::isShallowOcean, sw, se, ne, nw)) {
             if(Biome.isShallowOcean(center) || (Biome.applyAll(v -> !Biome.isShallowOcean(v), sw, se, ne, nw)) || this.nextInt(5) != 0) {
                 return center;

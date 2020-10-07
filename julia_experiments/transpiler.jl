@@ -91,8 +91,16 @@ struct(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version
 """
 
 function add_constructors(file)
-    struct_name = #todo: grepnout
-    replace(constructors, "struct"=>struct_name)
-    #todo: locate row after struct definition and insert them here
+    lines = split(read(file, String), "\n")
+    struct_start_idx = findfirst(startswith("struct"), lines)
+    isnothing(struct_start_idx) && return
+    struct_end_idx = findfirst(==("end\r"), lines)
+    @assert lines[struct_end_idx+1] == "\r"
+    struct_name = split(lines[struct_start_idx])[2]
+    constructor_lines = replace(constructors, "struct"=>struct_name)
+
+    new_lines = vcat(lines[1:struct_end_idx+1], split(constructor_lines, "\n"), lines[struct_end_idx+2:end])
+    write(file, join(new_lines, "\n"))
 end
-# todo: implement inserting constructors after struct and replacing struct with actual struct name
+
+[add_constructors(file) for file in files]

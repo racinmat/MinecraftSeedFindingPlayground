@@ -13,6 +13,11 @@ struct ContinentLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+ContinentLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+ContinentLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+ContinentLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+ContinentLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class ContinentLayer extends BiomeLayer {
 
     public ContinentLayer(MCVersion version, long worldSeed, long salt) {
@@ -20,7 +25,7 @@ public class ContinentLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         this.setSeed(x, z);
         if(x == 0 && z == 0)return Biome.PLAINS.getId();
         return this.nextInt(10) == 0 ? Biome.PLAINS.getId() : Biome.OCEAN.getId();

@@ -13,6 +13,11 @@ struct BambooJungleLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+BambooJungleLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+BambooJungleLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+BambooJungleLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+BambooJungleLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class BambooJungleLayer extends BiomeLayer {
 
     public BambooJungleLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
@@ -20,7 +25,7 @@ public class BambooJungleLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         this.setSeed(x, z);
         value = this.getParent().get(x, y, z);
         return value == Biome.JUNGLE.getId() && this.nextInt(10) == 0 ? Biome.BAMBOO_JUNGLE.getId() : value;

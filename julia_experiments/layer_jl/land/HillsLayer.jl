@@ -13,6 +13,11 @@ struct HillsLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+HillsLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+HillsLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+HillsLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+HillsLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class HillsLayer extends BiomeLayer {
 
 	public HillsLayer(MCVersion version, long worldSeed, long salt, BiomeLayer... parents) {
@@ -20,7 +25,7 @@ public class HillsLayer extends BiomeLayer {
 	end
 
 	@Override
-	function sample(self, x::Int32, y::Int32z::Int32)::Int32
+	function sample(this, x::Int32, y::Int32z::Int32)::Int32
 		this.setSeed(x, z);
 		i = this.getParent(0).get(x, y, z); // biomes
 		j = this.getParent(1).get(x, y, z); // noise (river)

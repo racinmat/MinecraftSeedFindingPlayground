@@ -13,6 +13,11 @@ struct EndHeightLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+EndHeightLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+EndHeightLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+EndHeightLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+EndHeightLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class EndHeightLayer extends BiomeLayer {
 
     public EndHeightLayer(MCVersion version, long worldSeed, BiomeLayer parent) {
@@ -20,7 +25,7 @@ public class EndHeightLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         scaledX = x / 2;
         scaledZ = z / 2;
         oddX = x % 2;

@@ -13,6 +13,11 @@ struct RiverLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+RiverLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+RiverLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+RiverLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+RiverLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class RiverLayer extends BiomeLayer {
 
 	public RiverLayer(MCVersion version, long worldSeed, long salt, BiomeLayer... parents) {
@@ -20,7 +25,7 @@ public class RiverLayer extends BiomeLayer {
 	end
 
 	@Override
-	function sample(self, x::Int32, y::Int32z::Int32)::Int32
+	function sample(this, x::Int32, y::Int32z::Int32)::Int32
 		landStackCenter = this.getParent(0).get(x, y, z);
 		noiseStackCenter = this.getParent(1).get(x, y, z);
 

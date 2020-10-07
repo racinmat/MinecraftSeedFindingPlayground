@@ -16,6 +16,11 @@ struct EndSimplexLayer <: BiomeLayer
     simplex::SimplexNoiseSampler
 end
 
+EndSimplexLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+EndSimplexLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+EndSimplexLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+EndSimplexLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class EndSimplexLayer extends BiomeLayer {
 
     public SIMPLEX_SKIP = LCG.JAVA.combine(17292);
@@ -29,7 +34,7 @@ public class EndSimplexLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         return this.simplex.sample2D(x, z) < -0.8999999761581421D ? 1 : 0;
     end
 

@@ -22,6 +22,11 @@ struct NetherLayer <: BiomeLayer
 
 end
 
+NetherLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+NetherLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+NetherLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+NetherLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class NetherLayer extends BiomeLayer {
 
     private DoublePerlinNoiseSampler temperature;
@@ -47,7 +52,7 @@ public class NetherLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         if(this.getVersion().isOlderThan(MCVersion.v1_16))return Biome.NETHER_WASTES.getId();
 
         y = this.is3D ? y : 0;

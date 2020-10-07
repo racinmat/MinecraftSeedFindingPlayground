@@ -12,6 +12,11 @@ struct EndBiomeLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+EndBiomeLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+EndBiomeLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+EndBiomeLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+EndBiomeLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class EndBiomeLayer extends BiomeLayer {
 
     public EndBiomeLayer(MCVersion version, long worldSeed, BiomeLayer parent) {
@@ -19,7 +24,7 @@ public class EndBiomeLayer extends BiomeLayer {
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         x >>= 2;
         z >>= 2;
 

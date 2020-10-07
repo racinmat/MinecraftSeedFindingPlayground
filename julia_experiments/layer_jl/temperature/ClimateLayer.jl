@@ -13,6 +13,11 @@ struct ColdClimateLayer <: BiomeLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+ColdClimateLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+ColdClimateLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+ColdClimateLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+ColdClimateLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 struct TemperateClimateLayer <: CrossLayer
     version::MCVersion
     parents::Vector{<:BiomeLayer}
@@ -62,7 +67,7 @@ public class ClimateLayer {
         end
 
         @Override
-        function sample(self, x::Int32, y::Int32z::Int32)::Int32
+        function sample(this, x::Int32, y::Int32z::Int32)::Int32
             value = this.getParent().get(x, y, z);
             Stats.incr("totalCold");
             if (Biome.isShallowOcean(value)) {
@@ -91,7 +96,7 @@ public class ClimateLayer {
         end
 
         @Override
-        function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
+        function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
             Stats.incr("totalTemp");
             // escape this one needs plains on center
             // and either mountains or forest on one of the side
@@ -113,7 +118,7 @@ public class ClimateLayer {
         end
 
         @Override
-        function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
+        function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
             Stats.incr("totalCool");
             if (center != Biome.FOREST.getId() || n != Biome.PLAINS.getId() && e != Biome.PLAINS.getId()
                     && w != Biome.PLAINS.getId() && s != Biome.PLAINS.getId() && n != Biome.DESERT.getId()
@@ -135,7 +140,7 @@ public class ClimateLayer {
         end
 
         @Override
-        function sample(self, x::Int32, y::Int32z::Int32)::Int32
+        function sample(this, x::Int32, y::Int32z::Int32)::Int32
             i = this.getParent().get(x, y, z);
             Stats.incr("totalSpe");
             if (Biome.isShallowOcean(i)) {

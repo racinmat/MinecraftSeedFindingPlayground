@@ -16,6 +16,17 @@ struct VoronoiLayer <: BiomeLayer
     is3D::Bool
 end
 
+VoronoiLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024), 0, false)
+VoronoiLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024), 0, false)
+VoronoiLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024), 0, false)
+VoronoiLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024), 0, false)
+
+VoronoiLayer(version::MCVersion, worldSeed::Int64, is3D::Bool, parent::BiomeLayer) = VoronoiLayer(version, parent, isOlderThan(version, v"1.15") ? 10L : 0L, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024), isOlderThan(version, v"1.15") ? worldSeed : WorldSeed.toHash(worldSeed), is3D)
+
+function sample(this, x::Int32, y::Int32z::Int32)::Int32
+    return isOlderThan(this.version, v"1.14") ? sample13(this, x, z) : this.sample14(x, y, z);
+end
+
 public class VoronoiLayer extends BiomeLayer {
 
     private final long seed;
@@ -27,20 +38,20 @@ public class VoronoiLayer extends BiomeLayer {
         this.is3D = is3D;
     end
 
-    function getSeed(self)::Int64
+    function getSeed(this)::Int64
         return this.seed;
     end
 
-    function is3D(self)::Bool
+    function is3D(this)::Bool
         return this.is3D;
     end
 
     @Override
-    function sample(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample(this, x::Int32, y::Int32z::Int32)::Int32
         return this.getVersion().isOlderThan(MCVersion.v1_14) ? this.sample13(x, z) : this.sample14(x, y, z);
     end
 
-    function sample13(self, x::Int32z::Int32)::Int32
+    function sample13(this, x::Int32z::Int32)::Int32
         int offset;
         x -= 2;
         z -= 2;
@@ -79,7 +90,7 @@ public class VoronoiLayer extends BiomeLayer {
         return this.getParent().get(pX + (offset & 1), 0, pZ + (offset >> 1));
     end
 
-    function sample14(self, x::Int32, y::Int32z::Int32)::Int32
+    function sample14(this, x::Int32, y::Int32z::Int32)::Int32
         i = x - 2;
         j = y - 2;
         k = z - 2;
@@ -134,7 +145,7 @@ public class VoronoiLayer extends BiomeLayer {
         return new double[] {d1, d2};
     end
 
-    function calcSquaredDistance(self, seed::Int64, x::Int32, y::Int32, z::Int32, xFraction::Float64, yFraction::Float64zFraction::Float64)::Float64
+    function calcSquaredDistance(this, seed::Int64, x::Int32, y::Int32, z::Int32, xFraction::Float64, yFraction::Float64zFraction::Float64)::Float64
         mixedSeed = SeedMixer.mixSeed(seed, x);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, y);
         mixedSeed = SeedMixer.mixSeed(mixedSeed, z);
@@ -149,12 +160,12 @@ public class VoronoiLayer extends BiomeLayer {
         return square(zFraction + f) + square(yFraction + e) + square(xFraction + d);
     end
 
-    function distribute(self, seed::Int64)::Float64
+    function distribute(this, seed::Int64)::Float64
         d = (double) ((int) Math.floorMod(seed >> 24, 1024L)) / 1024.0D;
         return (d - 0.5D) * 0.9D;
     end
 
-    function square(self, d::Float64)::Float64
+    function square(this, d::Float64)::Float64
         return d * d;
     end
 

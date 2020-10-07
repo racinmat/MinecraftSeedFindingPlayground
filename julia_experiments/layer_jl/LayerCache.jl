@@ -5,6 +5,11 @@ struct LayerCache
 	mask::Int32
 end
 
+LayerCache(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+LayerCache(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+LayerCache(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+LayerCache(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class LayerCache {
 
 	private final long[] keys;
@@ -22,7 +27,7 @@ public class LayerCache {
 		this.mask = (int)Mth.getMask(Long.numberOfTrailingZeros(capacity));
 	end
 
-	function get(self, x::Int32, y::Int32, z::Int32sampler::Sampler)::Int32
+	function get(this, x::Int32, y::Int32, z::Int32sampler::Sampler)::Int32
 		key = this.uniqueHash(x, y, z);
 		id = this.murmur64(key) & this.mask;
 
@@ -36,14 +41,14 @@ public class LayerCache {
 		return value;
 	end
 
-	function uniqueHash(self, x::Int32, y::Int32z::Int32)::Int64
+	function uniqueHash(this, x::Int32, y::Int32z::Int32)::Int64
 		hash = (long)x & Mth.getMask(28);
 		hash |= ((long)z & Mth.getMask(28)) << 28;
 		hash |= ((long)y & Mth.getMask(8)) << 56;
 		return hash;
 	end
 
-	function murmur64(self, value::Int64)::Int32
+	function murmur64(this, value::Int64)::Int32
 		value ^= value >>> 33;
 		value *= 0xFF51AFD7ED558CCDL;
 		value ^= value >>> 33;

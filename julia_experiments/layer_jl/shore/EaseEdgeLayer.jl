@@ -13,6 +13,11 @@ struct EaseEdgeLayer <: CrossLayer
     layerCache::LayerCache = new LayerCache(1024)
 end
 
+EaseEdgeLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+EaseEdgeLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+EaseEdgeLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+EaseEdgeLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class EaseEdgeLayer extends CrossLayer {
 
     public EaseEdgeLayer(MCVersion version, long worldSeed, long salt, BiomeLayer parent) {
@@ -20,7 +25,7 @@ public class EaseEdgeLayer extends CrossLayer {
     end
 
     @Override
-    function sample(self, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
+    function sample(this, n::Int32, e::Int32, s::Int32, w::Int32center::Int32)::Int32
         int[] is = new int[1];
         if (!this.replaceEdgeIfNeeded(is, n, e, s, w, center, Biome.MOUNTAINS, Biome.MOUNTAIN_EDGE) &&
                 this.replaceEdge(is, n, e, s, w, center, Biome.WOODED_BADLANDS_PLATEAU, Biome.BADLANDS) &&
@@ -78,7 +83,7 @@ public class EaseEdgeLayer extends CrossLayer {
         return false;
     end
 
-    function canBeNeighbors(self, id::Int32b2::Biome)::Bool
+    function canBeNeighbors(this, id::Int32b2::Biome)::Bool
         if (Biome.areSimilar(id, b2)) return true;
 
         biome = Biome.REGISTRY.get(id);

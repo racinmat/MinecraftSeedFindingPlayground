@@ -15,6 +15,11 @@ struct OceanTemperatureLayer <: BiomeLayer
 	perlin::PerlinNoiseSampler
 end
 
+OceanTemperatureLayer(version::MCVersion, parents...) = VoronoiLayer(version, parents, 0, 0, 0, -1, -1, LayerCache(1024))
+OceanTemperatureLayer(version::MCVersion) = VoronoiLayer(version, nothing, 0, 0, 0, -1, -1, LayerCache(1024))
+OceanTemperatureLayer(version::MCVersion, worldSeed::Int64, salt::Int64, parents...) = VoronoiLayer(version, parents, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+OceanTemperatureLayer(version::MCVersion, worldSeed::Int64, salt::Int64) = VoronoiLayer(version, nothing, salt, getLayerSeed(worldSeed, salt), 0, -1, -1, LayerCache(1024))
+
 public class OceanTemperatureLayer extends BiomeLayer {
 
 	private final PerlinNoiseSampler perlin;
@@ -25,7 +30,7 @@ public class OceanTemperatureLayer extends BiomeLayer {
 	end
 
 	@Override
-	function sample(self, x::Int32, y::Int32z::Int32)::Int32
+	function sample(this, x::Int32, y::Int32z::Int32)::Int32
 		normalizedNoise = this.perlin.sample((double)x / 8.0D, (double)z / 8.0D, 0.0D, 0.0D, 0.0D);
 
 		if(normalizedNoise > 0.4D) {
@@ -47,7 +52,7 @@ public class OceanTemperatureLayer extends BiomeLayer {
 		end
 
 		@Override
-		function sample(self, x::Int32, y::Int32z::Int32)::Int32
+		function sample(this, x::Int32, y::Int32z::Int32)::Int32
 			fullStackCenter = this.getParent(0).get(x, y, z);
 			if(!Biome.isOcean(fullStackCenter))return fullStackCenter;
 
