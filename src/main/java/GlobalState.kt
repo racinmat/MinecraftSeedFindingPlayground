@@ -2,6 +2,7 @@ import com.google.common.util.concurrent.AtomicLongMap
 import kaptainwutax.biomeutils.Biome
 import kaptainwutax.biomeutils.Stats
 import kaptainwutax.biomeutils.StatsCallback
+import java.io.File
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
@@ -16,6 +17,7 @@ object GlobalState {
     private val foundSeeds = Collections.synchronizedList(ArrayList<SeedResult>())
     private val triedSeeds = AtomicLong(0)
     private val examinedSeeds = AtomicLong(0)
+    var RESULT_DIR = "good_seeds"
 
     var LOGGING = false
 
@@ -125,7 +127,8 @@ object GlobalState {
         try {
             val curSeed = currentSeed.get()
             val copiedSeeds = ArrayList(foundSeeds) // yeah, I copy the data in worker thread, but whatever
-            val fileName = "distances_${Main.STRUCTURE_SEED_MIN}_${copiedSeeds.size}.csv"
+            if (!File(RESULT_DIR).exists()) File(RESULT_DIR).mkdirs()
+            val fileName = "${RESULT_DIR}/distances_${Main.STRUCTURE_SEED_MIN}_${copiedSeeds.size}.csv"
             OUTPUT_THREAD.execute {
                 try {
                     Main.toCsv(copiedSeeds, fileName)

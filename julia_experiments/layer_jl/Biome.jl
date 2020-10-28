@@ -71,35 +71,30 @@ REGISTRY = Dict{Int, Biome}()
 
 function getTemperatureGroup(this)::Temperature
     if this.category == OCEAN
-        return OCEAN_TEMP
+        OCEAN_TEMP
     elseif this.temperature < 0.2
-        return COLD
+        COLD
     elseif this.temperature < 1.0
-        return MEDIUM
+        MEDIUM
     end
-
-    return WARM
+    WARM
 end
 
 function isShallowOcean(this, id::Int)::Bool
-    return id == Biome.WARM_OCEAN.id || id == Biome.LUKEWARM_OCEAN.id || id == Biome.OCEAN.id || id == Biome.COLD_OCEAN.id || id == Biome.FROZEN_OCEAN.id;
+    return id == WARM_OCEAN.id || id == LUKEWARM_OCEAN.id || id == OCEAN.id || id == COLD_OCEAN.id || id == FROZEN_OCEAN.id;
 end
 
 function isOcean(this, id::Int)::Bool
-    return id == Biome.WARM_OCEAN.id || id == Biome.LUKEWARM_OCEAN.id || id == Biome.OCEAN.id
-            || id == Biome.COLD_OCEAN.id || id == Biome.FROZEN_OCEAN.id
-            || id == Biome.DEEP_WARM_OCEAN.id || id == Biome.DEEP_LUKEWARM_OCEAN.id
-            || id == Biome.DEEP_OCEAN.id || id == Biome.DEEP_COLD_OCEAN.id
-            || id == Biome.DEEP_FROZEN_OCEAN.id;
+    return id == WARM_OCEAN.id || id == LUKEWARM_OCEAN.id || id == OCEAN.id || id == COLD_OCEAN.id || id == FROZEN_OCEAN.id || id == DEEP_WARM_OCEAN.id || id == DEEP_LUKEWARM_OCEAN.id || id == DEEP_OCEAN.id || id == DEEP_COLD_OCEAN.id || id == DEEP_FROZEN_OCEAN.id
 end
 
 function isRiver(this, id::Int)::Bool
-    return id == Biome.RIVER.id || id == Biome.FROZEN_RIVER.id;
+    return id == Biome.RIVER.id || id == Biome.FROZEN_RIVER.id
 end
 
 function areSimilar(this, id::Int, b2::Biome)::Bool
-    if (b2 == null) return false;
-    if (id == b2.id) return true;
+    if (b2 == null) return false
+    if (id == b2.id) return true
 
     b = Biome.REGISTRY.get(id);
     if (b == null) return false;
@@ -107,10 +102,10 @@ function areSimilar(this, id::Int, b2::Biome)::Bool
     if (id != Biome.WOODED_BADLANDS_PLATEAU.id && id != Biome.BADLANDS_PLATEAU.id) {
         if (b.getCategory() != Biome.Category.NONE && b2.getCategory()
                 != Biome.Category.NONE && b.getCategory() == b2.getCategory()) {
-            return true;
+            return true
         end
 
-        return b == b2;
+        return b == b2
     end
 
     return b2 == Biome.WOODED_BADLANDS_PLATEAU || b2 == Biome.BADLANDS_PLATEAU;
@@ -182,27 +177,27 @@ DEEP_LUKEWARM_OCEAN = Biome(v"1.13", OVERWORLD, 48, "deep_lukewarm_ocean", OCEAN
 DEEP_COLD_OCEAN = Biome(v"1.13", OVERWORLD, 49, "deep_cold_ocean", OCEAN_CAT, RAIN, 0.5f0, 0.100f0, -1.800f0, nothing)
 DEEP_FROZEN_OCEAN = Biome(v"1.13", OVERWORLD, 50, "deep_frozen_ocean", OCEAN_CAT, RAIN, 0.5f0, 0.100f0, -1.800f0, nothing)
 THE_VOID = Biome(v"1.8", nothing, 127, "the_void", NONE, NONE_PRECIP, 0.5f0, 0.200f0, 0.100f0, nothing)
-SUNFLOWER_PLAINS = Biome(v"1.8", OVERWORLD, 129, "sunflower_plains", PLAINS_CAT, RAIN, 0.8f0, 0.050f0, 0.125f0, Biome.PLAothing)
-DESERT_LAKES = Biome(v"1.8", OVERWORLD, 130, "desert_lakes", DESERT_CAT, NONE_PRECIP, 2.0f0, 0.250f0, 0.225f0, Biome.DESothing)
-GRAVELLY_MOUNTAINS = Biome(v"1.8", OVERWORLD, 131, "gravelly_mountains", EXTREME_HILLS, RAIN, 0.2f0, 0.500f0, 1.000f0, Biome.MOUNTAothing)
-FLOWER_FOREST = Biome(v"1.8", OVERWORLD, 132, "flower_forest", FOREST_CAT, RAIN, 0.7f0, 0.400f0, 0.100f0, Biome.FORothing)
-TAIGA_MOUNTAINS = Biome(v"1.8", OVERWORLD, 133, "taiga_mountains", TAIGA_CAT, RAIN, 0.25f0, 0.400f0, 0.300f0, Biome.TAothing)
-SWAMP_HILLS = Biome(v"1.8", OVERWORLD, 134, "swamp_hills", SWAMP_CAT, RAIN, 0.8f0, 0.300f0, -0.100f0, Biome.SWothing)
-ICE_SPIKES = Biome(v"1.8", OVERWORLD, 140, "ice_spikes", ICY, SNOW, 0.0f0, 0.450f0, 0.425f0, Biome.SNOWY_TUNothing)
-MODIFIED_JUNGLE = Biome(v"1.8", OVERWORLD, 149, "modified_jungle", JUNGLE_CAT, RAIN, 0.95f0, 0.400f0, 0.200f0, Biome.JUNothing)
-MODIFIED_JUNGLE_EDGE = Biome(v"1.8", OVERWORLD, 151, "modified_jungle_edge", JUNGLE_CAT, RAIN, 0.95f0, 0.400f0, 0.200f0, Biome.JUNGLE_Eothing)
-TALL_BIRCH_FOREST = Biome(v"1.8", OVERWORLD, 155, "tall_birch_forest", FOREST_CAT, RAIN, 0.6f0, 0.400f0, 0.200f0, Biome.BIRCH_FORothing)
-TALL_BIRCH_HILLS = Biome(v"1.8", OVERWORLD, 156, "tall_birch_hills", FOREST_CAT, RAIN, 0.6f0, 0.500f0, 0.550f0, Biome.BIRCH_FOREST_HIothing)
-DARK_FOREST_HILLS = Biome(v"1.8", OVERWORLD, 157, "dark_forest_hills", FOREST_CAT, RAIN, 0.7f0, 0.400f0, 0.200f0, Biome.DARK_FORothing)
-SNOWY_TAIGA_MOUNTAINS = Biome(v"1.8", OVERWORLD, 158, "snowy_taiga_mountains", TAIGA_CAT, SNOW, -0.5f0, 0.400f0, 0.300f0, Biome.SNOWY_TAothing)
-GIANT_SPRUCE_TAIGA = Biome(v"1.8", OVERWORLD, 160, "giant_spruce_taiga", TAIGA_CAT, RAIN, 0.25f0, 0.200f0, 0.200f0, Biome.GIANT_TREE_TAothing)
-GIANT_SPRUCE_TAIGA_HILLS = Biome(v"1.8", OVERWORLD, 161, "giant_spruce_taiga_hills", TAIGA_CAT, RAIN, 0.25f0, 0.200f0, 0.200f0, Biome.GIANT_TREE_TAIGA_HIothing)
-MODIFIED_GRAVELLY_MOUNTAINS = Biome(v"1.8", OVERWORLD, 162, "modified_gravelly_mountains", EXTREME_HILLS, RAIN, 0.2f0, 0.500f0, 1.000f0, Biome.WOODED_MOUNTAothing)
-SHATTERED_SAVANNA = Biome(v"1.8", OVERWORLD, 163, "shattered_savanna", SAVANNA_CAT, NONE_PRECIP, 1.1f0, 1.225f0, 0.362f0, Biome.SAVAothing)
-SHATTERED_SAVANNA_PLATEAU = Biome(v"1.8", OVERWORLD, 164, "shattered_savanna_plateau", SAVANNA_CAT, NONE_PRECIP, 1.0f0, 1.212f0, 1.050f0, Biome.SAVANNA_PLATothing)
-ERODED_BADLANDS = Biome(v"1.8", OVERWORLD, 165, "eroded_badlands", MESA, NONE_PRECIP, 2.0f0, 0.200f0, 0.100f0, Biome.BADLAothing)
-MODIFIED_WOODED_BADLANDS_PLATEAU = Biome(v"1.8", OVERWORLD, 166, "modified_wooded_badlands_plateau", MESA, NONE_PRECIP, 2.0f0, 0.300f0, 0.450f0, Biome.WOODED_BADLANDS_PLATothing)
-MODIFIED_BADLANDS_PLATEAU = Biome(v"1.8", OVERWORLD, 167, "modified_badlands_plateau", MESA, NONE_PRECIP, 2.0f0, 0.300f0, 0.450f0, Biome.BADLANDS_PLATothing)
+SUNFLOWER_PLAINS = Biome(v"1.8", OVERWORLD, 129, "sunflower_plains", PLAINS_CAT, RAIN, 0.8f0, 0.050f0, 0.125f0, PLAINS)
+DESERT_LAKES = Biome(v"1.8", OVERWORLD, 130, "desert_lakes", DESERT_CAT, NONE_PRECIP, 2.0f0, 0.250f0, 0.225f0, DESERT)
+GRAVELLY_MOUNTAINS = Biome(v"1.8", OVERWORLD, 131, "gravelly_mountains", EXTREME_HILLS, RAIN, 0.2f0, 0.500f0, 1.000f0, MOUNTAINS)
+FLOWER_FOREST = Biome(v"1.8", OVERWORLD, 132, "flower_forest", FOREST_CAT, RAIN, 0.7f0, 0.400f0, 0.100f0, FOREST)
+TAIGA_MOUNTAINS = Biome(v"1.8", OVERWORLD, 133, "taiga_mountains", TAIGA_CAT, RAIN, 0.25f0, 0.400f0, 0.300f0, TAIGA)
+SWAMP_HILLS = Biome(v"1.8", OVERWORLD, 134, "swamp_hills", SWAMP_CAT, RAIN, 0.8f0, 0.300f0, -0.100f0, SWAMP)
+ICE_SPIKES = Biome(v"1.8", OVERWORLD, 140, "ice_spikes", ICY, SNOW, 0.0f0, 0.450f0, 0.425f0, SNOWY_TUNDRA)
+MODIFIED_JUNGLE = Biome(v"1.8", OVERWORLD, 149, "modified_jungle", JUNGLE_CAT, RAIN, 0.95f0, 0.400f0, 0.200f0, JUNGLE)
+MODIFIED_JUNGLE_EDGE = Biome(v"1.8", OVERWORLD, 151, "modified_jungle_edge", JUNGLE_CAT, RAIN, 0.95f0, 0.400f0, 0.200f0, JUNGLE_EDGE)
+TALL_BIRCH_FOREST = Biome(v"1.8", OVERWORLD, 155, "tall_birch_forest", FOREST_CAT, RAIN, 0.6f0, 0.400f0, 0.200f0, BIRCH_FOREST)
+TALL_BIRCH_HILLS = Biome(v"1.8", OVERWORLD, 156, "tall_birch_hills", FOREST_CAT, RAIN, 0.6f0, 0.500f0, 0.550f0, BIRCH_FOREST_HILLS)
+DARK_FOREST_HILLS = Biome(v"1.8", OVERWORLD, 157, "dark_forest_hills", FOREST_CAT, RAIN, 0.7f0, 0.400f0, 0.200f0, DARK_FOREST)
+SNOWY_TAIGA_MOUNTAINS = Biome(v"1.8", OVERWORLD, 158, "snowy_taiga_mountains", TAIGA_CAT, SNOW, -0.5f0, 0.400f0, 0.300f0, SNOWY_TAIGA)
+GIANT_SPRUCE_TAIGA = Biome(v"1.8", OVERWORLD, 160, "giant_spruce_taiga", TAIGA_CAT, RAIN, 0.25f0, 0.200f0, 0.200f0, GIANT_TREE_TAIGA)
+GIANT_SPRUCE_TAIGA_HILLS = Biome(v"1.8", OVERWORLD, 161, "giant_spruce_taiga_hills", TAIGA_CAT, RAIN, 0.25f0, 0.200f0, 0.200f0, GIANT_TREE_TAIGA_HILLS)
+MODIFIED_GRAVELLY_MOUNTAINS = Biome(v"1.8", OVERWORLD, 162, "modified_gravelly_mountains", EXTREME_HILLS, RAIN, 0.2f0, 0.500f0, 1.000f0, WOODED_MOUNTAINS)
+SHATTERED_SAVANNA = Biome(v"1.8", OVERWORLD, 163, "shattered_savanna", SAVANNA_CAT, NONE_PRECIP, 1.1f0, 1.225f0, 0.362f0, SAVANNA)
+SHATTERED_SAVANNA_PLATEAU = Biome(v"1.8", OVERWORLD, 164, "shattered_savanna_plateau", SAVANNA_CAT, NONE_PRECIP, 1.0f0, 1.212f0, 1.050f0, SAVANNA_PLATEAU)
+ERODED_BADLANDS = Biome(v"1.8", OVERWORLD, 165, "eroded_badlands", MESA, NONE_PRECIP, 2.0f0, 0.200f0, 0.100f0, BADLANDS)
+MODIFIED_WOODED_BADLANDS_PLATEAU = Biome(v"1.8", OVERWORLD, 166, "modified_wooded_badlands_plateau", MESA, NONE_PRECIP, 2.0f0, 0.300f0, 0.450f0, WOODED_BADLANDS_PLATEAU)
+MODIFIED_BADLANDS_PLATEAU = Biome(v"1.8", OVERWORLD, 167, "modified_badlands_plateau", MESA, NONE_PRECIP, 2.0f0, 0.300f0, 0.450f0, BADLANDS_PLATEAU)
 BAMBOO_JUNGLE = Biome(v"1.14", OVERWORLD, 168, "bamboo_jungle", JUNGLE_CAT, RAIN, 0.95f0, 0.200f0, 0.100f0, nothing)
 BAMBOO_JUNGLE_HILLS = Biome(v"1.14", OVERWORLD, 169, "bamboo_jungle_hills", JUNGLE_CAT, RAIN, 0.95f0, 0.300f0, 0.450f0, nothing)
 SOUL_SAND_VALLEY = Biome(v"1.16", NETHER, 170, "soul_sand_valley", NETHER_CAT, NONE_PRECIP, 2.0f0, 0f0, 0f0, nothing)

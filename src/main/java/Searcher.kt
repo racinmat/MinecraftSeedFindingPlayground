@@ -239,6 +239,7 @@ object Searcher {
                     }
             return@f biomesName to biomePos.distanceTo(origin, Main.DISTANCE)
         }.filterNotNull().toMap()
+        println(worldSeed)
         return SeedResult(worldSeed, structureDistances, biomeDistances)
     }
 
