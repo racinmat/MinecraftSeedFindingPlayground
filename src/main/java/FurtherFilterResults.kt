@@ -1,7 +1,9 @@
 import Main.BIOME_NAMES
 import Main.STRUCT_NAMES
+import Main.VERSION
 import com.google.common.collect.ImmutableList
 import kaptainwutax.biomeutils.Biome
+import kaptainwutax.featureutils.structure.Village
 import kaptainwutax.seedutils.mc.ChunkRand
 import kaptainwutax.seedutils.mc.Dimension
 import kaptainwutax.seedutils.mc.pos.BPos
@@ -34,6 +36,8 @@ object FurtherFilterResults {
 
     fun enrichSeed(result: SeedResult): SeedResult {
         val source = Searcher.getBiomeSource(Dimension.OVERWORLD, result.seed)
+        val origin = Vec3i(0, 0, 0)
+        val rand = ChunkRand()
         val savannasLayer = source.getLayer(26)
         val savannas = Main.ALL_OF_ANY_OF_BIOMES.first { it.name == "shattered_savannah" }
         val numSavannas = Searcher.cartesianProduct(
@@ -46,9 +50,25 @@ object FurtherFilterResults {
             val biomeId = savannasLayer.get(rpos26.x, 0, rpos26.z)
             biomeId == Biome.SHATTERED_SAVANNA.id || biomeId == Biome.SHATTERED_SAVANNA_PLATEAU.id
         }.size
+
+        val structure = Village(VERSION)
+        val structSearchRange = 2048
+        val lowerBound = structure.at(-structSearchRange shr 4, -structSearchRange shr 4)
+        val upperBound = structure.at(structSearchRange shr 4, structSearchRange shr 4)
+        val numVillages = Searcher.cartesianProduct(
+                lowerBound.regionX..upperBound.regionX,
+                lowerBound.regionZ..upperBound.regionZ).map f@{ (regionX, regionZ) ->
+            val structPos = structure.getInRegion(result.seed, regionX, regionZ, rand) ?: return@f null
+            if (structPos.distanceTo(origin, Main.DISTANCE) > (structSearchRange shr 4)) return@f null
+            if (!structure.canSpawn(structPos.x, structPos.z, source)) return@f null
+            structPos
+        }.filterNotNull().size
         val newMap = result.biomeDistances.toMutableMap()
+        val newMap2 = result.structureDistances.toMutableMap()
         newMap.put("numPointsSavannas", numSavannas.toDouble())
+        newMap2.put("numVillages", numVillages.toDouble())
         result.biomeDistances = newMap
+        result.structureDistances = newMap2
         return result
     }
 
@@ -66,7 +86,8 @@ object FurtherFilterResults {
 //        var results = fromCsv("good_seeds/distances_0_10.csv");
 //        val results = fromCsv("distances_0_70.csv")
 //        val results = fromCsv("distances_0_80000.csv")
-        val results = fromCsv("nurgle_good_seeds/distances_0_9600.csv")
+//        val results = fromCsv("nurgle_good_seeds/distances_0_9600.csv")
+        val results = fromCsv("kouzelnici_good_seeds/distances_0_9600.csv")
         //        var results = fromCsv("distances_4168_50.csv");
 //        var results = fromCsv("distances_8449_50.csv");
 //        var results = fromCsv("good_seeds/distances_4168_50_fixed.csv");
@@ -75,8 +96,10 @@ object FurtherFilterResults {
 //        }
         //
         BIOME_NAMES += listOf("numPointsSavannas")
+        STRUCT_NAMES += listOf("numVillages")
         Main.HEADERS = (listOf("seed") + STRUCT_NAMES + BIOME_NAMES).toTypedArray()
-        Main.toCsv(results.map { enrichSeed(it) }, "nurgle_distances_good.csv")
+//        Main.toCsv(results.map { enrichSeed(it) }, "nurgle_distances_good.csv")
+        Main.toCsv(results.map { enrichSeed(it) }, "kouzelnici_distances_good.csv")
 //        GlobalState.shutdown();
     }
 }

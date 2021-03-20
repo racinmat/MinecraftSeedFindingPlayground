@@ -23,7 +23,8 @@ fun Boolean.toInt() = if (this) 1 else 0
 
 object Main {
     @JvmField
-    val VERSION = MCVersion.v1_16_2
+//    val VERSION = MCVersion.v1_16_2
+    val VERSION = MCVersion.v1_12_2
 
     //        val NUM_CORES = Runtime.getRuntime().availableProcessors();  // get max. number of cores
 //    val NUM_CORES = Runtime.getRuntime().availableProcessors() - 1 // keep single thread free for output etc.
@@ -192,7 +193,7 @@ object Main {
         LogManager.getLogManager().readConfiguration(Main.javaClass.classLoader.getResourceAsStream("logging.properties"))
         LOGGER = Logger.getLogger(Main::class.java.name)
         LOGGING = false
-        GlobalState.RESULT_DIR = "nurgle_good_seeds"
+        GlobalState.RESULT_DIR = "kouzelnici_good_seeds"
         Stats.LOGGING = LOGGING
     }
 //todo: try dry run without outputting things, benchmark how many seeds per second
